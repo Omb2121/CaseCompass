@@ -70,9 +70,9 @@ export function renderLandingPage() {
         </div>
       </header>
 
-      <!-- 3. Hero Section with Courtroom Background Image (Matching Reference) -->
-      <div class="landing-hero-container">
-        <section class="landing-hero">
+      <!-- 3. Hero Section with Supreme Court Background -->
+      <section class="landing-hero-wrapper">
+        <div class="landing-hero">
           <div class="hero-left">
             <div class="hero-pill-badge">
               <span class="hero-pill-badge__dot"></span>
@@ -82,15 +82,15 @@ export function renderLandingPage() {
               From Court Orders<br>to <span class="highlight">Clarity.</span>
             </h1>
             <p class="hero-desc">
-              CaseCompass helps legal-aid volunteers, public defenders, and families organize court documents, follow case timelines with clarity, and understand important statutory deadlines.
+              CaseCompass helps legal-aid volunteers and families organize court documents, follow case timelines with clarity, and understand important statutory deadlines.
             </p>
             <div class="hero-cta-group">
               <button class="btn-hero-primary" id="btn-hero-explore">
-                <span class="material-symbols-outlined" style="font-size:18px;">balance</span>
                 <span>${isAuth ? 'Enter Workspace' : 'Get Started'}</span>
+                <span class="material-symbols-outlined" style="font-size:18px;">arrow_forward</span>
               </button>
               <button class="btn-hero-secondary" id="btn-hero-demo">
-                <span class="material-symbols-outlined" style="font-size:18px;">play_circle</span>
+                <span class="material-symbols-outlined" style="font-size:18px;color:#0F2A4A;">play_circle</span>
                 <span>Start Demo Walkthrough</span>
               </button>
             </div>
@@ -105,52 +105,8 @@ export function renderLandingPage() {
               </div>
             </div>
           </div>
-
-          <!-- Right: Reference-Style Search & Quick Action Cards (Replacing Old Mockup) -->
-          <div class="hero-right">
-            <div class="hero-cards-stack">
-              <!-- Card 1: Find a Case Docket -->
-              <div class="hero-action-card">
-                <h2 class="hero-card-title">Find a Case Docket</h2>
-                <p class="hero-card-subtitle">
-                  Find a verified court docket by CNR number, district court, or party name.
-                </p>
-                <div class="hero-toggle-pills">
-                  <button type="button" class="hero-toggle-pill active" id="pill-search-cnr">CNR Number ✓</button>
-                  <button type="button" class="hero-toggle-pill" id="pill-search-court">Court Name</button>
-                </div>
-                <div class="hero-search-box">
-                  <input
-                    type="text"
-                    id="hero-docket-input"
-                    class="hero-search-input"
-                    placeholder="Type CNR (e.g. MHPU01-004291-2024)"
-                    value="MHPU01-004291-2024"
-                  />
-                  <button type="button" id="btn-hero-search-docket" class="hero-search-btn" title="Search Docket">
-                    <span class="material-symbols-outlined" style="font-size:18px;">search</span>
-                  </button>
-                </div>
-                <div class="hero-card-helper">
-                  Search by 16-character CNR, FIR number, or district court
-                </div>
-              </div>
-
-              <!-- Card 2: Evidence & Timeline Audit -->
-              <div class="hero-action-card">
-                <h3 class="hero-card-title" style="font-size:1.375rem;">Evidence & Timeline Audit</h3>
-                <p class="hero-card-subtitle" style="margin-bottom:1.15rem;">
-                  Inspect verified court orders, bail conditions, and procedural hearing dates in the evidence lens.
-                </p>
-                <button type="button" class="btn-card-action auth-protected-link" data-target="#/timeline">
-                  <span>Explore Case Timeline</span>
-                  <span class="material-symbols-outlined" style="font-size:16px;">arrow_forward</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </section>
-      </div>
+        </div>
+      </section>
 
       <!-- 4. Feature Ribbon (4 Pillars) -->
       <section class="feature-ribbon">
@@ -942,46 +898,6 @@ export function initLandingPage() {
       openAuthModal('login');
     }
   });
-
-  // Hero docket search card pills & search action
-  const pillCnr = document.getElementById('pill-search-cnr');
-  const pillCourt = document.getElementById('pill-search-court');
-  const heroInput = document.getElementById('hero-docket-input');
-  const heroSearchBtn = document.getElementById('btn-hero-search-docket');
-
-  pillCnr?.addEventListener('click', () => {
-    pillCnr.classList.add('active');
-    pillCourt?.classList.remove('active');
-    if (heroInput) {
-      heroInput.placeholder = 'Type CNR (e.g. MHPU01-004291-2024)';
-      heroInput.value = 'MHPU01-004291-2024';
-    }
-  });
-
-  pillCourt?.addEventListener('click', () => {
-    pillCourt.classList.add('active');
-    pillCnr?.classList.remove('active');
-    if (heroInput) {
-      heroInput.placeholder = 'Enter Court Name (e.g. JMFC Pune)';
-      heroInput.value = 'JMFC Pune Court No. 3';
-    }
-  });
-
-  function executeHeroSearch() {
-    if (localStorage.getItem('casecompass_auth') === 'true') {
-      window.location.hash = '#/cases';
-    } else {
-      openAuthModal('login');
-    }
-  }
-
-  heroSearchBtn?.addEventListener('click', executeHeroSearch);
-  heroInput?.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-      executeHeroSearch();
-    }
-  });
-
 
   // Protected links check auth before navigating
   document.querySelectorAll('.auth-protected-link').forEach(link => {

@@ -21,14 +21,10 @@ export function renderLandingPage() {
 
       <!-- 2. Sticky Landing Header Navigation -->
       <header class="landing-nav" id="landing-navbar">
-        <a href="#/" class="landing-nav__brand">
-          <div class="landing-nav__logo">
-            <span class="material-symbols-outlined" style="font-size:22px;">balance</span>
-          </div>
-          <div>
-            <div class="landing-nav__title">CaseCompass</div>
-            <div class="landing-nav__tagline">From Court Orders to Clarity</div>
-          </div>
+        <a href="#/" class="landing-nav__brand" title="CaseCompass Home">
+          <img alt="CaseCompass — From Court Orders to Clarity" class="landing-nav__brand-img" src="/casecompass-logo.png"
+               style="height:3.5rem;max-height:58px;width:auto;display:block;"
+               onerror="this.src='https://lh3.googleusercontent.com/aida/AEtjO1X4tTK8AmPrtGz6XT97Gr0rvLmAmZcVP9ATuysXyJZSE1caTQvkFlDnHjiMb4Er0ZsQUbnUq3KBqj29MvmtmFzZ_Q_s52ZE7dEkHpicEfVFP9RhsRFXWs_1Yh6hs-G2wRWBQlE8-EYZiDfqXvVTLM4xAos2WIHMdoOjHsAzecDkMonwrXRq9k0W51Vweepc6_CHUM_S2qtCwGi_rgVJoUK_j7hdRJ3EQYoTDjjc55fGJ4qCcveYfrqnWA4'">
         </a>
 
         <nav class="landing-nav__links">

@@ -260,9 +260,16 @@ body {
 }
 
 .app-header__logo {
-  height: 2.35rem;
+  height: 3.5rem;
+  max-height: 58px;
   width: auto;
   object-fit: contain;
+  display: block;
+  transition: transform 0.2s ease;
+}
+
+.app-header__logo:hover {
+  transform: scale(1.02);
 }
 
 .app-header__title {

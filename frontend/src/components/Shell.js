@@ -16,13 +16,9 @@ export function renderShell(activeId) {
     <!-- Header -->
     <header class="app-header" id="app-header">
       <div class="app-header__inner">
-        <a href="#/cases" class="app-header__brand" style="text-decoration:none;cursor:pointer;" title="CaseCompass Workspace">
-          <img alt="CaseCompass Logo" class="app-header__logo" src="${LOGO_URL}"
-               onerror="this.style.display='none'">
-          <div>
-            <div class="app-header__title">CaseCompass</div>
-            <div class="app-header__tagline">From Court Orders to Clarity</div>
-          </div>
+        <a href="#/cases" class="app-header__brand" style="text-decoration:none;cursor:pointer;display:flex;align-items:center;" title="CaseCompass Workspace">
+          <img alt="CaseCompass — From Court Orders to Clarity" class="app-header__logo" src="/casecompass-logo.png"
+               onerror="this.src='${LOGO_URL}'">
         </a>
         <div class="app-header__actions">
           <div class="header-user-badge" style="display:flex;align-items:center;gap:8px;background:var(--surface-container-high);padding:5px 12px;border-radius:9999px;">
@@ -63,10 +59,8 @@ export function renderShell(activeId) {
     <div class="mobile-sidebar-overlay" id="mobile-overlay"></div>
     <div class="mobile-sidebar" id="mobile-sidebar">
       <div class="mobile-sidebar-header">
-        <div>
-          <div class="app-header__title">CaseCompass</div>
-          <div class="app-header__tagline">From Court Orders to Clarity</div>
-        </div>
+        <img alt="CaseCompass — From Court Orders to Clarity" class="app-header__logo" src="/casecompass-logo.png" style="height:2.75rem;width:auto;"
+             onerror="this.src='${LOGO_URL}'">
         <button id="mobile-close-btn" style="background:none;border:none;cursor:pointer;color:var(--on-surface-variant);padding:4px;" aria-label="Close menu">
           <span class="material-symbols-outlined">close</span>
         </button>

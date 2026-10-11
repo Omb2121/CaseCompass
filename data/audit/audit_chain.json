@@ -1,0 +1,189 @@
+[
+  {
+    "index": 1,
+    "timestamp": "2026-10-11T08:56:29.881006",
+    "action": "ORDER_VERIFICATION_COMPLETE",
+    "details": {
+      "order_id": "ORD_TEST_01",
+      "doc_id": "doc_01",
+      "stats": {
+        "total_claims": 4,
+        "verified_count": 3,
+        "dropped_count": 1,
+        "pass_rate": 0.75
+      }
+    },
+    "previous_hash": "GENESIS_HASH_CASECOMPASS",
+    "current_hash": "1c9ca1d3e4da7805576a9584767d37cbb4ba90986ebf320919a7dd8a5bca085f"
+  },
+  {
+    "index": 2,
+    "timestamp": "2026-10-11T08:56:29.945373",
+    "action": "ORDER_VERIFICATION_COMPLETE",
+    "details": {
+      "order_id": "ORD_ERR",
+      "doc_id": "doc_01",
+      "stats": {
+        "total_claims": 2,
+        "verified_count": 0,
+        "dropped_count": 2,
+        "pass_rate": 0.0
+      }
+    },
+    "previous_hash": "1c9ca1d3e4da7805576a9584767d37cbb4ba90986ebf320919a7dd8a5bca085f",
+    "current_hash": "7e02a46f38340de0dc4c4a4d0e00c6040183ffeb7e49635eed126408d79a8b1a"
+  },
+  {
+    "index": 3,
+    "timestamp": "2026-10-11T08:57:06.847906",
+    "action": "ORDER_VERIFICATION_COMPLETE",
+    "details": {
+      "order_id": "ORD_TEST_01",
+      "doc_id": "doc_01",
+      "stats": {
+        "total_claims": 4,
+        "verified_count": 3,
+        "dropped_count": 1,
+        "pass_rate": 0.75
+      }
+    },
+    "previous_hash": "7e02a46f38340de0dc4c4a4d0e00c6040183ffeb7e49635eed126408d79a8b1a",
+    "current_hash": "21fbb4e258d11c88ec1257ff0b2b24e53a4962655a7d9e2acd0b61a037d6d3b0"
+  },
+  {
+    "index": 4,
+    "timestamp": "2026-10-11T08:57:06.879392",
+    "action": "ORDER_VERIFICATION_COMPLETE",
+    "details": {
+      "order_id": "ORD_ERR",
+      "doc_id": "doc_01",
+      "stats": {
+        "total_claims": 2,
+        "verified_count": 0,
+        "dropped_count": 2,
+        "pass_rate": 0.0
+      }
+    },
+    "previous_hash": "21fbb4e258d11c88ec1257ff0b2b24e53a4962655a7d9e2acd0b61a037d6d3b0",
+    "current_hash": "0f8eb70318838a52fdff8361211a44ff189638a2651ea392d92c1f691c27cab9"
+  },
+  {
+    "index": 5,
+    "timestamp": "2026-10-11T08:57:47.513426",
+    "action": "ORDER_VERIFICATION_COMPLETE",
+    "details": {
+      "order_id": "order_01",
+      "doc_id": "order_01",
+      "stats": {
+        "total_claims": 8,
+        "verified_count": 8,
+        "dropped_count": 0,
+        "pass_rate": 1.0
+      }
+    },
+    "previous_hash": "0f8eb70318838a52fdff8361211a44ff189638a2651ea392d92c1f691c27cab9",
+    "current_hash": "92276da22200d0499dbeee5fd5b288070e1d4300c59debb26f7e05fc0840acd8"
+  },
+  {
+    "index": 6,
+    "timestamp": "2026-10-11T08:57:47.535691",
+    "action": "ORDER_VERIFICATION_COMPLETE",
+    "details": {
+      "order_id": "order_02",
+      "doc_id": "order_02",
+      "stats": {
+        "total_claims": 6,
+        "verified_count": 6,
+        "dropped_count": 0,
+        "pass_rate": 1.0
+      }
+    },
+    "previous_hash": "92276da22200d0499dbeee5fd5b288070e1d4300c59debb26f7e05fc0840acd8",
+    "current_hash": "84c718e50795704f8091002f265950fa9e899caddf41f69b7c77ed7fc94ae8f8"
+  },
+  {
+    "index": 7,
+    "timestamp": "2026-10-11T08:57:47.558675",
+    "action": "ORDER_VERIFICATION_COMPLETE",
+    "details": {
+      "order_id": "order_03",
+      "doc_id": "order_03",
+      "stats": {
+        "total_claims": 6,
+        "verified_count": 6,
+        "dropped_count": 0,
+        "pass_rate": 1.0
+      }
+    },
+    "previous_hash": "84c718e50795704f8091002f265950fa9e899caddf41f69b7c77ed7fc94ae8f8",
+    "current_hash": "1b4483efe2e6e9d4a8e802dae2f9ebc6cbd791d9ea38dae38297b0377dd1eb28"
+  },
+  {
+    "index": 8,
+    "timestamp": "2026-10-11T08:58:03.521842",
+    "action": "ORDER_VERIFICATION_COMPLETE",
+    "details": {
+      "order_id": "order_01",
+      "doc_id": "order_01",
+      "stats": {
+        "total_claims": 8,
+        "verified_count": 8,
+        "dropped_count": 0,
+        "pass_rate": 1.0
+      }
+    },
+    "previous_hash": "1b4483efe2e6e9d4a8e802dae2f9ebc6cbd791d9ea38dae38297b0377dd1eb28",
+    "current_hash": "a94083c16012e01785c92790c9eb45f244ad185000716b52fcacbd498c68b52f"
+  },
+  {
+    "index": 9,
+    "timestamp": "2026-10-11T08:58:03.538687",
+    "action": "ORDER_VERIFICATION_COMPLETE",
+    "details": {
+      "order_id": "order_02",
+      "doc_id": "order_02",
+      "stats": {
+        "total_claims": 6,
+        "verified_count": 6,
+        "dropped_count": 0,
+        "pass_rate": 1.0
+      }
+    },
+    "previous_hash": "a94083c16012e01785c92790c9eb45f244ad185000716b52fcacbd498c68b52f",
+    "current_hash": "3cdefe99a249880a18374ad6b17fb0189d06bba886a4eb794acb2b5d90deeb75"
+  },
+  {
+    "index": 10,
+    "timestamp": "2026-10-11T08:58:03.552826",
+    "action": "ORDER_VERIFICATION_COMPLETE",
+    "details": {
+      "order_id": "order_03",
+      "doc_id": "order_03",
+      "stats": {
+        "total_claims": 6,
+        "verified_count": 6,
+        "dropped_count": 0,
+        "pass_rate": 1.0
+      }
+    },
+    "previous_hash": "3cdefe99a249880a18374ad6b17fb0189d06bba886a4eb794acb2b5d90deeb75",
+    "current_hash": "259310b66ebc7a1b4f80ebdcba45f4d1e096140d52290a6237d6251f0ebdb44e"
+  },
+  {
+    "index": 11,
+    "timestamp": "2026-10-11T08:58:24.271938",
+    "action": "ORDER_VERIFICATION_COMPLETE",
+    "details": {
+      "order_id": "ORD_EVAL_01",
+      "doc_id": "doc_eval_01",
+      "stats": {
+        "total_claims": 6,
+        "verified_count": 6,
+        "dropped_count": 0,
+        "pass_rate": 1.0
+      }
+    },
+    "previous_hash": "259310b66ebc7a1b4f80ebdcba45f4d1e096140d52290a6237d6251f0ebdb44e",
+    "current_hash": "44ce5daa98f0c4c014763ec4f29d86fa82a151f6ea5406bae34a9be924fa2f93"
+  }
+]

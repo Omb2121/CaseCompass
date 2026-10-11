@@ -1,0 +1,423 @@
+{
+  "case_id": "demo_sunita_matter",
+  "seed": 42,
+  "orders": [
+    {
+      "order_id": "order_01",
+      "doc_id": "order_01",
+      "court_name": "IN THE COURT OF CHIEF JUDICIAL MAGISTRATE, PUNE",
+      "case_number": null,
+      "cnr": "MHPU01-004291-2024",
+      "parties": "State of Maharashtra v/s Ramesh S. Patil",
+      "order_date": "2024-01-15",
+      "order_type": null,
+      "statutory_sections": [
+        "under Section 420, 468 of IPC"
+      ],
+      "next_hearing_date": "2024-02-15",
+      "hearing_purpose": null,
+      "directions_and_conditions": [
+        "accused is released on bail",
+        "surety of like amount",
+        "shall attend police station every Monday"
+      ],
+      "verified_facts": [
+        {
+          "field_name": "court_name",
+          "value": "IN THE COURT OF CHIEF JUDICIAL MAGISTRATE, PUNE",
+          "is_verified": true,
+          "evidence": {
+            "page_number": 1,
+            "character_start": 0,
+            "character_end": 47,
+            "line_number": 1,
+            "matched_quote": "IN THE COURT OF CHIEF JUDICIAL MAGISTRATE, PUNE",
+            "match_type": "exact",
+            "confidence_score": 1.0,
+            "rationale": "Exact substring confirmed in raw document text."
+          }
+        },
+        {
+          "field_name": "cnr",
+          "value": "MHPU01-004291-2024",
+          "is_verified": true,
+          "evidence": {
+            "page_number": 1,
+            "character_start": 88,
+            "character_end": 106,
+            "line_number": 3,
+            "matched_quote": "MHPU01-004291-2024",
+            "match_type": "exact",
+            "confidence_score": 1.0,
+            "rationale": "Exact substring confirmed in raw document text."
+          }
+        },
+        {
+          "field_name": "parties",
+          "value": "State of Maharashtra v/s Ramesh S. Patil",
+          "is_verified": true,
+          "evidence": {
+            "page_number": 1,
+            "character_start": 107,
+            "character_end": 147,
+            "line_number": 4,
+            "matched_quote": "State of Maharashtra v/s Ramesh S. Patil",
+            "match_type": "exact",
+            "confidence_score": 1.0,
+            "rationale": "Exact substring confirmed in raw document text."
+          }
+        },
+        {
+          "field_name": "order_date",
+          "value": "2024-01-15",
+          "is_verified": true,
+          "evidence": {
+            "page_number": 1,
+            "character_start": 148,
+            "character_end": 171,
+            "line_number": 5,
+            "matched_quote": "ORDER DATED: 15/01/2024",
+            "match_type": "exact",
+            "confidence_score": 1.0,
+            "rationale": "Exact substring confirmed in raw document text."
+          }
+        },
+        {
+          "field_name": "next_hearing_date",
+          "value": "2024-02-15",
+          "is_verified": true,
+          "evidence": {
+            "page_number": 1,
+            "character_start": 386,
+            "character_end": 438,
+            "line_number": 9,
+            "matched_quote": "Matter stand over to 15/02/2024 for filing of reply.",
+            "match_type": "exact",
+            "confidence_score": 1.0,
+            "rationale": "Exact substring confirmed in raw document text."
+          }
+        },
+        {
+          "field_name": "directions_and_conditions",
+          "value": "accused is released on bail",
+          "is_verified": true,
+          "evidence": {
+            "page_number": 1,
+            "character_start": 232,
+            "character_end": 259,
+            "line_number": 7,
+            "matched_quote": "accused is released on bail",
+            "match_type": "exact",
+            "confidence_score": 1.0,
+            "rationale": "Exact substring confirmed in raw document text."
+          }
+        },
+        {
+          "field_name": "directions_and_conditions",
+          "value": "surety of like amount",
+          "is_verified": true,
+          "evidence": {
+            "page_number": 1,
+            "character_start": 232,
+            "character_end": 259,
+            "line_number": 7,
+            "matched_quote": "accused is released on bail",
+            "match_type": "exact",
+            "confidence_score": 1.0,
+            "rationale": "Exact substring confirmed in raw document text."
+          }
+        },
+        {
+          "field_name": "directions_and_conditions",
+          "value": "shall attend police station every Monday",
+          "is_verified": true,
+          "evidence": {
+            "page_number": 1,
+            "character_start": 232,
+            "character_end": 259,
+            "line_number": 7,
+            "matched_quote": "accused is released on bail",
+            "match_type": "exact",
+            "confidence_score": 1.0,
+            "rationale": "Exact substring confirmed in raw document text."
+          }
+        }
+      ],
+      "dropped_facts": [],
+      "verification_stats": {
+        "total_claims": 8,
+        "verified_count": 8,
+        "dropped_count": 0,
+        "pass_rate": 1.0
+      },
+      "plain_explanation_en": "The court passed an order on 2024-01-15. The next hearing is listed for 2024-02-15. Conditions imposed: accused is released on bail; surety of like amount; shall attend police station every Monday.",
+      "plain_explanation_hi": "\u0906\u0926\u0947\u0936 \u0926\u093f\u0928\u093e\u0902\u0915: 2024-01-15\u0964 \u0905\u0917\u0932\u0940 \u0938\u0941\u0928\u0935\u093e\u0908 \u0915\u0940 \u0924\u093e\u0930\u0940\u0916: 2024-02-15\u0964 \u0936\u0930\u094d\u0924\u0947\u0902: accused is released on bail, surety of like amount, shall attend police station every Monday\u0964",
+      "plain_explanation_mr": "\u0906\u0926\u0947\u0936 \u0926\u093f\u0928\u093e\u0902\u0915: 2024-01-15. \u092a\u0941\u0922\u0940\u0932 \u0938\u0941\u0928\u093e\u0935\u0923\u0940\u091a\u0940 \u0924\u093e\u0930\u0940\u0916: 2024-02-15. \u0905\u091f\u0940: accused is released on bail, surety of like amount, shall attend police station every Monday."
+    },
+    {
+      "order_id": "order_02",
+      "doc_id": "order_02",
+      "court_name": "IN THE COURT OF CHIEF JUDICIAL MAGISTRATE, PUNE",
+      "case_number": null,
+      "cnr": "MHPU01-004291-2024",
+      "parties": "State of Maharashtra v/s Ramesh S. Patil",
+      "order_date": "2024-02-28",
+      "order_type": "Adjournment",
+      "statutory_sections": [],
+      "next_hearing_date": "2024-03-20",
+      "hearing_purpose": null,
+      "directions_and_conditions": [],
+      "verified_facts": [
+        {
+          "field_name": "court_name",
+          "value": "IN THE COURT OF CHIEF JUDICIAL MAGISTRATE, PUNE",
+          "is_verified": true,
+          "evidence": {
+            "page_number": 1,
+            "character_start": 0,
+            "character_end": 47,
+            "line_number": 1,
+            "matched_quote": "IN THE COURT OF CHIEF JUDICIAL MAGISTRATE, PUNE",
+            "match_type": "exact",
+            "confidence_score": 1.0,
+            "rationale": "Exact substring confirmed in raw document text."
+          }
+        },
+        {
+          "field_name": "cnr",
+          "value": "MHPU01-004291-2024",
+          "is_verified": true,
+          "evidence": {
+            "page_number": 1,
+            "character_start": 88,
+            "character_end": 106,
+            "line_number": 3,
+            "matched_quote": "MHPU01-004291-2024",
+            "match_type": "exact",
+            "confidence_score": 1.0,
+            "rationale": "Exact substring confirmed in raw document text."
+          }
+        },
+        {
+          "field_name": "parties",
+          "value": "State of Maharashtra v/s Ramesh S. Patil",
+          "is_verified": true,
+          "evidence": {
+            "page_number": 1,
+            "character_start": 107,
+            "character_end": 147,
+            "line_number": 4,
+            "matched_quote": "State of Maharashtra v/s Ramesh S. Patil",
+            "match_type": "exact",
+            "confidence_score": 1.0,
+            "rationale": "Exact substring confirmed in raw document text."
+          }
+        },
+        {
+          "field_name": "order_date",
+          "value": "2024-02-28",
+          "is_verified": true,
+          "evidence": {
+            "page_number": 1,
+            "character_start": 148,
+            "character_end": 171,
+            "line_number": 5,
+            "matched_quote": "ORDER DATED: 28/02/2024",
+            "match_type": "exact",
+            "confidence_score": 1.0,
+            "rationale": "Exact substring confirmed in raw document text."
+          }
+        },
+        {
+          "field_name": "order_type",
+          "value": "Adjournment",
+          "is_verified": true,
+          "evidence": {
+            "page_number": 1,
+            "character_start": 172,
+            "character_end": 201,
+            "line_number": 6,
+            "matched_quote": "Prosecution seeks adjournment",
+            "match_type": "exact",
+            "confidence_score": 1.0,
+            "rationale": "Exact substring confirmed in raw document text."
+          }
+        },
+        {
+          "field_name": "next_hearing_date",
+          "value": "2024-03-20",
+          "is_verified": true,
+          "evidence": {
+            "page_number": 1,
+            "character_start": 203,
+            "character_end": 248,
+            "line_number": 7,
+            "matched_quote": "Next date fixed as 20/03/2024 for appearance.",
+            "match_type": "exact",
+            "confidence_score": 1.0,
+            "rationale": "Exact substring confirmed in raw document text."
+          }
+        }
+      ],
+      "dropped_facts": [],
+      "verification_stats": {
+        "total_claims": 6,
+        "verified_count": 6,
+        "dropped_count": 0,
+        "pass_rate": 1.0
+      },
+      "plain_explanation_en": "The court passed an order on 2024-02-28. Matter category: Adjournment. The next hearing is listed for 2024-03-20.",
+      "plain_explanation_hi": "\u0906\u0926\u0947\u0936 \u0926\u093f\u0928\u093e\u0902\u0915: 2024-02-28\u0964 \u0906\u0926\u0947\u0936 \u092a\u094d\u0930\u0915\u093e\u0930: Adjournment\u0964 \u0905\u0917\u0932\u0940 \u0938\u0941\u0928\u0935\u093e\u0908 \u0915\u0940 \u0924\u093e\u0930\u0940\u0916: 2024-03-20\u0964",
+      "plain_explanation_mr": "\u0906\u0926\u0947\u0936 \u0926\u093f\u0928\u093e\u0902\u0915: 2024-02-28. \u0906\u0926\u0947\u0936 \u092a\u094d\u0930\u0915\u093e\u0930: Adjournment. \u092a\u0941\u0922\u0940\u0932 \u0938\u0941\u0928\u093e\u0935\u0923\u0940\u091a\u0940 \u0924\u093e\u0930\u0940\u0916: 2024-03-20."
+    },
+    {
+      "order_id": "order_03",
+      "doc_id": "order_03",
+      "court_name": "IN THE COURT OF CHIEF JUDICIAL MAGISTRATE, PUNE",
+      "case_number": null,
+      "cnr": "MHPU01-004291-2024",
+      "parties": "State of Maharashtra v/s Ramesh S. Patil",
+      "order_date": "2024-03-20",
+      "order_type": "Chargesheet",
+      "statutory_sections": [
+        "IPC \u00a7420"
+      ],
+      "next_hearing_date": "2024-03-10",
+      "hearing_purpose": null,
+      "directions_and_conditions": [],
+      "verified_facts": [
+        {
+          "field_name": "court_name",
+          "value": "IN THE COURT OF CHIEF JUDICIAL MAGISTRATE, PUNE",
+          "is_verified": true,
+          "evidence": {
+            "page_number": 1,
+            "character_start": 0,
+            "character_end": 47,
+            "line_number": 1,
+            "matched_quote": "IN THE COURT OF CHIEF JUDICIAL MAGISTRATE, PUNE",
+            "match_type": "exact",
+            "confidence_score": 1.0,
+            "rationale": "Exact substring confirmed in raw document text."
+          }
+        },
+        {
+          "field_name": "cnr",
+          "value": "MHPU01-004291-2024",
+          "is_verified": true,
+          "evidence": {
+            "page_number": 1,
+            "character_start": 88,
+            "character_end": 106,
+            "line_number": 3,
+            "matched_quote": "MHPU01-004291-2024",
+            "match_type": "exact",
+            "confidence_score": 1.0,
+            "rationale": "Exact substring confirmed in raw document text."
+          }
+        },
+        {
+          "field_name": "parties",
+          "value": "State of Maharashtra v/s Ramesh S. Patil",
+          "is_verified": true,
+          "evidence": {
+            "page_number": 1,
+            "character_start": 107,
+            "character_end": 147,
+            "line_number": 4,
+            "matched_quote": "State of Maharashtra v/s Ramesh S. Patil",
+            "match_type": "exact",
+            "confidence_score": 1.0,
+            "rationale": "Exact substring confirmed in raw document text."
+          }
+        },
+        {
+          "field_name": "order_date",
+          "value": "2024-03-20",
+          "is_verified": true,
+          "evidence": {
+            "page_number": 1,
+            "character_start": 148,
+            "character_end": 171,
+            "line_number": 5,
+            "matched_quote": "ORDER DATED: 20/03/2024",
+            "match_type": "exact",
+            "confidence_score": 1.0,
+            "rationale": "Exact substring confirmed in raw document text."
+          }
+        },
+        {
+          "field_name": "order_type",
+          "value": "Chargesheet",
+          "is_verified": true,
+          "evidence": {
+            "page_number": 1,
+            "character_start": 172,
+            "character_end": 192,
+            "line_number": 6,
+            "matched_quote": "Chargesheet examined",
+            "match_type": "exact",
+            "confidence_score": 1.0,
+            "rationale": "Exact substring confirmed in raw document text."
+          }
+        },
+        {
+          "field_name": "next_hearing_date",
+          "value": "2024-03-10",
+          "is_verified": true,
+          "evidence": {
+            "page_number": 1,
+            "character_start": 225,
+            "character_end": 270,
+            "line_number": 7,
+            "matched_quote": "Matter stand over to 10/03/2024 for evidence.",
+            "match_type": "exact",
+            "confidence_score": 1.0,
+            "rationale": "Exact substring confirmed in raw document text."
+          }
+        }
+      ],
+      "dropped_facts": [],
+      "verification_stats": {
+        "total_claims": 6,
+        "verified_count": 6,
+        "dropped_count": 0,
+        "pass_rate": 1.0
+      },
+      "plain_explanation_en": "The court passed an order on 2024-03-20. Matter category: Chargesheet. The next hearing is listed for 2024-03-10.",
+      "plain_explanation_hi": "\u0906\u0926\u0947\u0936 \u0926\u093f\u0928\u093e\u0902\u0915: 2024-03-20\u0964 \u0906\u0926\u0947\u0936 \u092a\u094d\u0930\u0915\u093e\u0930: Chargesheet\u0964 \u0905\u0917\u0932\u0940 \u0938\u0941\u0928\u0935\u093e\u0908 \u0915\u0940 \u0924\u093e\u0930\u0940\u0916: 2024-03-10\u0964",
+      "plain_explanation_mr": "\u0906\u0926\u0947\u0936 \u0926\u093f\u0928\u093e\u0902\u0915: 2024-03-20. \u0906\u0926\u0947\u0936 \u092a\u094d\u0930\u0915\u093e\u0930: Chargesheet. \u092a\u0941\u0922\u0940\u0932 \u0938\u0941\u0928\u093e\u0935\u0923\u0940\u091a\u0940 \u0924\u093e\u0930\u0940\u0916: 2024-03-10."
+    }
+  ],
+  "flags": [
+    {
+      "rule_id": "R1",
+      "title": "Gap / Inconsistency in Hearing Chronology",
+      "description": "Order order_01 scheduled next hearing for 2024-02-15, but the subsequent record on file is dated 2024-02-28. A hearing or order may be unrecorded.",
+      "severity": "high",
+      "related_orders": [
+        "order_01",
+        "order_02"
+      ],
+      "citations": [
+        "Scheduled date: 2024-02-15",
+        "Next document date: 2024-02-28"
+      ],
+      "detected_at": "2026-10-11 08:58:03.554086"
+    },
+    {
+      "rule_id": "R5",
+      "title": "Internal Date Contradiction",
+      "description": "In order order_03, the listed next hearing date (2024-03-10) is earlier than the order issuance date (2024-03-20).",
+      "severity": "critical",
+      "related_orders": [
+        "order_03"
+      ],
+      "citations": [
+        "Order date: 2024-03-20",
+        "Next date: 2024-03-10"
+      ],
+      "detected_at": "2026-10-11 08:58:03.554086"
+    }
+  ]
+}

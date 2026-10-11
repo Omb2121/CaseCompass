@@ -6,8 +6,6 @@
 
 import { navItems } from '../data/demoData.js';
 
-// Logo URL from Stitch project
-const LOGO_URL = 'https://lh3.googleusercontent.com/aida/AEtjO1X4tTK8AmPrtGz6XT97Gr0rvLmAmZcVP9ATuysXyJZSE1caTQvkFlDnHjiMb4Er0ZsQUbnUq3KBqj29MvmtmFzZ_Q_s52ZE7dEkHpicEfVFP9RhsRFXWs_1Yh6hs-G2wRWBQlE8-EYZiDfqXvVTLM4xAos2WIHMdoOjHsAzecDkMonwrXRq9k0W51Vweepc6_CHUM_S2qtCwGi_rgVJoUK_j7hdRJ3EQYoTDjjc55fGJ4qCcveYfrqnWA4';
 
 export function renderShell(activeId) {
   const currentReviewer = localStorage.getItem('casecompass_user') || 'Admin User';
@@ -23,9 +21,13 @@ export function renderShell(activeId) {
     <!-- Header -->
     <header class="app-header" id="app-header">
       <div class="app-header__inner">
-        <a href="#/cases" class="app-header__brand" style="text-decoration:none;cursor:pointer;display:flex;align-items:center;" title="CaseCompass Workspace">
-          <img alt="CaseCompass — From Court Orders to Clarity" class="app-header__logo" src="/casecompass-logo.png"
-               onerror="this.src='${LOGO_URL}'">
+        <a href="#/cases" class="app-header__brand" style="text-decoration:none;cursor:pointer;display:flex;align-items:center;gap:10px;" title="CaseCompass Workspace">
+          <img alt="CaseCompass Logo" class="app-header__logo" src="/casecompass-logo.png"
+               style="height:2.625rem;max-height:44px;width:auto;display:block;object-fit:contain;">
+          <div style="display:flex;flex-direction:column;line-height:1.15;">
+            <span style="font-family:'Archivo Black', 'Source Serif 4', sans-serif;font-size:1.1875rem;font-weight:800;letter-spacing:-0.02em;color:#0F2A4A;">CaseCompass</span>
+            <span style="font-size:0.625rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:#64748b;">Docket Intelligence</span>
+          </div>
         </a>
         <div class="app-header__actions" style="display:flex;align-items:center;gap:10px;">
           <!-- Active Role Switcher / Indicator -->
@@ -77,9 +79,10 @@ export function renderShell(activeId) {
     <!-- Mobile Sidebar Overlay -->
     <div class="mobile-sidebar-overlay" id="mobile-overlay"></div>
     <div class="mobile-sidebar" id="mobile-sidebar">
-      <div class="mobile-sidebar-header">
-        <img alt="CaseCompass — From Court Orders to Clarity" class="app-header__logo" src="/casecompass-logo.png" style="height:2.75rem;width:auto;"
-             onerror="this.src='${LOGO_URL}'">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <img alt="CaseCompass Logo" class="app-header__logo" src="/casecompass-logo.png" style="height:2.5rem;width:auto;object-fit:contain;">
+          <span style="font-family:'Archivo Black', 'Source Serif 4', sans-serif;font-size:1.1875rem;font-weight:800;letter-spacing:-0.02em;color:#0F2A4A;">CaseCompass</span>
+        </div>
         <button id="mobile-close-btn" style="background:none;border:none;cursor:pointer;color:var(--on-surface-variant);padding:4px;" aria-label="Close menu">
           <span class="material-symbols-outlined">close</span>
         </button>

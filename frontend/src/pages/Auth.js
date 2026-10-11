@@ -17,8 +17,11 @@ export function renderAuthPage(initialMode = 'login', initialRole = 'user') {
       <!-- Top Navigation Bar -->
       <header style="padding: 1.125rem 2rem; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255, 255, 255, 0.08); background: rgba(7, 21, 39, 0.9); backdrop-filter: blur(12px);">
         <a href="#/" style="display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit;" title="Return to CaseCompass Home">
-          <img src="/casecompass-logo.png" alt="CaseCompass Logo" style="height: 42px; width: auto; object-fit: contain;"
-               onerror="this.src='/casecompass-icon.png'">
+          <img src="/casecompass-logo.png" alt="CaseCompass Logo" style="height: 42px; width: auto; object-fit: contain;">
+          <div style="display: flex; flex-direction: column; line-height: 1.15;">
+            <span style="font-family: 'Archivo Black', 'Source Serif 4', sans-serif; font-size: 1.25rem; font-weight: 800; letter-spacing: -0.02em; color: #ffffff;">CaseCompass</span>
+            <span style="font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: #94a3b8;">From Court Orders to Clarity</span>
+          </div>
         </a>
         <div style="display: flex; align-items: center; gap: 12px;">
           <a href="#/" class="btn btn--ghost btn--sm" style="color: #94a3b8; text-decoration: none; display: flex; align-items: center; gap: 6px; font-weight: 500;">

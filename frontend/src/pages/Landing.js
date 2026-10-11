@@ -12,10 +12,13 @@ export function renderLandingPage() {
     <div class="landing-wrapper">
       <!-- 1. Sticky Landing Header Navigation -->
       <header class="landing-nav" id="landing-navbar">
-        <a href="#/" class="landing-nav__brand" title="CaseCompass Home">
-          <img alt="CaseCompass — From Court Orders to Clarity" class="landing-nav__brand-img" src="/casecompass-logo.png"
-               style="height:3.5rem;max-height:58px;width:auto;display:block;"
-               onerror="this.src='https://lh3.googleusercontent.com/aida/AEtjO1X4tTK8AmPrtGz6XT97Gr0rvLmAmZcVP9ATuysXyJZSE1caTQvkFlDnHjiMb4Er0ZsQUbnUq3KBqj29MvmtmFzZ_Q_s52ZE7dEkHpicEfVFP9RhsRFXWs_1Yh6hs-G2wRWBQlE8-EYZiDfqXvVTLM4xAos2WIHMdoOjHsAzecDkMonwrXRq9k0W51Vweepc6_CHUM_S2qtCwGi_rgVJoUK_j7hdRJ3EQYoTDjjc55fGJ4qCcveYfrqnWA4'">
+        <a href="#/" class="landing-nav__brand" title="CaseCompass Home" style="display:flex;align-items:center;gap:12px;text-decoration:none;">
+          <img alt="CaseCompass Logo" class="landing-nav__brand-img" src="/casecompass-logo.png"
+               style="height:3.25rem;max-height:52px;width:auto;display:block;object-fit:contain;">
+          <div style="display:flex;flex-direction:column;line-height:1.15;">
+            <span style="font-family:'Archivo Black', 'Source Serif 4', sans-serif;font-size:1.375rem;font-weight:800;letter-spacing:-0.02em;color:#ffffff;">CaseCompass</span>
+            <span style="font-size:0.6875rem;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:#94a3b8;">From Court Orders to Clarity</span>
+          </div>
         </a>
 
         <nav class="landing-nav__links">
@@ -513,10 +516,8 @@ export function renderLandingPage() {
       <footer class="landing-footer">
         <div class="landing-footer__inner">
           <div class="footer-col">
-            <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
-              <div style="width:32px;height:32px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:#ffffff;border-radius:6px;display:flex;align-items:center;justify-content:center;">
-                <span class="material-symbols-outlined" style="font-size:18px;">balance</span>
-              </div>
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+              <img src="/casecompass-icon.png" style="height:36px;width:36px;object-fit:contain;" alt="CaseCompass Logo">
               <strong style="font-size:1.375rem;color:#ffffff;font-family:'Archivo Black', 'Abril Fatface', sans-serif;letter-spacing:-0.02em;">CaseCompass</strong>
             </div>
             <p style="font-size:0.8125rem;color:#94a3b8;line-height:1.5;max-width:320px;">

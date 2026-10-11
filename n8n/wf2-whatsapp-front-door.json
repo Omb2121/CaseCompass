@@ -1,0 +1,498 @@
+{
+  "name": "WF2 WhatsApp Front Door",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "whatsapp-front-door",
+        "options": {}
+      },
+      "id": "node-wa-webhook",
+      "name": "WhatsApp Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        200,
+        300
+      ],
+      "webhookId": "casecompass-whatsapp-front-door"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "ALLOWED_PHONE_NUMBER",
+              "value": "919876543210"
+            },
+            {
+              "name": "BACKEND_BASE_URL",
+              "value": "http://127.0.0.1:8000"
+            },
+            {
+              "name": "DEFAULT_CASE_ID",
+              "value": "case-sunita-001"
+            },
+            {
+              "name": "DEFAULT_LANGUAGE",
+              "value": "en"
+            },
+            {
+              "name": "WHATSAPP_PHONE_NUMBER_ID",
+              "value": "YOUR_PHONE_NUMBER_ID"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "node-config",
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [
+        420,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "const body = $('WhatsApp Trigger').item.json.body || $('WhatsApp Trigger').item.json;\n\n// Handle Meta Webhook verification handshake (hub.challenge)\nconst query = $('WhatsApp Trigger').item.json.query || {};\nif (query['hub.mode'] === 'subscribe' && query['hub.challenge']) {\n  return [{\n    json: {\n      is_handshake: true,\n      challenge: query['hub.challenge']\n    }\n  }];\n}\n\n// Normalize incoming WhatsApp Cloud API / Twilio payload\nlet sender = '';\nlet msgType = 'unsupported';\nlet textContent = '';\nlet mediaId = '';\nlet mediaUrl = '';\nlet mimeType = '';\nlet filename = 'document.pdf';\n\n// Case A: Meta / WhatsApp Cloud API webhook payload\nif (body.entry && Array.isArray(body.entry) && body.entry[0]?.changes?.[0]?.value?.messages?.[0]) {\n  const message = body.entry[0].changes[0].value.messages[0];\n  sender = String(message.from || '').replace(/\\D/g, '');\n  \n  if (message.type === 'text') {\n    msgType = 'text';\n    textContent = (message.text?.body || '').trim();\n  } else if (message.type === 'image') {\n    msgType = 'photo';\n    mediaId = message.image?.id || '';\n    mimeType = message.image?.mime_type || 'image/jpeg';\n    filename = `photo_${mediaId.substring(0, 8)}.jpg`;\n  } else if (message.type === 'document') {\n    msgType = 'document';\n    mediaId = message.document?.id || '';\n    mimeType = message.document?.mime_type || 'application/pdf';\n    filename = message.document?.filename || `doc_${mediaId.substring(0, 8)}.pdf`;\n  }\n}\n// Case B: Twilio for WhatsApp payload\nelse if (body.From || body.Body) {\n  sender = String(body.From || '').replace('whatsapp:', '').replace(/\\D/g, '');\n  const numMedia = parseInt(body.NumMedia || '0', 10);\n  if (numMedia > 0) {\n    mediaUrl = body.MediaUrl0 || '';\n    mimeType = body.MediaContentType0 || '';\n    if (mimeType.includes('image')) {\n      msgType = 'photo';\n      filename = 'photo.jpg';\n    } else {\n      msgType = 'document';\n      filename = 'document.pdf';\n    }\n  } else if (body.Body && body.Body.trim()) {\n    msgType = 'text';\n    textContent = body.Body.trim();\n  }\n}\n\nreturn [{\n  json: {\n    is_handshake: false,\n    sender_phone: sender,\n    message_type: msgType,\n    text_content: textContent,\n    media_id: mediaId,\n    media_url: mediaUrl,\n    mime_type: mimeType,\n    filename: filename\n  }\n}];"
+      },
+      "id": "node-parse-wa",
+      "name": "Parse WhatsApp Payload",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        640,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.sender_phone }}",
+              "operation": "equals",
+              "value2": "={{ String($('Config').item.json.ALLOWED_PHONE_NUMBER).replace(/\\D/g, '') }}"
+            }
+          ]
+        }
+      },
+      "id": "node-allowed-sender",
+      "name": "Allowed sender?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        860,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{ $json.message_type }}",
+        "rules": {
+          "rules": [
+            {
+              "value": "photo",
+              "output": 0
+            },
+            {
+              "value": "document",
+              "output": 1
+            },
+            {
+              "value": "text",
+              "output": 2
+            }
+          ]
+        },
+        "fallbackOutput": 3
+      },
+      "id": "node-switch-msg-type",
+      "name": "Switch Message Type",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [
+        1080,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $json.media_url ? $json.media_url : 'https://graph.facebook.com/v21.0/' + $json.media_id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "node-fetch-media-url",
+      "name": "Fetch Media URL",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1300,
+        180
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "whatsapp-bearer-creds",
+          "name": "WhatsApp Cloud API Token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $json.url || $('Parse WhatsApp Payload').item.json.media_url }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "node-download-media",
+      "name": "Download Media",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1520,
+        180
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "whatsapp-bearer-creds",
+          "name": "WhatsApp Cloud API Token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Config').item.json.BACKEND_BASE_URL }}/api/cases/{{ $('Config').item.json.DEFAULT_CASE_ID }}/documents",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBinaryData": true,
+        "binaryPropertyName": "data",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "node-http-upload",
+      "name": "Upload",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1740,
+        180
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "casecompass-api-key-creds",
+          "name": "CaseCompass Backend API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Config').item.json.BACKEND_BASE_URL }}/api/cases/{{ $('Config').item.json.DEFAULT_CASE_ID }}/process",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "mode",
+              "value": "A"
+            },
+            {
+              "name": "doc_id",
+              "value": "={{ $json.doc_id || $json.id }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "node-http-process",
+      "name": "Process",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1960,
+        180
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "casecompass-api-key-creds",
+          "name": "CaseCompass Backend API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v21.0/{{ $('Config').item.json.WHATSAPP_PHONE_NUMBER_ID }}/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"messaging_product\": \"whatsapp\",\n  \"recipient_type\": \"individual\",\n  \"to\": \"{{ $('Parse WhatsApp Payload').item.json.sender_phone }}\",\n  \"type\": \"text\",\n  \"text\": {\n    \"preview_url\": false,\n    \"body\": {{ JSON.stringify($json.reply_text || 'Document received and registered in docket.') }}\n  }\n}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "node-wa-reply-doc",
+      "name": "WhatsApp Reply for document responses",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        2180,
+        180
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "whatsapp-bearer-creds",
+          "name": "WhatsApp Cloud API Token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Config').item.json.BACKEND_BASE_URL }}/api/cases/{{ $('Config').item.json.DEFAULT_CASE_ID }}/ask",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "question",
+              "value": "={{ $('Parse WhatsApp Payload').item.json.text_content }}"
+            },
+            {
+              "name": "language",
+              "value": "={{ $('Config').item.json.DEFAULT_LANGUAGE }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "node-http-ask",
+      "name": "Ask",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1300,
+        420
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "casecompass-api-key-creds",
+          "name": "CaseCompass Backend API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v21.0/{{ $('Config').item.json.WHATSAPP_PHONE_NUMBER_ID }}/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"messaging_product\": \"whatsapp\",\n  \"recipient_type\": \"individual\",\n  \"to\": \"{{ $('Parse WhatsApp Payload').item.json.sender_phone }}\",\n  \"type\": \"text\",\n  \"text\": {\n    \"preview_url\": false,\n    \"body\": {{ JSON.stringify($json.reply_text || $json.answer || 'Unable to process the request right now. Please try again later.') }}\n  }\n}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "node-wa-reply-ask",
+      "name": "WhatsApp Reply for question responses",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1560,
+        420
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "whatsapp-bearer-creds",
+          "name": "WhatsApp Cloud API Token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v21.0/{{ $('Config').item.json.WHATSAPP_PHONE_NUMBER_ID }}/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"messaging_product\": \"whatsapp\",\n  \"recipient_type\": \"individual\",\n  \"to\": \"{{ $('Parse WhatsApp Payload').item.json.sender_phone }}\",\n  \"type\": \"text\",\n  \"text\": {\n    \"preview_url\": false,\n    \"body\": \"This message type is not supported. Please send a photograph of a document, a supported document file (PDF, PNG, JPG), or ask a question in text.\"\n  }\n}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "node-wa-reply-unsupported",
+      "name": "WhatsApp Reply for unsupported message",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1300,
+        600
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "whatsapp-bearer-creds",
+          "name": "WhatsApp Cloud API Token"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "WhatsApp Trigger": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Parse WhatsApp Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse WhatsApp Payload": {
+      "main": [
+        [
+          {
+            "node": "Allowed sender?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Allowed sender?": {
+      "main": [
+        [
+          {
+            "node": "Switch Message Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch Message Type": {
+      "main": [
+        [
+          {
+            "node": "Fetch Media URL",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fetch Media URL",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Ask",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "WhatsApp Reply for unsupported message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Media URL": {
+      "main": [
+        [
+          {
+            "node": "Download Media",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Media": {
+      "main": [
+        [
+          {
+            "node": "Upload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload": {
+      "main": [
+        [
+          {
+            "node": "Process",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process": {
+      "main": [
+        [
+          {
+            "node": "WhatsApp Reply for document responses",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ask": {
+      "main": [
+        [
+          {
+            "node": "WhatsApp Reply for question responses",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

@@ -160,6 +160,7 @@ class AskResponse(BaseSchema):
     intent: Literal["record_lookup", "glossary_lookup", "prediction_or_advice", "out_of_scope"]
     is_refusal: bool
     answer: str
+    reply_text: Optional[str] = None
     citations: List[str] = Field(default_factory=list)
     language: Literal["en", "hi", "mr"]
 
@@ -198,8 +199,12 @@ class AuditVerificationResult(BaseSchema):
 
 # Operational / Request schemas
 class AskRequest(BaseSchema):
-    query: str
+    query: Optional[str] = None
+    question: Optional[str] = None
     language: Literal["en", "hi", "mr"] = "en"
+
+    def get_query(self) -> str:
+        return self.query or self.question or ""
 
 
 class FlagDismissRequest(BaseSchema):

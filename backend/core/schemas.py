@@ -77,6 +77,7 @@ class VerifiedOrder(BaseModel):
     plain_explanation_en: Optional[str] = None
     plain_explanation_hi: Optional[str] = None
     plain_explanation_mr: Optional[str] = None
+    reply_text: Optional[str] = None
 
 
 class DiscrepancyFlag(BaseModel):

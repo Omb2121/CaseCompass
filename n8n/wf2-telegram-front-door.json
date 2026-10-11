@@ -1,0 +1,444 @@
+{
+  "name": "WF2 Telegram Front Door",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "id": "node-tg-trigger",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        200,
+        300
+      ],
+      "webhookId": "casecompass-telegram-front-door",
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-bot-creds",
+          "name": "CaseCompass Telegram Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "ALLOWED_CHAT_ID",
+              "value": "123456789"
+            },
+            {
+              "name": "BACKEND_BASE_URL",
+              "value": "http://127.0.0.1:8000"
+            },
+            {
+              "name": "DEFAULT_CASE_ID",
+              "value": "case-sunita-001"
+            },
+            {
+              "name": "DEFAULT_LANGUAGE",
+              "value": "en"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "node-config",
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [
+        420,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ String($('Telegram Trigger').item.json.message?.chat?.id || '') }}",
+              "operation": "equals",
+              "value2": "={{ String($('Config').item.json.ALLOWED_CHAT_ID) }}"
+            }
+          ]
+        }
+      },
+      "id": "node-allowed-chat",
+      "name": "Allowed chat?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        640,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{ $('Telegram Trigger').item.json.message?.photo ? 'photo' : ($('Telegram Trigger').item.json.message?.document ? 'document' : (($('Telegram Trigger').item.json.message?.text && $('Telegram Trigger').item.json.message.text.trim().length > 0) ? 'text' : 'unsupported')) }}",
+        "rules": {
+          "rules": [
+            {
+              "value": "photo",
+              "output": 0
+            },
+            {
+              "value": "document",
+              "output": 1
+            },
+            {
+              "value": "text",
+              "output": 2
+            }
+          ]
+        },
+        "fallbackOutput": 3
+      },
+      "id": "node-switch-msg-type",
+      "name": "Switch Message Type",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [
+        880,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "const message = $('Telegram Trigger').item.json.message;\nlet fileId = null;\nlet filename = 'document.pdf';\n\nif (message.photo && Array.isArray(message.photo) && message.photo.length > 0) {\n  // Largest photo size is always the last element in Telegram's photo array\n  const largest = message.photo[message.photo.length - 1];\n  fileId = largest.file_id;\n  filename = `photo_${fileId.substring(0, 8)}.jpg`;\n} else if (message.document) {\n  fileId = message.document.file_id;\n  filename = message.document.file_name || `doc_${fileId.substring(0, 8)}.pdf`;\n}\n\nif (!fileId) {\n  throw new Error('No valid file ID found in message payload.');\n}\n\nreturn [{\n  json: {\n    file_id: fileId,\n    file_name: filename,\n    chat_id: message.chat.id,\n    message_id: message.message_id\n  }\n}];"
+      },
+      "id": "node-extract-file-id",
+      "name": "Extract File ID",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        180
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "operation": "get",
+        "fileId": "={{ $json.file_id }}"
+      },
+      "id": "node-tg-get-file",
+      "name": "Telegram Get File",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.1,
+      "position": [
+        1340,
+        180
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-bot-creds",
+          "name": "CaseCompass Telegram Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Config').item.json.BACKEND_BASE_URL }}/api/cases/{{ $('Config').item.json.DEFAULT_CASE_ID }}/documents",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBinaryData": true,
+        "binaryPropertyName": "data",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "node-http-upload",
+      "name": "Upload",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1560,
+        180
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "casecompass-api-key-creds",
+          "name": "CaseCompass Backend API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Config').item.json.BACKEND_BASE_URL }}/api/cases/{{ $('Config').item.json.DEFAULT_CASE_ID }}/process",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "mode",
+              "value": "A"
+            },
+            {
+              "name": "doc_id",
+              "value": "={{ $json.doc_id || $json.id }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "node-http-process",
+      "name": "Process",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1780,
+        180
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "casecompass-api-key-creds",
+          "name": "CaseCompass Backend API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.reply_text || 'Document received and registered in docket.' }}",
+        "additionalFields": {
+          "reply_to_message_id": "={{ $('Telegram Trigger').item.json.message.message_id }}"
+        }
+      },
+      "id": "node-tg-reply-doc",
+      "name": "Telegram Reply for document responses",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.1,
+      "position": [
+        2000,
+        180
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-bot-creds",
+          "name": "CaseCompass Telegram Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Config').item.json.BACKEND_BASE_URL }}/api/cases/{{ $('Config').item.json.DEFAULT_CASE_ID }}/ask",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "question",
+              "value": "={{ $('Telegram Trigger').item.json.message.text }}"
+            },
+            {
+              "name": "language",
+              "value": "={{ $('Config').item.json.DEFAULT_LANGUAGE }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "node-http-ask",
+      "name": "Ask",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1340,
+        420
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "casecompass-api-key-creds",
+          "name": "CaseCompass Backend API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.reply_text || $json.answer || 'Unable to process the request right now. Please try again later.' }}",
+        "additionalFields": {
+          "reply_to_message_id": "={{ $('Telegram Trigger').item.json.message.message_id }}"
+        }
+      },
+      "id": "node-tg-reply-ask",
+      "name": "Telegram Reply for question responses",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.1,
+      "position": [
+        1600,
+        420
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-bot-creds",
+          "name": "CaseCompass Telegram Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "This message type is not supported. Please send a photograph, a document (PDF, PNG, JPG), or ask a question in text.",
+        "additionalFields": {
+          "reply_to_message_id": "={{ $('Telegram Trigger').item.json.message.message_id }}"
+        }
+      },
+      "id": "node-tg-reply-unsupported",
+      "name": "Telegram Reply for unsupported message",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.1,
+      "position": [
+        1340,
+        600
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-bot-creds",
+          "name": "CaseCompass Telegram Bot"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Allowed chat?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Allowed chat?": {
+      "main": [
+        [
+          {
+            "node": "Switch Message Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch Message Type": {
+      "main": [
+        [
+          {
+            "node": "Extract File ID",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Extract File ID",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Ask",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram Reply for unsupported message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract File ID": {
+      "main": [
+        [
+          {
+            "node": "Telegram Get File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Get File": {
+      "main": [
+        [
+          {
+            "node": "Upload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload": {
+      "main": [
+        [
+          {
+            "node": "Process",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process": {
+      "main": [
+        [
+          {
+            "node": "Telegram Reply for document responses",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ask": {
+      "main": [
+        [
+          {
+            "node": "Telegram Reply for question responses",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

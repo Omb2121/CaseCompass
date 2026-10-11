@@ -21,6 +21,9 @@ class Settings(BaseSettings):
     VERIFICATION_FUZZY_THRESHOLD: float = 0.95
     MAX_OCR_PAGES: int = 50
 
+    # Security & API Auth
+    CASECOMPASS_API_KEY: str = ""
+
     # Project directories
     DATA_DIR: str = "data"
     AUDIT_LOG_FILE: str = "data/audit/audit_chain.json"

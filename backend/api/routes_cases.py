@@ -2,20 +2,21 @@
 Case management endpoints.
 """
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from typing import List
 from backend.core.models import Case, CaseCreateRequest
+from .deps import verify_api_key
 from .fixtures_loader import load_fixture
 
 router = APIRouter(prefix="/api/cases", tags=["cases"])
 
 @router.get("", response_model=List[Case])
-def list_cases():
+def list_cases(_: str = Depends(verify_api_key)):
     data = load_fixture("cases.json")
     return [Case.model_validate(c) for c in data]
 
 @router.get("/{case_id}", response_model=Case)
-def get_case(case_id: str):
+def get_case(case_id: str, _: str = Depends(verify_api_key)):
     data = load_fixture("case_detail.json")
     if data["id"] != case_id:
         # Default fallback for demo fixture

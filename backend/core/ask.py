@@ -166,13 +166,15 @@ def answer_case_query(
     """Answers a case query by analyzing facts against timeline, documents, and charges."""
     lowered = query.lower()
 
-    if detect_injection_attempt(query):
+    if detect_injection_attempt(query) or classify_question_intent(query) == "refusal_legal_advice" or any(w in lowered for w in PREDICTION_WORDS):
+        refusal_txt = REFUSAL_MESSAGES.get(language, REFUSAL_MESSAGES["en"])
         return LegacyAskResponse(
             case_id=case_id,
             query=query,
             intent="prediction_or_advice",
             is_refusal=True,
-            answer=REFUSAL_MESSAGES.get(language, REFUSAL_MESSAGES["en"]),
+            answer=refusal_txt,
+            reply_text=refusal_txt,
             citations=[],
             language=language
         )
@@ -247,6 +249,7 @@ def answer_case_query(
         intent="record_lookup",
         is_refusal=False,
         answer=ans,
+        reply_text=ans,
         citations=cites,
         language=lang
     )

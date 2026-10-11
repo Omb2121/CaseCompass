@@ -108,6 +108,10 @@ def verify_and_construct_order(
     summary_hi = generate_plain_language_summary(order_type, order_date, next_date, verified_directions, "hi")
     summary_mr = generate_plain_language_summary(order_type, order_date, next_date, verified_directions, "mr")
 
+    reply_text = summary_en
+    if not reply_text:
+        reply_text = f"Document processed. Order ID: {order_id}. Verified {verification_stats.get('verified_count', 0)} facts."
+
     order = VerifiedOrder(
         order_id=order_id,
         doc_id=doc.doc_id,
@@ -126,7 +130,8 @@ def verify_and_construct_order(
         verification_stats=verification_stats,
         plain_explanation_en=summary_en,
         plain_explanation_hi=summary_hi,
-        plain_explanation_mr=summary_mr
+        plain_explanation_mr=summary_mr,
+        reply_text=reply_text
     )
 
     # Log to cryptographic audit chain

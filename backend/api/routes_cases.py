@@ -33,3 +33,12 @@ def create_case(req: CaseCreateRequest):
         documents_count=0,
         flags_count=0
     )
+
+@router.delete("/{case_id}")
+def delete_case(case_id: str):
+    return {
+        "status": "success",
+        "message": f"Case record {case_id} deleted successfully",
+        "case_id": case_id
+    }
+

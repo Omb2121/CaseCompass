@@ -169,6 +169,42 @@ export const api = {
   },
 
   /**
+   * Delete a case record, purge its timelines and documents, and re-point active case
+   */
+  async deleteCase(caseId) {
+    const cases = JSON.parse(localStorage.getItem(CASES_STORAGE_KEY) || JSON.stringify(defaultCases));
+    const targetIndex = cases.findIndex(c => String(c.id) === String(caseId));
+    let deleted = null;
+    if (targetIndex !== -1) {
+      deleted = cases.splice(targetIndex, 1)[0];
+      localStorage.setItem(CASES_STORAGE_KEY, JSON.stringify(cases));
+    }
+
+    // Clean up per-case data stores
+    localStorage.removeItem(`casecompass_timeline_${caseId}`);
+    localStorage.removeItem(`casecompass_docs_${caseId}`);
+
+    // If the active case was deleted, switch to the first available case
+    const currentActiveId = localStorage.getItem(ACTIVE_CASE_KEY);
+    if (String(currentActiveId) === String(caseId)) {
+      if (cases.length > 0) {
+        localStorage.setItem(ACTIVE_CASE_KEY, String(cases[0].id));
+      } else {
+        localStorage.removeItem(ACTIVE_CASE_KEY);
+      }
+    }
+
+    // Call backend delete route
+    try {
+      await fetch(`/api/cases/${caseId}`, { method: 'DELETE' });
+    } catch {
+      // offline / local fallback
+    }
+
+    return deleted || { id: caseId };
+  },
+
+  /**
    * Get LIVE timeline events specifically for this case
    */
   getCaseTimeline(caseId) {

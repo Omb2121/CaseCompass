@@ -185,5 +185,90 @@
     },
     "previous_hash": "259310b66ebc7a1b4f80ebdcba45f4d1e096140d52290a6237d6251f0ebdb44e",
     "current_hash": "44ce5daa98f0c4c014763ec4f29d86fa82a151f6ea5406bae34a9be924fa2f93"
+  },
+  {
+    "index": 12,
+    "timestamp": "2026-10-11T09:02:05.434552",
+    "action": "ORDER_VERIFICATION_COMPLETE",
+    "details": {
+      "order_id": "ORD_TEST_01",
+      "doc_id": "doc_01",
+      "stats": {
+        "total_claims": 4,
+        "verified_count": 3,
+        "dropped_count": 1,
+        "pass_rate": 0.75
+      }
+    },
+    "previous_hash": "44ce5daa98f0c4c014763ec4f29d86fa82a151f6ea5406bae34a9be924fa2f93",
+    "current_hash": "2157a5f8a533e819ccc7b078353ed0422a330a6358301802d4f13956b4b82b32"
+  },
+  {
+    "index": 13,
+    "timestamp": "2026-10-11T09:02:05.474853",
+    "action": "ORDER_VERIFICATION_COMPLETE",
+    "details": {
+      "order_id": "ORD_ERR",
+      "doc_id": "doc_01",
+      "stats": {
+        "total_claims": 2,
+        "verified_count": 0,
+        "dropped_count": 2,
+        "pass_rate": 0.0
+      }
+    },
+    "previous_hash": "2157a5f8a533e819ccc7b078353ed0422a330a6358301802d4f13956b4b82b32",
+    "current_hash": "7352f26aaff60f461a1f68ab237dadb267bcff8c0b959c5e30e254701744ffe7"
+  },
+  {
+    "index": 14,
+    "timestamp": "2026-10-11T09:02:13.223719",
+    "action": "ORDER_VERIFICATION_COMPLETE",
+    "details": {
+      "order_id": "ORD_EVAL_01",
+      "doc_id": "doc_eval_01",
+      "stats": {
+        "total_claims": 6,
+        "verified_count": 6,
+        "dropped_count": 0,
+        "pass_rate": 1.0
+      }
+    },
+    "previous_hash": "7352f26aaff60f461a1f68ab237dadb267bcff8c0b959c5e30e254701744ffe7",
+    "current_hash": "2b44a2bd3ee88e78ccc2a12b89f6798ebfbcbe03342eb1b3e2920062ee267bcf"
+  },
+  {
+    "index": 15,
+    "timestamp": "2026-10-11T09:20:17.654541",
+    "action": "ORDER_VERIFICATION_COMPLETE",
+    "details": {
+      "order_id": "ORD_TEST_01",
+      "doc_id": "doc_01",
+      "stats": {
+        "total_claims": 4,
+        "verified_count": 3,
+        "dropped_count": 1,
+        "pass_rate": 0.75
+      }
+    },
+    "previous_hash": "2b44a2bd3ee88e78ccc2a12b89f6798ebfbcbe03342eb1b3e2920062ee267bcf",
+    "current_hash": "73b3209c2c84bbf7cd6c47adde0f15cdc59838145cfd7f27c94acd66c604077b"
+  },
+  {
+    "index": 16,
+    "timestamp": "2026-10-11T09:20:17.685475",
+    "action": "ORDER_VERIFICATION_COMPLETE",
+    "details": {
+      "order_id": "ORD_ERR",
+      "doc_id": "doc_01",
+      "stats": {
+        "total_claims": 2,
+        "verified_count": 0,
+        "dropped_count": 2,
+        "pass_rate": 0.0
+      }
+    },
+    "previous_hash": "73b3209c2c84bbf7cd6c47adde0f15cdc59838145cfd7f27c94acd66c604077b",
+    "current_hash": "6026a22c3de6dcc2ba45e8c50ab1f3fa6d7e1d690fcd8ddc08208d3f7798558a"
   }
 ]

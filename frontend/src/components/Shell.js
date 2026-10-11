@@ -1,6 +1,7 @@
 /**
  * CaseCompass — Application Shell
- * Header, Sidebar, Footer — matching Stitch design exactly
+ * Header, Sidebar, Main Area
+ * Clean full-screen dashboard without distraction badges or bottom disclaimers.
  */
 
 import { navItems } from '../data/demoData.js';
@@ -15,7 +16,7 @@ export function renderShell(activeId) {
     <!-- Header -->
     <header class="app-header" id="app-header">
       <div class="app-header__inner">
-        <a href="#/" class="app-header__brand" style="text-decoration:none;cursor:pointer;" title="Return to Landing Page">
+        <a href="#/cases" class="app-header__brand" style="text-decoration:none;cursor:pointer;" title="CaseCompass Workspace">
           <img alt="CaseCompass Logo" class="app-header__logo" src="${LOGO_URL}"
                onerror="this.style.display='none'">
           <div>
@@ -24,20 +25,15 @@ export function renderShell(activeId) {
           </div>
         </a>
         <div class="app-header__actions">
-          <a href="#/" class="btn btn--secondary btn--sm hide-mobile" style="text-decoration:none;gap:4px;">
-            <span class="material-symbols-outlined" style="font-size:16px;">arrow_back</span>
-            <span>Landing Page</span>
-          </a>
-          <div class="header-reviewer">
-            <label for="reviewer-name">Reviewer:</label>
-            <input type="text" id="reviewer-name" placeholder="Your name" value="${currentReviewer}">
+          <div class="header-user-badge" style="display:flex;align-items:center;gap:8px;background:var(--surface-container-high);padding:5px 12px;border-radius:9999px;">
+            <div style="width:22px;height:22px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;">
+              ${currentReviewer.charAt(0)}
+            </div>
+            <span style="font-size:0.8125rem;font-weight:600;color:var(--primary);">${currentReviewer}</span>
           </div>
-          <div class="header-status-badge">
-            <span class="material-symbols-outlined" style="font-size:16px;color:var(--secondary)">power_off</span>
-            <span>Running without AI</span>
-          </div>
-          <button class="btn btn--ghost btn--sm" id="btn-shell-logout" title="Sign out to landing page" style="padding:4px 8px;cursor:pointer;background:none;border:none;">
+          <button class="btn btn--ghost btn--sm" id="btn-shell-logout" title="Sign out" style="display:flex;align-items:center;gap:4px;padding:6px 10px;cursor:pointer;border-radius:var(--radius-md);">
             <span class="material-symbols-outlined" style="font-size:18px;color:var(--outline);">logout</span>
+            <span class="hide-mobile" style="font-size:0.8125rem;font-weight:600;color:var(--outline);">Sign out</span>
           </button>
           <button class="header-mobile-menu-btn" id="mobile-menu-btn" title="Open menu" aria-label="Open navigation menu">
             <span class="material-symbols-outlined" style="font-size:24px">menu</span>
@@ -48,12 +44,6 @@ export function renderShell(activeId) {
 
     <!-- Desktop Sidebar -->
     <aside class="app-sidebar" id="app-sidebar">
-      <div style="padding: 10px 14px; border-bottom: 1px solid var(--outline-variant); background: var(--surface-container-lowest);">
-        <a href="#/" style="display:flex;align-items:center;gap:8px;font-size:0.8125rem;font-weight:600;color:var(--primary);text-decoration:none;">
-          <span class="material-symbols-outlined" style="font-size:16px;">arrow_back</span>
-          <span>Return to Landing Page</span>
-        </a>
-      </div>
       <div class="sidebar-section-label">Record Verification Flow</div>
       <nav class="sidebar-nav" aria-label="Main navigation">
         ${navItems.map(item => `
@@ -65,7 +55,7 @@ export function renderShell(activeId) {
         `).join('')}
       </nav>
       <div class="sidebar-footer">
-        CaseCompass v2.4 · Demo
+        CaseCompass · District Docket Intelligence
       </div>
     </aside>
 
@@ -80,12 +70,6 @@ export function renderShell(activeId) {
         <button id="mobile-close-btn" style="background:none;border:none;cursor:pointer;color:var(--on-surface-variant);padding:4px;" aria-label="Close menu">
           <span class="material-symbols-outlined">close</span>
         </button>
-      </div>
-      <div style="padding: 10px 16px; border-bottom: 1px solid var(--outline-variant);">
-        <a href="#/" style="display:flex;align-items:center;gap:8px;font-size:0.875rem;font-weight:600;color:var(--primary);text-decoration:none;">
-          <span class="material-symbols-outlined" style="font-size:18px;">arrow_back</span>
-          <span>Back to Landing Page</span>
-        </a>
       </div>
       <div class="sidebar-section-label">Record Verification Flow</div>
       <nav class="sidebar-nav" aria-label="Mobile navigation">
@@ -103,14 +87,6 @@ export function renderShell(activeId) {
     <main class="app-main" id="page-content" role="main">
       <!-- Page content injected here -->
     </main>
-
-    <!-- Footer -->
-    <footer class="app-footer">
-      <div class="app-footer__content">
-        <span class="material-symbols-outlined">info</span>
-        <span>This organizes the record. It is not legal advice and does not predict outcomes.</span>
-      </div>
-    </footer>
   `;
 }
 
@@ -137,12 +113,6 @@ export function initShellListeners() {
   // Close mobile sidebar on nav click
   document.querySelectorAll('[data-mobile-nav]').forEach(link => {
     link.addEventListener('click', closeMobile);
-  });
-
-  // Reviewer input updates localStorage
-  const reviewerInput = document.getElementById('reviewer-name');
-  reviewerInput?.addEventListener('change', (e) => {
-    localStorage.setItem('casecompass_user', e.target.value.trim());
   });
 
   // Sign out button

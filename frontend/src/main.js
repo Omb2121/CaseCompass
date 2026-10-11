@@ -27,6 +27,10 @@ import { renderAskPage, initAskPage } from './pages/Ask.js';
 import { renderSummaryPage, initSummaryPage } from './pages/Summary.js';
 import { renderTrustPage, initTrustPage } from './pages/Trust.js';
 
+import { initStore } from './api.js';
+
+initStore();
+
 const routes = [
   {
     path: '/',
@@ -118,12 +122,18 @@ function renderApp(route) {
   }
 
   if (route.isLanding) {
+    document.body.classList.remove('is-workspace');
+    document.body.classList.add('is-landing');
+    appRoot.className = 'is-landing';
     // Render full-width marketing landing page
     appRoot.innerHTML = route.render();
     if (typeof route.init === 'function') {
       route.init();
     }
   } else {
+    document.body.classList.remove('is-landing');
+    document.body.classList.add('is-workspace');
+    appRoot.className = 'is-workspace';
     // Render App Shell with sidebar navigation
     appRoot.innerHTML = renderShell(route.id);
     initShellListeners();

@@ -105,7 +105,7 @@
 
   /* Layout */
   --header-height: 4rem;
-  --footer-height: 2.5rem;
+  --footer-height: 0px;
   --sidebar-width: 16rem;
 }
 
@@ -476,56 +476,62 @@ body {
   border-bottom: 1px solid var(--outline-variant);
 }
 
-/* --- Main Content --- */
-.app-main {
-  flex: 1;
-  margin-top: var(--header-height);
-  margin-bottom: var(--footer-height);
+/* --- Fixed Full-Screen Workspace Layout (Zero screen movement / shaking) --- */
+body.is-workspace {
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+}
+
+#app.is-workspace {
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  position: relative;
+}
+
+#app.is-workspace .app-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--header-height);
+  z-index: 50;
+}
+
+#app.is-workspace .app-sidebar {
+  position: fixed;
+  left: 0;
+  top: var(--header-height);
+  bottom: 0;
+  width: var(--sidebar-width);
+  z-index: 40;
+  overflow-y: auto;
+}
+
+#app.is-workspace .app-main {
+  position: fixed;
+  top: var(--header-height);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0;
   padding: var(--space-lg) var(--space-md);
   background: var(--background);
   overflow-y: auto;
-  width: 100%;
-  min-height: calc(100vh - var(--header-height) - var(--footer-height));
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 @media (min-width: 1024px) {
-  .app-main {
-    margin-left: var(--sidebar-width);
+  #app.is-workspace .app-main {
+    left: var(--sidebar-width);
     padding: var(--space-lg) var(--gutter);
   }
 }
 
-/* --- Footer --- */
 .app-footer {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 50;
-  height: var(--footer-height);
-  background: var(--inverse-surface);
-  color: var(--inverse-on-surface);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 var(--gutter);
-  text-align: center;
-  border-top: 1px solid var(--outline);
-}
-
-.app-footer__content {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-}
-
-.app-footer__content .material-symbols-outlined {
-  font-size: 16px;
-  color: var(--tertiary-fixed);
+  display: none !important;
 }
 
 /* --- Utility Classes --- */

@@ -3,9 +3,11 @@
  * Matches Stitch screen: "CaseCompass — Ask Case Questions"
  */
 
-import { demoCase, askConversation } from '../data/demoData.js';
+import { askConversation } from '../data/demoData.js';
+import { api } from '../api.js';
 
 export function renderAskPage() {
+  const activeCase = api.getActiveCase();
   return `
     <div class="page-content animate-fade-in" style="max-width: 900px;">
       <!-- Breadcrumb & Header -->
@@ -13,7 +15,7 @@ export function renderAskPage() {
         <div style="display: flex; align-items: center; gap: 8px; font-size: 0.8125rem; color: var(--on-surface-variant); margin-bottom: 6px;">
           <span>Cases</span>
           <span class="material-symbols-outlined" style="font-size: 14px;">chevron_right</span>
-          <span style="font-weight: 600; color: var(--primary);">${demoCase.title}</span>
+          <span style="font-weight: 600; color: var(--primary);">${activeCase.title}</span>
           <span class="badge badge--verified" style="margin-left: 8px;">Docket Verified</span>
         </div>
         <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: var(--space-md);">
@@ -229,13 +231,27 @@ export function initAskPage() {
     messages.scrollTop = messages.scrollHeight;
   }
 
-  function handleSend(query) {
+  async function handleSend(query) {
     if (!query || !query.trim()) return;
     const q = query.trim();
     addMessage('user', q);
     if (input) input.value = '';
 
-    // Simulate intelligent grounded response
+    const activeCase = api.getActiveCase();
+
+    // Query FastAPI backend with fallback
+    try {
+      const backendResp = await api.askCase(activeCase.id, q);
+      if (backendResp && backendResp.answer) {
+        const cites = (backendResp.citations || []).map(c => typeof c === 'string' ? c : `${c.document_name || 'Exhibit'} (pg ${c.page || 1})`);
+        addMessage('assistant', backendResp.answer, cites.length ? cites : ['Docket_Registry.pdf']);
+        return;
+      }
+    } catch {
+      // Backend fallback
+    }
+
+    // Intelligent grounded response fallback
     setTimeout(() => {
       let respText = '';
       let sources = [];
@@ -256,7 +272,7 @@ export function initAskPage() {
       }
 
       addMessage('assistant', respText, sources);
-    }, 600);
+    }, 500);
   }
 
   form?.addEventListener('submit', (e) => {

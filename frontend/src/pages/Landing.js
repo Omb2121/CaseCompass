@@ -882,9 +882,10 @@ export function initLandingPage() {
   });
 
   // Successful Login Handler
-  function completeAuth(userName = 'Meera') {
+  function completeAuth(userName = 'Ramesh Kumar', userRole = 'user') {
     localStorage.setItem('casecompass_auth', 'true');
     localStorage.setItem('casecompass_user', userName);
+    localStorage.setItem('casecompass_role', userRole);
     closeAuthModal();
     if (modal && modal.parentElement === document.body) {
       modal.remove();
@@ -894,16 +895,25 @@ export function initLandingPage() {
 
   // Google Login click
   document.getElementById('btn-auth-google')?.addEventListener('click', () => {
-    completeAuth('Meera (Google)');
+    completeAuth('Ramesh Kumar (Google)', 'user');
+  });
+
+  // Fast persona one-click sign in
+  document.querySelectorAll('.btn-fast-persona').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const role = btn.getAttribute('data-role') || 'user';
+      const name = btn.getAttribute('data-name') || 'Ramesh Kumar';
+      completeAuth(name, role);
+    });
   });
 
   // Email form submit
   emailForm?.addEventListener('submit', (e) => {
     e.preventDefault();
-    const email = document.getElementById('auth-email-input')?.value || 'meera@legalaid.org';
-    const name = email.split('@')[0] || 'Meera';
+    const email = document.getElementById('auth-email-input')?.value || 'ramesh.kumar@citizen.in';
+    const name = email.split('@')[0] || 'Ramesh Kumar';
     const capName = name.charAt(0).toUpperCase() + name.slice(1);
-    completeAuth(capName);
+    completeAuth(capName, 'user');
   });
 
   // Phone OTP Flow

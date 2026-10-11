@@ -205,51 +205,53 @@ export function renderLandingPage() {
         </div>
       </section>
 
-      <!-- 6. 4-Step Workflow -->
-      <section class="landing-section" style="padding-top:1rem;">
-        <div class="section-heading-centered">
-          <span class="section-label-pill">Workflow in Four Steps</span>
-          <h2>A clearer way to work with case records.</h2>
-          <p>
-            Designed for speed and fidelity. Move from raw court files to verified intelligence in seconds.
-          </p>
-        </div>
-
-        <div class="workflow-grid">
-          <div class="workflow-card">
-            <div class="workflow-card__step">01</div>
-            <h3 class="workflow-card__title">Upload Documents</h3>
-            <p class="workflow-card__desc">
-              Bulk intake of court orders, chargesheets, bail applications, and police notices.
+      <!-- 6. 4-Step Workflow with Legal Desk Background -->
+      <section class="workflow-section-wrapper" id="workflow-steps">
+        <div class="workflow-inner-container">
+          <div class="section-heading-centered">
+            <span class="section-label-pill">Workflow in Four Steps</span>
+            <h2>A clearer way to work with case records.</h2>
+            <p>
+              Designed for speed and fidelity. Move from raw court files to verified intelligence in seconds.
             </p>
-            <span class="badge badge--neutral" style="font-size:0.6875rem;">Drop Case Files</span>
           </div>
 
-          <div class="workflow-card">
-            <div class="workflow-card__step">02</div>
-            <h3 class="workflow-card__title">Extract & Normalise</h3>
-            <p class="workflow-card__desc">
-              CNR numbers, hearing dates, IPC sections, and judicial officers detected automatically.
-            </p>
-            <span class="badge badge--neutral" style="font-size:0.6875rem;">OCR & Metadata</span>
-          </div>
+          <div class="workflow-grid">
+            <div class="workflow-card">
+              <div class="workflow-card__step">01</div>
+              <h3 class="workflow-card__title">Upload Documents</h3>
+              <p class="workflow-card__desc">
+                Bulk intake of court orders, chargesheets, bail applications, and police notices.
+              </p>
+              <span class="badge badge--neutral" style="font-size:0.6875rem;">Drop Case Files</span>
+            </div>
 
-          <div class="workflow-card">
-            <div class="workflow-card__step">03</div>
-            <h3 class="workflow-card__title">Verify & Record</h3>
-            <p class="workflow-card__desc">
-              Human reviewer inspects machine extractions against the source PDF page with evidence lens.
-            </p>
-            <span class="badge badge--neutral" style="font-size:0.6875rem;">Human-in-the-Loop</span>
-          </div>
+            <div class="workflow-card">
+              <div class="workflow-card__step">02</div>
+              <h3 class="workflow-card__title">Extract & Normalise</h3>
+              <p class="workflow-card__desc">
+                CNR numbers, hearing dates, IPC sections, and judicial officers detected automatically.
+              </p>
+              <span class="badge badge--neutral" style="font-size:0.6875rem;">OCR & Metadata</span>
+            </div>
 
-          <div class="workflow-card">
-            <div class="workflow-card__step">04</div>
-            <h3 class="workflow-card__title">Understand Timeline</h3>
-            <p class="workflow-card__desc">
-              Chronological case proceedings, next hearing purpose, and actionable checklist ready.
-            </p>
-            <span class="badge badge--neutral" style="font-size:0.6875rem;">Clear Schedule</span>
+            <div class="workflow-card">
+              <div class="workflow-card__step">03</div>
+              <h3 class="workflow-card__title">Verify & Record</h3>
+              <p class="workflow-card__desc">
+                Human reviewer inspects machine extractions against the source PDF page with evidence lens.
+              </p>
+              <span class="badge badge--neutral" style="font-size:0.6875rem;">Human-in-the-Loop</span>
+            </div>
+
+            <div class="workflow-card">
+              <div class="workflow-card__step">04</div>
+              <h3 class="workflow-card__title">Understand Timeline</h3>
+              <p class="workflow-card__desc">
+                Chronological case proceedings, next hearing purpose, and actionable checklist ready.
+              </p>
+              <span class="badge badge--neutral" style="font-size:0.6875rem;">Clear Schedule</span>
+            </div>
           </div>
         </div>
       </section>

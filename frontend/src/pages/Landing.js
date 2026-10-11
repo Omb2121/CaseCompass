@@ -710,30 +710,6 @@ export function renderLandingPage() {
             </button>
           </form>
 
-          <!-- Fast-track portal login buttons -->
-          <div style="margin-top:1.25rem;padding-top:1rem;border-top:1px solid #e2e8f0;">
-            <div style="font-size:0.75rem;font-weight:700;color:#64748b;text-transform:uppercase;margin-bottom:8px;text-align:center;letter-spacing:0.04em;">
-              Or Quick Sign-In by Persona:
-            </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;">
-              <button type="button" class="btn-fast-persona" data-role="user" data-name="Ramesh Kumar"
-                      style="padding:8px 4px;border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;border-radius:8px;font-size:0.75rem;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;transition:all 0.15s ease;">
-                <span class="material-symbols-outlined" style="font-size:16px;">person</span>
-                <span>👤 Citizen</span>
-              </button>
-              <button type="button" class="btn-fast-persona" data-role="admin" data-name="Registrar V. K. Deshpande"
-                      style="padding:8px 4px;border:1px solid #e9d5ff;background:#faf5ff;color:#6b21a8;border-radius:8px;font-size:0.75rem;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;transition:all 0.15s ease;">
-                <span class="material-symbols-outlined" style="font-size:16px;">admin_panel_settings</span>
-                <span>🛡️ Admin</span>
-              </button>
-              <button type="button" class="btn-fast-persona" data-role="judge" data-name="Hon. Smt. Archana Kulkarni"
-                      style="padding:8px 4px;border:1px solid #fde68a;background:#fffbeb;color:#92400e;border-radius:8px;font-size:0.75rem;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;transition:all 0.15s ease;">
-                <span class="material-symbols-outlined" style="font-size:16px;">gavel</span>
-                <span>⚖️ Judge</span>
-              </button>
-            </div>
-          </div>
-
         </div>
       </div>
     </div>
@@ -882,9 +858,10 @@ export function initLandingPage() {
   });
 
   // Successful Login Handler
-  function completeAuth(userName = 'Ramesh Kumar', userRole = 'user') {
+  function completeAuth(userName = 'Authenticated User', userRole = 'user', email = '') {
     localStorage.setItem('casecompass_auth', 'true');
     localStorage.setItem('casecompass_user', userName);
+    if (email) localStorage.setItem('casecompass_user_email', email);
     localStorage.setItem('casecompass_role', userRole);
     closeAuthModal();
     if (modal && modal.parentElement === document.body) {
@@ -893,27 +870,25 @@ export function initLandingPage() {
     window.location.hash = '#/cases';
   }
 
-  // Google Login click
+  // Google Login click: Redirect to authentic Google Account Sign-In
   document.getElementById('btn-auth-google')?.addEventListener('click', () => {
-    completeAuth('Ramesh Kumar (Google)', 'user');
-  });
-
-  // Fast persona one-click sign in
-  document.querySelectorAll('.btn-fast-persona').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const role = btn.getAttribute('data-role') || 'user';
-      const name = btn.getAttribute('data-name') || 'Ramesh Kumar';
-      completeAuth(name, role);
-    });
+    closeAuthModal();
+    if (modal && modal.parentElement === document.body) {
+      modal.remove();
+    }
+    window.location.hash = '#/login?portal=user&google=1';
   });
 
   // Email form submit
   emailForm?.addEventListener('submit', (e) => {
     e.preventDefault();
-    const email = document.getElementById('auth-email-input')?.value || 'ramesh.kumar@citizen.in';
-    const name = email.split('@')[0] || 'Ramesh Kumar';
-    const capName = name.charAt(0).toUpperCase() + name.slice(1);
-    completeAuth(capName, 'user');
+    const rawEmail = document.getElementById('auth-email-input')?.value?.trim();
+    const signupName = document.getElementById('signup-fullname')?.value?.trim();
+    const email = rawEmail || 'citizen@casecompass.app';
+    let name = signupName || (email.split('@')[0] || 'Citizen Litigant');
+    // Clean name formatting
+    name = name.replace(/[._-]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    completeAuth(name, 'user', email);
   });
 
   // Phone OTP Flow

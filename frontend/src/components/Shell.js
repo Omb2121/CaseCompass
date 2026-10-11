@@ -32,9 +32,9 @@ export function renderShell(activeId) {
           <div style="display:flex;align-items:center;gap:6px;background:var(--surface-container-high);padding:4px 10px;border-radius:var(--radius-md);">
             ${roleBadgeHtml}
             <select id="shell-role-select" title="Switch Portal Persona" style="background:transparent;border:none;font-size:0.75rem;font-weight:700;color:var(--primary);cursor:pointer;outline:none;">
-              <option value="user" ${currentRole === 'user' ? 'selected' : ''}>👤 Citizen (Ramesh Kumar)</option>
-              <option value="admin" ${currentRole === 'admin' ? 'selected' : ''}>🛡️ Admin (Registrar Deshpande)</option>
-              <option value="judge" ${currentRole === 'judge' ? 'selected' : ''}>⚖️ Judge (Hon. Smt. Archana Kulkarni)</option>
+              <option value="user" ${currentRole === 'user' ? 'selected' : ''}>👤 Citizen Portal</option>
+              <option value="admin" ${currentRole === 'admin' ? 'selected' : ''}>🛡️ Admin Portal</option>
+              <option value="judge" ${currentRole === 'judge' ? 'selected' : ''}>⚖️ Judge Portal</option>
             </select>
           </div>
 
@@ -132,16 +132,6 @@ export function initShellListeners() {
   document.getElementById('shell-role-select')?.addEventListener('change', (e) => {
     const selected = e.target.value;
     localStorage.setItem('casecompass_role', selected);
-    if (selected === 'user') {
-      localStorage.setItem('casecompass_user', 'Ramesh Kumar');
-      localStorage.setItem('casecompass_user_email', 'ramesh.kumar@citizen.in');
-    } else if (selected === 'admin') {
-      localStorage.setItem('casecompass_user', 'Registrar V. K. Deshpande');
-      localStorage.setItem('casecompass_user_email', 'admin.registry@districtcourt.gov.in');
-    } else if (selected === 'judge') {
-      localStorage.setItem('casecompass_user', 'Hon. Smt. Archana Kulkarni');
-      localStorage.setItem('casecompass_user_email', 'judge.kulkarni@judicial.gov.in');
-    }
     window.location.reload();
   });
 

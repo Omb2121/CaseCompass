@@ -115,11 +115,11 @@ function renderApp(route) {
 
   const isAuth = localStorage.getItem('casecompass_auth') === 'true';
 
-  // Workspace accessible directly; if not authenticated, Shell displays the 'Login Needed' pop-up modal
+  // 🔒 STRICT SECURITY GATE: Without logging in or signing up the workspace MUST NOT open
   if (!route.isLanding && !route.isAuthPage && !isAuth) {
-    if (!sessionStorage.getItem('guest_modal_shown_once')) {
-      sessionStorage.setItem('show_login_needed_popup', 'true');
-    }
+    sessionStorage.setItem('show_login_needed_popup', 'true');
+    window.location.hash = '#/';
+    return;
   }
 
   // Clean up any modal overlay attached to body when switching views

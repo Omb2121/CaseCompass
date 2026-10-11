@@ -57,7 +57,7 @@ export function renderLandingPage() {
               CaseCompass helps legal-aid volunteers and families organize court documents, follow case timelines with clarity, and understand important statutory deadlines.
             </p>
             <div class="hero-cta-group">
-              <a href="#/cases" class="btn-hero-primary" id="btn-hero-explore" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px;">
+              <a href="javascript:void(0)" class="btn-hero-primary" id="btn-hero-explore" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px;">
                 <span>Enter Workspace</span>
                 <span class="material-symbols-outlined" style="font-size:18px;">arrow_forward</span>
               </a>
@@ -568,6 +568,22 @@ export function renderLandingPage() {
       <!-- 14. Authentication Modal (Google / Phone / Email & Sample Credentials) -->
       <div class="login-modal-overlay" id="login-modal-overlay">
         <div class="login-modal">
+          <!-- 🔒 Login Needed Alert Banner -->
+          <div id="modal-login-needed-banner" style="display:none;padding:12px 16px;border-radius:10px;margin-bottom:1.25rem;background:#fef3c7;border:1.5px solid #fde68a;color:#92400e;align-items:flex-start;gap:12px;">
+            <div style="width:34px;height:34px;border-radius:8px;background:#fef08a;display:flex;align-items:center;justify-content:center;color:#b45309;flex-shrink:0;">
+              <span class="material-symbols-outlined" style="font-size:22px;">lock</span>
+            </div>
+            <div>
+              <div style="font-size:0.9375rem;font-weight:800;color:#92400e;display:flex;align-items:center;gap:6px;">
+                <span>Login Needed</span>
+                <span class="badge" style="background:#fee2e2;color:#b91c1c;font-size:0.6875rem;padding:1px 6px;">Access Restricted</span>
+              </div>
+              <div style="font-size:0.8125rem;color:#b45309;margin-top:3px;line-height:1.45;">
+                Without logging in or signing up, the workspace must not open. Please log in or sign up below to access court dockets.
+              </div>
+            </div>
+          </div>
+
           <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.25rem;">
             <div>
               <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
@@ -694,6 +710,30 @@ export function renderLandingPage() {
             </button>
           </form>
 
+          <!-- Fast-track portal login buttons -->
+          <div style="margin-top:1.25rem;padding-top:1rem;border-top:1px solid #e2e8f0;">
+            <div style="font-size:0.75rem;font-weight:700;color:#64748b;text-transform:uppercase;margin-bottom:8px;text-align:center;letter-spacing:0.04em;">
+              Or Quick Sign-In by Persona:
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;">
+              <button type="button" class="btn-fast-persona" data-role="user" data-name="Ramesh Kumar"
+                      style="padding:8px 4px;border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;border-radius:8px;font-size:0.75rem;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;transition:all 0.15s ease;">
+                <span class="material-symbols-outlined" style="font-size:16px;">person</span>
+                <span>👤 Citizen</span>
+              </button>
+              <button type="button" class="btn-fast-persona" data-role="admin" data-name="Registrar V. K. Deshpande"
+                      style="padding:8px 4px;border:1px solid #e9d5ff;background:#faf5ff;color:#6b21a8;border-radius:8px;font-size:0.75rem;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;transition:all 0.15s ease;">
+                <span class="material-symbols-outlined" style="font-size:16px;">admin_panel_settings</span>
+                <span>🛡️ Admin</span>
+              </button>
+              <button type="button" class="btn-fast-persona" data-role="judge" data-name="Hon. Smt. Archana Kulkarni"
+                      style="padding:8px 4px;border:1px solid #fde68a;background:#fffbeb;color:#92400e;border-radius:8px;font-size:0.75rem;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;transition:all 0.15s ease;">
+                <span class="material-symbols-outlined" style="font-size:16px;">gavel</span>
+                <span>⚖️ Judge</span>
+              </button>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
@@ -709,12 +749,20 @@ export function initLandingPage() {
   const heroExploreBtn = document.getElementById('btn-hero-explore');
   const landingLogoutBtn = document.getElementById('btn-landing-logout');
 
-  function openAuthModal(mode = 'login') {
+  function openAuthModal(mode = 'login', isLoginNeeded = false) {
     modal = document.getElementById('login-modal-overlay');
     if (modal) {
       // Move modal to body so no parent container can ever interfere with fixed positioning
       if (modal.parentElement !== document.body) {
         document.body.appendChild(modal);
+      }
+      const banner = document.getElementById('modal-login-needed-banner');
+      if (banner) {
+        banner.style.display = isLoginNeeded ? 'flex' : 'none';
+      }
+      const heading = document.getElementById('modal-heading-title');
+      if (heading) {
+        heading.textContent = isLoginNeeded ? 'Login Needed' : (mode === 'signup' ? 'Create CaseCompass Account' : 'Log In to CaseCompass');
       }
       modal.classList.add('active');
       document.body.style.overflow = 'hidden';
@@ -743,26 +791,36 @@ export function initLandingPage() {
     if (e.target === modal) closeAuthModal();
   });
 
-  // Hero explore button allows direct entry into workspace with Login Needed alert
+  // Hero explore button: Without logging in or signing up the workspace MUST NOT open
   heroExploreBtn?.addEventListener('click', (e) => {
     e.preventDefault();
-    if (localStorage.getItem('casecompass_auth') !== 'true') {
-      sessionStorage.setItem('show_login_needed_popup', 'true');
+    if (localStorage.getItem('casecompass_auth') === 'true') {
+      window.location.hash = '#/cases';
+    } else {
+      // Without logging in or signing up, the workspace must not open!
+      openAuthModal('login', true);
     }
-    window.location.hash = '#/cases';
   });
 
-  // Toolset explore links allow entry into workspace with Login Needed alert
+  // Toolset explore links: Without logging in or signing up the workspace MUST NOT open
   document.querySelectorAll('.auth-protected-link').forEach(link => {
     link.addEventListener('click', (e) => {
       e.preventDefault();
       const target = link.getAttribute('data-target') || '#/cases';
-      if (localStorage.getItem('casecompass_auth') !== 'true') {
-        sessionStorage.setItem('show_login_needed_popup', 'true');
+      if (localStorage.getItem('casecompass_auth') === 'true') {
+        window.location.hash = target;
+      } else {
+        // Without logging in or signing up, the workspace must not open!
+        openAuthModal('login', true);
       }
-      window.location.hash = target;
     });
   });
+
+  // If redirected from workspace attempt without logging in or signing up
+  if (sessionStorage.getItem('show_login_needed_popup') === 'true') {
+    sessionStorage.removeItem('show_login_needed_popup');
+    openAuthModal('login', true);
+  }
 
   // Logout from Landing Navbar
   landingLogoutBtn?.addEventListener('click', () => {

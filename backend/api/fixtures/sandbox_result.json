@@ -1,0 +1,23 @@
+{
+  "status": "passed",
+  "verified_count": 7,
+  "dropped_count": 1,
+  "details": [
+    {
+      "item_id": "item-001",
+      "status": "verified",
+      "match": "exact"
+    },
+    {
+      "item_id": "item-004",
+      "status": "verified",
+      "match": "fuzzy"
+    },
+    {
+      "item_id": "item-006",
+      "status": "dropped",
+      "match": "unverified"
+    }
+  ],
+  "execution_time_ms": 12.4
+}

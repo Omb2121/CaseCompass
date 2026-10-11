@@ -1,0 +1,12 @@
+{
+  "case_id": "case-sunita-001",
+  "total_items_extracted": 8,
+  "items_verified": 7,
+  "items_dropped": 1,
+  "verification_rate": 0.875,
+  "hallucinated_deadlines": 0,
+  "refusal_pass_rate": 1.0,
+  "languages_supported": ["en", "hi", "mr"],
+  "flags_detected": 7,
+  "summary": "7 of 8 items verified, 1 dropped. 0 hallucinated deadlines."
+}

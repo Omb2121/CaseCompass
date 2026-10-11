@@ -1,9 +1,20 @@
+"""
+Tamper-evident audit log with SHA-256 hash chaining.
+Covers uploads, confirmations, edits, dismissals, and exports.
+"""
 import os
 import json
 import hashlib
 from datetime import datetime
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from backend.core.config import settings
+
+
+def compute_event_hash(prev_hash: str, event_data: Dict[str, Any]) -> str:
+    """Computes SHA-256 hash chained to the previous block hash."""
+    canonical_payload = json.dumps(event_data, sort_keys=True)
+    combined = f"{prev_hash}:{canonical_payload}".encode("utf-8")
+    return hashlib.sha256(combined).hexdigest()
 
 
 class AuditLogger:
@@ -33,9 +44,7 @@ class AuditLogger:
             "previous_hash": prev_hash
         }
 
-        # Calculate current hash
-        payload_str = json.dumps(event_payload, sort_keys=True)
-        current_hash = hashlib.sha256(payload_str.encode("utf-8")).hexdigest()
+        current_hash = compute_event_hash(prev_hash, event_payload)
         event_payload["current_hash"] = current_hash
 
         ledger.append(event_payload)

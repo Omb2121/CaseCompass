@@ -1,0 +1,86 @@
+[
+  {
+    "id": "flag-r1-001",
+    "case_id": "case-sunita-001",
+    "type": "R1",
+    "rule_id": "R1",
+    "severity": "needs_attention",
+    "message": "The order of 12 January sets 14 February as the next date. No order dated 14 February is in the record.",
+    "related_item_ids": ["item-001"],
+    "dismissed": false,
+    "dismissal_note": null,
+    "created_at": "2026-10-11T10:10:00Z"
+  },
+  {
+    "id": "flag-r3-001",
+    "case_id": "case-sunita-001",
+    "type": "R3",
+    "rule_id": "R3",
+    "severity": "needs_attention",
+    "message": "The order of 12 January says 14 February. The order of 3 March refers to the previous date as 15 February.",
+    "related_item_ids": ["item-001", "item-003"],
+    "dismissed": false,
+    "dismissal_note": null,
+    "created_at": "2026-10-11T10:10:00Z"
+  },
+  {
+    "id": "flag-r5-001",
+    "case_id": "case-sunita-001",
+    "type": "R5",
+    "rule_id": "R5",
+    "severity": "needs_attention",
+    "message": "This order refers to an order dated 5 November. That order is not in the record.",
+    "related_item_ids": ["item-002"],
+    "dismissed": false,
+    "dismissal_note": null,
+    "created_at": "2026-10-11T10:10:00Z"
+  },
+  {
+    "id": "flag-r7-001",
+    "case_id": "case-sunita-001",
+    "type": "R7",
+    "rule_id": "R7",
+    "severity": "needs_attention",
+    "message": "The date on page 2 could not be read with confidence. Please check the original.",
+    "related_item_ids": ["item-006"],
+    "dismissed": false,
+    "dismissal_note": null,
+    "created_at": "2026-10-11T10:10:00Z"
+  },
+  {
+    "id": "flag-r9-001",
+    "case_id": "case-sunita-001",
+    "type": "R9",
+    "rule_id": "R9",
+    "severity": "needs_attention",
+    "message": "Order sheet numbers 4 and 6 are in the record. Number 5 is not.",
+    "related_item_ids": ["item-004"],
+    "dismissed": false,
+    "dismissal_note": null,
+    "created_at": "2026-10-11T10:10:00Z"
+  },
+  {
+    "id": "flag-r11-001",
+    "case_id": "case-sunita-001",
+    "type": "R11",
+    "rule_id": "R11",
+    "severity": "information",
+    "message": "14 February 2027 is a Sunday. Please confirm the date with the court registry.",
+    "related_item_ids": ["item-005"],
+    "dismissed": true,
+    "dismissal_note": "Volunteer verified court registry notice confirms holiday hearing sitting.",
+    "created_at": "2026-10-11T10:10:00Z"
+  },
+  {
+    "id": "flag-r12-001",
+    "case_id": "case-sunita-001",
+    "type": "R12",
+    "rule_id": "R12",
+    "severity": "information",
+    "message": "These two files appear to be the same document.",
+    "related_item_ids": [],
+    "dismissed": false,
+    "dismissal_note": null,
+    "created_at": "2026-10-11T10:10:00Z"
+  }
+]

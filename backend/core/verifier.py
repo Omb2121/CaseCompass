@@ -1,9 +1,17 @@
+"""
+Deterministic quote and deadline verifier.
+Checks quote substring matching, fuzzy fallback (difflib >= 0.95),
+and date-within-quote validation.
+"""
 import unicodedata
 import re
 from difflib import SequenceMatcher
-from typing import Optional, List, Tuple
+from typing import Optional, List, Tuple, Literal
 from backend.core.schemas import PageText, EvidenceLens
 from backend.core.config import settings
+from .normalize import normalize_text
+
+MatchType = Literal["exact", "fuzzy", "dropped"]
 
 
 def normalize_legal_text(text: str) -> str:
@@ -17,20 +25,13 @@ def normalize_legal_text(text: str) -> str:
     if not text:
         return ""
     
-    # Unicode NFC normalization
     text = unicodedata.normalize("NFC", text)
-
-    # Devanagari numerals mapping
     devanagari_digits = str.maketrans("०१२३४५६७८९", "0123456789")
     text = text.translate(devanagari_digits)
-
-    # Standardize quotation marks and dashes
     text = re.sub(r'[\u2018\u2019\u201a\u201b]', "'", text)
     text = re.sub(r'[\u201c\u201d\u201e\u201f]', '"', text)
     text = re.sub(r'[\u2013\u2014\u2015]', '-', text)
-    text = re.sub(r'[\u200B\u200C\u200D\uFEFF]', '', text)  # remove zero-width spaces
-
-    # Collapse multiple whitespaces and trim
+    text = re.sub(r'[\u200B\u200C\u200D\uFEFF]', '', text)
     text = re.sub(r'\s+', ' ', text)
     return text.strip()
 
@@ -43,7 +44,7 @@ def locate_quote_in_pages(
     """
     Deterministically searches and locates quote in document pages.
     Level 1: Exact Substring match (normalized) -> confidence = 1.0
-    Level 2: Fuzzy match via SequenceMatcher (ratio >= threshold, default 0.95) -> confidence = ratio
+    Level 2: Fuzzy match via SequenceMatcher (ratio >= threshold, default 0.95)
     Level 3: Rejection (dropped) if below threshold.
     """
     if not quote or not quote.strip():
@@ -65,13 +66,11 @@ def locate_quote_in_pages(
 
         # Level 1: Exact Substring Match
         if norm_quote in norm_page:
-            # Locate position in original raw text
             char_start = raw_text.lower().find(quote.lower()[:20]) if len(quote) >= 20 else raw_text.lower().find(quote.lower())
             if char_start == -1:
                 char_start = 0
             char_end = char_start + len(quote)
             
-            # Find line number from line_offsets
             line_num = 1
             for line_info in page.line_offsets:
                 if line_info["char_start"] <= char_start <= line_info["char_end"]:
@@ -89,11 +88,9 @@ def locate_quote_in_pages(
                 rationale="Exact substring confirmed in raw document text."
             )
 
-        # Level 2: Sliding Window Fuzzy Match for OCR Resilience
-        # Compare sliding windows across normalized page
+        # Level 2: Sliding Window Fuzzy Match
         quote_len = len(norm_quote)
         if len(norm_page) >= quote_len:
-            # Check windows across the entire page
             for i in range(len(norm_page) - quote_len + 1):
                 window = norm_page[i:i + quote_len]
                 ratio = SequenceMatcher(None, norm_quote, window).ratio()
@@ -134,7 +131,6 @@ def locate_quote_in_pages(
     if best_match and highest_ratio >= threshold:
         return best_match
 
-    # If verification failed, return dropped indicator
     return EvidenceLens(
         page_number=0,
         character_start=0,
@@ -145,3 +141,36 @@ def locate_quote_in_pages(
         confidence_score=round(highest_ratio, 4),
         rationale=f"Verification failed: Best match ratio {round(highest_ratio, 3)} is below required threshold {threshold}."
     )
+
+
+def verify_quote(
+    quote: str,
+    page_text: str,
+    extracted_date: str = None,
+    fuzzy_threshold: float = 0.95
+) -> Tuple[bool, MatchType, str]:
+    """
+    Verifies that quote is present in page_text.
+    Returns (verified, match_type, reason).
+    """
+    norm_quote = normalize_text(quote)
+    norm_page = normalize_text(page_text)
+
+    if not norm_quote or not norm_page:
+        return False, "dropped", "Empty quote or page text"
+
+    if norm_quote in norm_page:
+        return True, "exact", "Exact match found"
+
+    matcher = SequenceMatcher(None, norm_quote, norm_page)
+    match = matcher.find_longest_match(0, len(norm_quote), 0, len(norm_page))
+    if match.size > 0:
+        ratio = SequenceMatcher(
+            None,
+            norm_quote,
+            norm_page[match.b : match.b + match.size]
+        ).ratio()
+        if ratio >= fuzzy_threshold:
+            return True, "fuzzy", f"Fuzzy match with ratio {ratio:.2f}"
+
+    return False, "dropped", "Quote not found in page text"

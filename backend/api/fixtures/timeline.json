@@ -1,0 +1,315 @@
+[
+  {
+    "id": "tl-001",
+    "case_id": "case-sunita-001",
+    "document_id": "doc-001",
+    "order_date": "2026-01-12",
+    "order_type": "hearing",
+    "court": "Sessions Court, Pune",
+    "title": "First Hearing & Next Date Fixing",
+    "summary_en": "The court heard preliminary submissions and scheduled the next hearing for 14 February 2026.",
+    "summary_hi": "अदालत ने प्रारंभिक दलीलें सुनीं और अगली सुनवाई 14 फरवरी 2026 के लिए तय की।",
+    "summary_mr": "न्यायालयाने प्राथमिक युक्तिवाद ऐकून घेतला आणि पुढील सुनावणी 14 फेब्रुवारी 2026 रोजी निश्चित केली.",
+    "next_date": "2026-02-14",
+    "items": [
+      {
+        "id": "item-001",
+        "document_id": "doc-001",
+        "kind": "stated_date",
+        "description": "Next date of hearing set by court",
+        "date": "2026-02-14",
+        "quote": "Matter is adjourned to 14.02.2026 for framing of charges.",
+        "page_no": 1,
+        "verified": true,
+        "derived": false,
+        "user_status": "confirmed",
+        "confidence": "high",
+        "match_type": "exact",
+        "derivation_working": null,
+        "derivation_rule": null
+      },
+      {
+        "id": "item-002",
+        "document_id": "doc-001",
+        "kind": "referenced_document",
+        "description": "Reference to prior order dated 5 November",
+        "date": "2025-11-05",
+        "quote": "Pursuant to the earlier order dated 5 November 2025, report is submitted.",
+        "page_no": 1,
+        "verified": true,
+        "derived": false,
+        "user_status": "unreviewed",
+        "confidence": "high",
+        "match_type": "exact",
+        "derivation_working": null,
+        "derivation_rule": null
+      }
+    ],
+    "flags": [
+      {
+        "id": "flag-r1-001",
+        "case_id": "case-sunita-001",
+        "type": "R1",
+        "rule_id": "R1",
+        "severity": "needs_attention",
+        "message": "The order of 12 January sets 14 February as the next date. No order dated 14 February is in the record.",
+        "related_item_ids": ["item-001"],
+        "dismissed": false,
+        "dismissal_note": null,
+        "created_at": "2026-10-11T10:10:00Z"
+      },
+      {
+        "id": "flag-r5-001",
+        "case_id": "case-sunita-001",
+        "type": "R5",
+        "rule_id": "R5",
+        "severity": "needs_attention",
+        "message": "This order refers to an order dated 5 November. That order is not in the record.",
+        "related_item_ids": ["item-002"],
+        "dismissed": false,
+        "dismissal_note": null,
+        "created_at": "2026-10-11T10:10:00Z"
+      }
+    ],
+    "page_no": 1,
+    "quote": "Matter is adjourned to 14.02.2026 for framing of charges.",
+    "is_undated": false
+  },
+  {
+    "id": "tl-002",
+    "case_id": "case-sunita-001",
+    "document_id": "doc-002",
+    "order_date": "2026-02-14",
+    "order_type": "remand",
+    "court": "Sessions Court, Pune",
+    "title": "Remand Extension Order",
+    "summary_en": "The court remanded the accused to judicial custody and allowed time to file a reply.",
+    "summary_hi": "अदालत ने आरोपी को न्यायिक हिरासत में भेज दिया और जवाब दाखिल करने का समय दिया।",
+    "summary_mr": "न्यायालयाने आरोपीला न्यायालयीन कोठडी सुनावली आणि उत्तर दाखल करण्यास वेळ दिला.",
+    "next_date": "2026-03-03",
+    "items": [
+      {
+        "id": "item-003",
+        "document_id": "doc-002",
+        "kind": "relative_period",
+        "description": "Relative deadline for prosecution reply with null date value",
+        "date": null,
+        "quote": "Prosecution directed to file written reply within four weeks from today.",
+        "page_no": 1,
+        "verified": true,
+        "derived": false,
+        "user_status": "unreviewed",
+        "confidence": "high",
+        "match_type": "exact",
+        "derivation_working": null,
+        "derivation_rule": null
+      },
+      {
+        "id": "item-004",
+        "document_id": "doc-002",
+        "kind": "stated_date",
+        "description": "Remand extension fuzzy matched quote",
+        "date": "2026-02-14",
+        "quote": "The accused is remanded to judicial custody till 14.02.2026",
+        "page_no": 2,
+        "verified": true,
+        "derived": false,
+        "user_status": "unreviewed",
+        "confidence": "medium",
+        "match_type": "fuzzy",
+        "derivation_working": null,
+        "derivation_rule": null
+      }
+    ],
+    "flags": [
+      {
+        "id": "flag-r9-001",
+        "case_id": "case-sunita-001",
+        "type": "R9",
+        "rule_id": "R9",
+        "severity": "needs_attention",
+        "message": "Order sheet numbers 4 and 6 are in the record. Number 5 is not.",
+        "related_item_ids": ["item-004"],
+        "dismissed": false,
+        "dismissal_note": null,
+        "created_at": "2026-10-11T10:10:00Z"
+      }
+    ],
+    "page_no": 1,
+    "quote": "The accused is remanded to judicial custody till 14.02.2026",
+    "is_undated": false
+  },
+  {
+    "id": "tl-003",
+    "case_id": "case-sunita-001",
+    "document_id": "doc-003",
+    "order_date": "2026-03-03",
+    "order_type": "bail",
+    "court": "Sessions Court, Pune",
+    "title": "Bail Application Consideration",
+    "summary_en": "The bail plea was considered and scheduled for further arguments.",
+    "summary_hi": "जमानत याचिका पर विचार किया गया और आगे की बहस के लिए सूचीबद्ध किया गया।",
+    "summary_mr": "जामीन अर्जावर विचार करण्यात आला आणि पुढील युक्तिवादासाठी सूचीबद्ध करण्यात आले.",
+    "next_date": "2026-03-12",
+    "items": [
+      {
+        "id": "item-005",
+        "document_id": "doc-003",
+        "kind": "stated_date",
+        "description": "Next hearing date on Sunday flag candidate",
+        "date": "2027-02-14",
+        "quote": "Registry to list for next hearing on 14.02.2027.",
+        "page_no": 1,
+        "verified": true,
+        "derived": false,
+        "user_status": "confirmed",
+        "confidence": "high",
+        "match_type": "exact",
+        "derivation_working": null,
+        "derivation_rule": null
+      },
+      {
+        "id": "item-006",
+        "document_id": "doc-003",
+        "kind": "stated_date",
+        "description": "Unverified dropped deadline item",
+        "date": "2026-03-04",
+        "quote": "The surety must appear before magistrate tomorrow morning.",
+        "page_no": 1,
+        "verified": false,
+        "derived": false,
+        "user_status": "rejected",
+        "confidence": "low",
+        "match_type": "dropped",
+        "derivation_working": null,
+        "derivation_rule": null,
+        "drop_reason": "quote_not_found"
+      }
+    ],
+    "flags": [
+      {
+        "id": "flag-r3-001",
+        "case_id": "case-sunita-001",
+        "type": "R3",
+        "rule_id": "R3",
+        "severity": "needs_attention",
+        "message": "The order of 12 January says 14 February. The order of 3 March refers to the previous date as 15 February.",
+        "related_item_ids": ["item-001", "item-003"],
+        "dismissed": false,
+        "dismissal_note": null,
+        "created_at": "2026-10-11T10:10:00Z"
+      },
+      {
+        "id": "flag-r11-001",
+        "case_id": "case-sunita-001",
+        "type": "R11",
+        "rule_id": "R11",
+        "severity": "information",
+        "message": "14 February 2027 is a Sunday. Please confirm the date with the court registry.",
+        "related_item_ids": ["item-005"],
+        "dismissed": true,
+        "dismissal_note": "Volunteer verified court registry notice confirms holiday hearing sitting.",
+        "created_at": "2026-10-11T10:10:00Z"
+      }
+    ],
+    "page_no": 1,
+    "quote": "Registry to list for next hearing on 14.02.2027.",
+    "is_undated": false
+  },
+  {
+    "id": "tl-004",
+    "case_id": "case-sunita-001",
+    "document_id": "doc-004",
+    "order_date": "2026-03-12",
+    "order_type": "adjournment",
+    "court": "Sessions Court, Pune",
+    "title": "Adjournment & User-Rule Derived Compliance Deadline",
+    "summary_en": "Proceedings adjourned with directions to furnish compliance under volunteer confirmed rule.",
+    "summary_hi": "स्वयंसेवक द्वारा पुष्टि किए गए नियम के तहत अनुपालन प्रस्तुत करने के निर्देशों के साथ कार्यवाही स्थगित की गई।",
+    "summary_mr": "स्वयंसेवकाने पुष्टी केलेल्या नियमानुसार पूर्तता सादर करण्याच्या निर्देशांसह कामकाज तहकूब करण्यात आले.",
+    "next_date": "2026-04-09",
+    "items": [
+      {
+        "id": "item-007",
+        "document_id": "doc-004",
+        "kind": "relative_period",
+        "description": "User-rule-derived compliance deadline",
+        "date": "2026-04-09",
+        "quote": "Parties directed to furnish compliance within four weeks.",
+        "page_no": 1,
+        "verified": true,
+        "derived": true,
+        "user_status": "confirmed",
+        "confidence": "high",
+        "match_type": "exact",
+        "derivation_working": "four weeks from 12 March = 9 April",
+        "derivation_rule": "four weeks = 28 days"
+      }
+    ],
+    "flags": [
+      {
+        "id": "flag-r12-001",
+        "case_id": "case-sunita-001",
+        "type": "R12",
+        "rule_id": "R12",
+        "severity": "information",
+        "message": "These two files appear to be the same document.",
+        "related_item_ids": [],
+        "dismissed": false,
+        "dismissal_note": null,
+        "created_at": "2026-10-11T10:10:00Z"
+      }
+    ],
+    "page_no": 1,
+    "quote": "Parties directed to furnish compliance within four weeks.",
+    "is_undated": false
+  },
+  {
+    "id": "tl-005",
+    "case_id": "case-sunita-001",
+    "document_id": "doc-005",
+    "order_date": null,
+    "order_type": "other",
+    "court": "Police Station, Pune",
+    "title": "Undated Police Investigation Slip",
+    "summary_en": "Undated handwritten record placed at the end of the timeline.",
+    "summary_hi": "बिना तारीख का हस्तलिखित रिकॉर्ड समयरेखा के अंत में रखा गया।",
+    "summary_mr": "विनादिनांकित हस्तलिखित नोंद टाइमलाइनच्या शेवटी ठेवली आहे.",
+    "next_date": null,
+    "items": [
+      {
+        "id": "item-008",
+        "document_id": "doc-005",
+        "kind": "unclear",
+        "description": "Ambiguous handwritten date notation",
+        "date": null,
+        "quote": "Case diary inspected on 03/04/24 by investigating officer.",
+        "page_no": 1,
+        "verified": true,
+        "derived": false,
+        "user_status": "unreviewed",
+        "confidence": "low",
+        "match_type": "exact",
+        "derivation_working": null,
+        "derivation_rule": null
+      }
+    ],
+    "flags": [
+      {
+        "id": "flag-r7-001",
+        "case_id": "case-sunita-001",
+        "type": "R7",
+        "rule_id": "R7",
+        "severity": "needs_attention",
+        "message": "The date on page 2 could not be read with confidence. Please check the original.",
+        "related_item_ids": ["item-008"],
+        "dismissed": false,
+        "dismissal_note": null,
+        "created_at": "2026-10-11T10:10:00Z"
+      }
+    ],
+    "page_no": 1,
+    "quote": "Case diary inspected on 03/04/24 by investigating officer.",
+    "is_undated": true
+  }
+]

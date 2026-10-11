@@ -219,12 +219,46 @@ A constrained, privacy-respecting question-answering assistant for litigants and
 | **Frontend** | Modern, responsive mobile-first UI with dark/light theme support |
 | **Storage & Log** | SQLite / JSON store with SHA-256 tamper-evident audit chaining |
 | **Testing** | `pytest`, `pytest-asyncio` |
+=======
+# CaseCompass Backend API
+
+> **Mandatory Disclaimer:** *This organizes the record. It is not legal advice and does not predict outcomes.*
+
+CaseCompass is an AI-powered court-document organizer designed for legal-aid volunteers and undertrial prisoner families. It organizes messy court orders into verified chronological timelines while refusing to guess or provide legal advice.
+
+---
+
+## Startup Instructions
+
+### 1. Requirements
+- Python 3.10+ (tested on Python 3.13)
+- FastAPI, Uvicorn, Pydantic v2, SQLite, Pytest, python-multipart
+
+### 2. Running the Server
+
+Using python module:
+```powershell
+py -m uvicorn backend.api.main:app --reload --port 8000
+```
+
+Or using the provided run scripts:
+- **Windows Command Prompt:** `run_backend.bat`
+- **PowerShell:** `.\run_backend.ps1`
+
+The server will be available at `http://localhost:8000`.
+
+### 3. Interactive Documentation
+- **Swagger UI:** `http://localhost:8000/docs`
+- **ReDoc:** `http://localhost:8000/redoc`
+- **Health Check:** `http://localhost:8000/api/health`
+>>>>>>> 3f201fc (feat(backend): implement Phase 1 structure, models, API endpoints, SQLite DB, and test suite)
 
 ---
 
 ## Project Structure
 
 ```text
+<<<<<<< HEAD
 casecompass/
 ├── backend/
 │   ├── app/
@@ -249,10 +283,41 @@ casecompass/
 ├── .env.example
 ├── LICENSE
 └── README.md
+=======
+backend/
+  core/
+    models.py          # Strict Pydantic v2 models (extra="forbid")
+    normalize.py       # Unicode NFC, zero-width, Devanagari digit normalizer
+    dates.py           # Date policy and confidence tier parser
+    verifier.py        # Exact quote and fuzzy matcher (difflib >= 0.95)
+    injection_guard.py # Prompt-injection defense & sanitization
+    deadlines.py       # Rule-gated relative deadline derivations
+    casenum.py         # Case number normalizer
+    rules.py           # Deterministic flag rules R1 through R12
+    auditlog.py        # SHA-256 hash-chained tamper-evident event log
+    templates.py       # Plain language templates & glossary (en/hi/mr)
+    ask.py             # Ask Your Case constrained Q&A with live refusal
+    ics_export.py      # iCalendar (.ics) export generator
+    trust.py           # Trust Report metric generator
+  api/
+    main.py            # FastAPI entry point with CORS (http://localhost:5173)
+    db.py              # SQLite relational persistence layer
+    deps.py            # FastAPI dependency injectors
+    fixtures_loader.py # Fixture management
+    routes_*.py        # REST endpoint routers
+    fixtures/          # Validated test fixtures
+tests/
+  test_fixtures.py     # Schema and fixture verification tests
+  test_api_endpoints.py# API integration & route tests
+run_backend.bat
+run_backend.ps1
+requirements.txt
+>>>>>>> 3f201fc (feat(backend): implement Phase 1 structure, models, API endpoints, SQLite DB, and test suite)
 ```
 
 ---
 
+<<<<<<< HEAD
 ## Getting Started
 
 ### Prerequisites
@@ -407,4 +472,13 @@ python scripts/run_eval.py
 
 ## License
 
-This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details.
+## Running Automated Tests
+
+Run the test suite with pytest:
+```powershell
+py -m pytest -q
+```
+or with verbose output:
+```powershell
+py -m pytest -v
+```

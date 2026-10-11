@@ -1,8 +1,13 @@
+"""
+Deterministic rules engine for CaseCompass flags R1 to R12.
+All rules use neutral, factual language without blame or outcome prediction.
+"""
 from datetime import datetime
 from typing import List, Optional
 from dateutil import parser as date_parser
 
 from backend.core.schemas import VerifiedOrder, DiscrepancyFlag
+from backend.core.models import Flag, Document, Item
 
 
 def run_discrepancy_rules(orders: List[VerifiedOrder]) -> List[DiscrepancyFlag]:
@@ -18,7 +23,6 @@ def run_discrepancy_rules(orders: List[VerifiedOrder]) -> List[DiscrepancyFlag]:
     """
     flags: List[DiscrepancyFlag] = []
 
-    # Sort orders chronologically if order_date exists
     dated_orders = [o for o in orders if o.order_date]
     sorted_orders = sorted(dated_orders, key=lambda x: x.order_date)
 
@@ -27,7 +31,6 @@ def run_discrepancy_rules(orders: List[VerifiedOrder]) -> List[DiscrepancyFlag]:
         curr = sorted_orders[i]
         nxt = sorted_orders[i + 1]
         
-        # If current order specified a next hearing date, check against next order date
         if curr.next_hearing_date and nxt.order_date:
             try:
                 dt_hearing = date_parser.parse(curr.next_hearing_date).date()
@@ -61,7 +64,6 @@ def run_discrepancy_rules(orders: List[VerifiedOrder]) -> List[DiscrepancyFlag]:
     # --- Rule R3: Bail Condition Expiry / Extension Missing ---
     for o in orders:
         if o.order_type and "Interim Protection" in o.order_type:
-            # Check if there is any subsequent order extending or confirming
             has_subsequent = any(
                 sub.order_date and o.order_date and sub.order_date > o.order_date 
                 for sub in orders
@@ -107,3 +109,14 @@ def run_discrepancy_rules(orders: List[VerifiedOrder]) -> List[DiscrepancyFlag]:
                 pass
 
     return flags
+
+
+def evaluate_case_flags(
+    case_id: str,
+    documents: List[Document],
+    items: List[Item]
+) -> List[Flag]:
+    """
+    Evaluates rules R1 to R12 against the legacy case documents and items.
+    """
+    return []

@@ -1,7 +1,7 @@
 /**
  * CaseCompass — 6. Summary Page
- * Executive Case Summary dynamically bound to active case dossier,
- * live proceedings, verified evidence health, and export actions.
+ * Executive Case Summary dynamically reflecting the registered case data,
+ * complete proceedings timeline, evidence ledger, and zero-error Word/Print exports.
  */
 
 import { api } from '../api.js';
@@ -11,12 +11,12 @@ export function renderSummaryPage() {
   const timeline = api.getCaseTimeline(activeCase.id);
   const docs = api.getCaseDocuments(activeCase.id);
 
-  const docCount = docs.length > 0 ? docs.length : 12;
-  const verifiedDocs = docs.length > 0 ? docs.filter(d => d.status === 'verified').length : 10;
-  const flaggedDocs = docs.length > 0 ? docs.filter(d => d.status === 'flagged').length : 2;
-  const docketHealth = Math.round((verifiedDocs / docCount) * 100);
+  const docCount = docs.length > 0 ? docs.length : (activeCase.documents || 0);
+  const verifiedDocs = docs.length > 0 ? docs.filter(d => d.status === 'verified').length : (activeCase.status === 'verified' ? docCount : 0);
+  const flaggedDocs = docs.length > 0 ? docs.filter(d => d.status === 'flagged').length : (activeCase.status === 'flagged' ? 1 : 0);
+  const docketHealth = docCount > 0 ? Math.round((verifiedDocs / docCount) * 100) : (activeCase.status === 'verified' ? 100 : 75);
 
-  const nextHearingDate = activeCase.nextHearing || '14 Feb 2025';
+  const nextHearingDate = activeCase.nextHearing || 'Upcoming Scheduling';
   const stage = timeline.length > 3 ? 'Prosecution Evidence' : (timeline.length > 1 ? 'Docket Ingestion & Verification' : 'Initial Case Registration');
 
   return `
@@ -27,23 +27,25 @@ export function renderSummaryPage() {
           <a href="#/cases" style="color: inherit; text-decoration: none;">Cases</a>
           <span class="material-symbols-outlined" style="font-size: 14px;">chevron_right</span>
           <span style="font-weight: 600; color: var(--primary);">${activeCase.title}</span>
-          <span class="badge badge--verified" style="margin-left: 8px;">Audit Ready</span>
+          <span class="badge ${activeCase.status === 'verified' ? 'badge--verified' : 'badge--pending'}" style="margin-left: 8px;">
+            ${(activeCase.statusLabel || activeCase.status).toUpperCase()}
+          </span>
         </div>
         <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: var(--space-md);">
           <div>
             <h1 class="page-heading" style="font-size: 1.875rem;">6. Executive Case Summary</h1>
             <p style="font-size: 0.875rem; color: var(--on-surface-variant); margin-top: 4px;">
-              Consolidated dossier intelligence, procedural posture, verified evidence health, and hearing roadmap.
+              Original dossier records, chronological proceeding events, evidence health, and hearing status for <strong>${activeCase.title}</strong>.
             </p>
           </div>
           <div style="display: flex; gap: 8px;">
-            <button class="btn btn--secondary btn--sm" id="btn-print-summary" title="Print executive summary">
+            <button class="btn btn--secondary btn--sm" id="btn-print-summary" title="Print complete case dossier and timeline">
               <span class="material-symbols-outlined" style="font-size: 16px;">print</span>
               Print Summary
             </button>
-            <button class="btn btn--primary btn--sm" id="btn-export-docket" title="Download Word .docx report">
+            <button class="btn btn--primary btn--sm" id="btn-export-docket" title="Download Word report with all timeline proceedings">
               <span class="material-symbols-outlined" style="font-size: 16px;">file_download</span>
-              Export Report (.docx)
+              Export Report (.doc / Word)
             </button>
           </div>
         </div>
@@ -66,7 +68,7 @@ export function renderSummaryPage() {
             <div style="width: ${docketHealth}%; height: 100%; background: var(--status-verified); border-radius: 3px;"></div>
           </div>
           <div style="font-size: 0.75rem; color: var(--on-surface-variant); margin-top: 8px;">
-            ${verifiedDocs} of ${docCount} records cryptographically intact
+            ${verifiedDocs} of ${docCount} records verified intact
           </div>
         </div>
 
@@ -75,7 +77,7 @@ export function renderSummaryPage() {
           <div style="display: flex; justify-content: space-between; align-items: flex-start;">
             <div>
               <div class="section-title" style="margin-bottom: 4px;">Next Listing</div>
-              <div style="font-size: 1.25rem; font-weight: 700; color: var(--primary);">${nextHearingDate}</div>
+              <div style="font-size: 1.125rem; font-weight: 700; color: var(--primary);">${nextHearingDate}</div>
             </div>
             <div style="width: 40px; height: 40px; border-radius: var(--radius-md); background: var(--surface-container-high); display: flex; align-items: center; justify-content: center; color: var(--primary);">
               <span class="material-symbols-outlined">event</span>
@@ -98,7 +100,7 @@ export function renderSummaryPage() {
             </div>
           </div>
           <div style="font-size: 0.75rem; color: var(--on-surface-variant); margin-top: 14px;">
-            ${timeline.length} recorded court proceedings
+            ${timeline.length} recorded proceedings
           </div>
         </div>
 
@@ -114,7 +116,7 @@ export function renderSummaryPage() {
             </div>
           </div>
           <div style="font-size: 0.75rem; color: var(--on-surface-variant); margin-top: 8px;">
-            ${flaggedDocs > 0 ? 'Metadata & date variances flagged' : 'Zero discrepancies detected'}
+            ${flaggedDocs > 0 ? 'Discrepancy notices flagged' : 'Clean audit profile'}
           </div>
         </div>
       </div>
@@ -130,15 +132,15 @@ export function renderSummaryPage() {
               ${activeCase.title}
             </h2>
             <p style="font-size: 0.875rem; color: var(--on-surface); line-height: 1.6; margin-bottom: 12px;">
-              Proceedings registered under <strong>${activeCase.section || 'BNS / IPC Procedural Intake'}</strong> before the <strong>${activeCase.court}</strong>. Docket record initiated on <strong>${activeCase.filingDate || '15 Mar 2024'}</strong>.
+              Matter registered under <strong>${activeCase.section || 'BNS / IPC Procedural Intake'}</strong> before the <strong>${activeCase.court}</strong>. Initial court dossier was registered on <strong>${activeCase.filingDate || '15 Mar 2024'}</strong>.
             </p>
             <p style="font-size: 0.875rem; color: var(--on-surface); line-height: 1.6;">
-              Case dossier status is currently categorized as <strong>${activeCase.statusLabel || activeCase.status}</strong> with <strong>${timeline.length} proceedings</strong> logged in the audit ledger and <strong>${docCount} evidentiary exhibits</strong> indexed.
+              Dossier audit verification is logged as <strong>${(activeCase.statusLabel || activeCase.status).toUpperCase()}</strong>. The docket integrates <strong>${timeline.length} proceedings</strong> and <strong>${docCount} evidentiary exhibits</strong>.
             </p>
 
             <div class="divider"></div>
 
-            <div class="section-title">Case Docket Particulars</div>
+            <div class="section-title">Case Metadata Particulars</div>
             <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; font-size: 0.8125rem;">
               <div>
                 <span style="color: var(--on-surface-variant);">CNR Number:</span>
@@ -159,7 +161,7 @@ export function renderSummaryPage() {
             </div>
           </div>
 
-          <!-- Key Findings -->
+          <!-- Verified Dossier Findings -->
           <div class="card" style="padding: var(--space-lg);">
             <div class="section-title">Verified Dossier Findings</div>
             <div style="display: flex; flex-direction: column; gap: 14px; margin-top: 10px;">
@@ -256,6 +258,97 @@ export function renderSummaryPage() {
             </p>
           </div>
         </div>
+      </div>
+
+      <!-- Chronological Proceedings Timeline Table (Reflecting Original Registered Data) -->
+      <div class="card" style="padding: var(--space-lg); margin-top: var(--space-lg);">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 14px;">
+          <div>
+            <div class="section-title">Case Proceedings Timeline</div>
+            <h3 class="text-headline-sm" style="color: var(--primary); margin: 2px 0 0;">
+              Chronological Legal Proceedings (${timeline.length} Registered Events)
+            </h3>
+          </div>
+          <a href="#/timeline" class="btn btn--secondary btn--sm" style="text-decoration: none;">
+            <span>Open Timeline View</span>
+            <span class="material-symbols-outlined" style="font-size: 14px;">arrow_forward</span>
+          </a>
+        </div>
+
+        <div style="overflow-x: auto;">
+          <table style="width: 100%; border-collapse: collapse; font-size: 0.875rem;">
+            <thead>
+              <tr style="border-bottom: 2px solid var(--outline-variant); text-align: left; background: var(--surface-container-low);">
+                <th style="padding: 10px 14px; color: var(--on-surface-variant); font-size: 0.75rem; text-transform: uppercase;">Date</th>
+                <th style="padding: 10px 14px; color: var(--on-surface-variant); font-size: 0.75rem; text-transform: uppercase;">Proceeding Event</th>
+                <th style="padding: 10px 14px; color: var(--on-surface-variant); font-size: 0.75rem; text-transform: uppercase;">Procedural Notes & Details</th>
+                <th style="padding: 10px 14px; color: var(--on-surface-variant); font-size: 0.75rem; text-transform: uppercase;">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${timeline.map(e => `
+                <tr style="border-bottom: 1px solid var(--outline-variant);">
+                  <td style="padding: 12px 14px; font-weight: 600; white-space: nowrap; color: var(--on-surface);">${e.date}</td>
+                  <td style="padding: 12px 14px; font-weight: 600; color: var(--primary);">${e.label}</td>
+                  <td style="padding: 12px 14px; color: var(--on-surface-variant); line-height: 1.5;">${e.description}</td>
+                  <td style="padding: 12px 14px; white-space: nowrap;">
+                    <span class="badge ${e.verified ? 'badge--verified' : 'badge--pending'}">
+                      ${e.verified ? 'Verified' : 'Pending'}
+                    </span>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Evidence Review Lens & Document Register Table -->
+      <div class="card" style="padding: var(--space-lg); margin-top: var(--space-lg);">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 14px;">
+          <div>
+            <div class="section-title">Evidence Register</div>
+            <h3 class="text-headline-sm" style="color: var(--primary); margin: 2px 0 0;">
+              Ingested Court Filings & Exhibits (${docs.length} Records)
+            </h3>
+          </div>
+          <a href="#/upload" class="btn btn--secondary btn--sm" style="text-decoration: none;">
+            <span>Upload Documents</span>
+            <span class="material-symbols-outlined" style="font-size: 14px;">upload_file</span>
+          </a>
+        </div>
+
+        ${docs.length === 0 ? `
+          <div style="padding: var(--space-lg); text-align: center; color: var(--on-surface-variant); background: var(--surface-container-low); border-radius: var(--radius-md);">
+            <span class="material-symbols-outlined" style="font-size: 32px; color: var(--outline);">folder_off</span>
+            <p style="margin: 6px 0 0; font-size: 0.875rem;">No court documents uploaded yet for this case. Navigate to <strong>2. Upload</strong> to ingest FIR and records.</p>
+          </div>
+        ` : `
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.875rem;">
+              <thead>
+                <tr style="border-bottom: 2px solid var(--outline-variant); text-align: left; background: var(--surface-container-low);">
+                  <th style="padding: 10px 14px; color: var(--on-surface-variant); font-size: 0.75rem; text-transform: uppercase;">Document Name</th>
+                  <th style="padding: 10px 14px; color: var(--on-surface-variant); font-size: 0.75rem; text-transform: uppercase;">Category</th>
+                  <th style="padding: 10px 14px; color: var(--on-surface-variant); font-size: 0.75rem; text-transform: uppercase;">Pages</th>
+                  <th style="padding: 10px 14px; color: var(--on-surface-variant); font-size: 0.75rem; text-transform: uppercase;">Uploaded Date</th>
+                  <th style="padding: 10px 14px; color: var(--on-surface-variant); font-size: 0.75rem; text-transform: uppercase;">Audit Hash</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${docs.map(d => `
+                  <tr style="border-bottom: 1px solid var(--outline-variant);">
+                    <td style="padding: 12px 14px; font-weight: 600; color: var(--primary);">${d.name || d.filename}</td>
+                    <td style="padding: 12px 14px; color: var(--on-surface-variant);">${d.category}</td>
+                    <td style="padding: 12px 14px; color: var(--on-surface);">${d.pages}</td>
+                    <td style="padding: 12px 14px; color: var(--on-surface-variant); white-space: nowrap;">${d.uploadedDate}</td>
+                    <td style="padding: 12px 14px;"><code style="font-size: 0.75rem; color: var(--secondary);">${d.hash}</code></td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `}
       </div>
     </div>
   `;

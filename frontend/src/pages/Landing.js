@@ -57,7 +57,7 @@ export function renderLandingPage() {
               CaseCompass helps legal-aid volunteers and families organize court documents, follow case timelines with clarity, and understand important statutory deadlines.
             </p>
             <div class="hero-cta-group">
-              <a href="#/login" class="btn-hero-primary" id="btn-hero-explore" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px;">
+              <a href="#/cases" class="btn-hero-primary" id="btn-hero-explore" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px;">
                 <span>Enter Workspace</span>
                 <span class="material-symbols-outlined" style="font-size:18px;">arrow_forward</span>
               </a>
@@ -743,26 +743,24 @@ export function initLandingPage() {
     if (e.target === modal) closeAuthModal();
   });
 
-  // Hero explore button redirects to login page
+  // Hero explore button allows direct entry into workspace with Login Needed alert
   heroExploreBtn?.addEventListener('click', (e) => {
     e.preventDefault();
-    if (localStorage.getItem('casecompass_auth') === 'true') {
-      window.location.hash = '#/cases';
-    } else {
-      window.location.hash = '#/login';
+    if (localStorage.getItem('casecompass_auth') !== 'true') {
+      sessionStorage.setItem('show_login_needed_popup', 'true');
     }
+    window.location.hash = '#/cases';
   });
 
-  // Protected links check auth before navigating
+  // Toolset explore links allow entry into workspace with Login Needed alert
   document.querySelectorAll('.auth-protected-link').forEach(link => {
     link.addEventListener('click', (e) => {
       e.preventDefault();
       const target = link.getAttribute('data-target') || '#/cases';
-      if (localStorage.getItem('casecompass_auth') === 'true') {
-        window.location.hash = target;
-      } else {
-        window.location.hash = '#/login';
+      if (localStorage.getItem('casecompass_auth') !== 'true') {
+        sessionStorage.setItem('show_login_needed_popup', 'true');
       }
+      window.location.hash = target;
     });
   });
 

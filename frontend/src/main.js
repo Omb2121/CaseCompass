@@ -115,10 +115,11 @@ function renderApp(route) {
 
   const isAuth = localStorage.getItem('casecompass_auth') === 'true';
 
-  // 🔒 Authentication Gate: Block unauthorized direct access to workspace
+  // Workspace accessible directly; if not authenticated, Shell displays the 'Login Needed' pop-up modal
   if (!route.isLanding && !route.isAuthPage && !isAuth) {
-    window.location.hash = '#/login';
-    return;
+    if (!sessionStorage.getItem('guest_modal_shown_once')) {
+      sessionStorage.setItem('show_login_needed_popup', 'true');
+    }
   }
 
   // Clean up any modal overlay attached to body when switching views

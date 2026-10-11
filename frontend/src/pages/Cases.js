@@ -27,8 +27,9 @@ function statusIcon(status) {
 }
 
 function renderCaseCard(c) {
+  const safeTitle = (c.title || '').replace(/"/g, '&quot;');
   return `
-    <div class="card-flat case-record-item" data-case-id="${c.id}" data-case-status="${c.status}" data-case-title="${c.title}"
+    <div class="card-flat case-record-item" data-case-id="${c.id}" data-case-status="${c.status}" data-case-title="${safeTitle}"
          data-case-cnr="${c.cnr}" data-case-court="${c.court}"
          style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:var(--space-md);padding:var(--space-md) var(--space-lg);transition:all 0.2s;cursor:pointer;"
          onmouseover="this.style.boxShadow='var(--shadow-md)';this.style.borderColor='var(--primary)'"
@@ -52,18 +53,25 @@ function renderCaseCard(c) {
           </div>
         </div>
       </div>
-      <div style="display:flex;align-items:center;gap:var(--space-lg);flex-shrink:0;">
-        <div style="text-align:center;">
+      <div style="display:flex;align-items:center;gap:var(--space-md);flex-shrink:0;flex-wrap:wrap;">
+        <div style="text-align:center;min-width:44px;">
           <div class="text-label-sm" style="color:var(--on-surface-variant);text-transform:uppercase;">Docs</div>
           <div class="text-body-md" style="font-weight:600;color:var(--primary);">${c.documents || 0}</div>
         </div>
-        <div style="text-align:center;">
+        <div style="text-align:center;min-width:80px;">
           <div class="text-label-sm" style="color:var(--on-surface-variant);text-transform:uppercase;">Next Hearing</div>
           <div class="text-body-sm" style="font-weight:500;color:var(--on-surface);">${c.nextHearing || 'Upcoming'}</div>
         </div>
-        <button class="btn btn--secondary btn--sm btn-open-timeline" data-case-id="${c.id}" style="font-size:0.75rem;border-radius:var(--radius-md);">
+        <button class="btn btn--secondary btn--sm btn-open-timeline" data-case-id="${c.id}" style="font-size:0.75rem;border-radius:var(--radius-md);" title="Open timeline for this case">
           <span>View Timeline</span>
           <span class="material-symbols-outlined" style="font-size:14px;">arrow_forward</span>
+        </button>
+        <button class="btn btn--sm btn-delete-case" data-case-id="${c.id}" data-case-title="${safeTitle}" title="Delete this case record"
+                style="font-size:0.75rem;border-radius:var(--radius-md);color:#dc2626;background:#fef2f2;border:1px solid #fecaca;padding:6px 12px;display:inline-flex;align-items:center;gap:4px;cursor:pointer;transition:all 0.15s ease;"
+                onmouseover="this.style.background='#fee2e2';this.style.borderColor='#f87171'"
+                onmouseout="this.style.background='#fef2f2';this.style.borderColor='#fecaca'">
+          <span class="material-symbols-outlined" style="font-size:15px;color:#dc2626;">delete</span>
+          <span style="font-weight:600;">Delete</span>
         </button>
       </div>
     </div>
@@ -71,7 +79,10 @@ function renderCaseCard(c) {
 }
 
 export function renderCasesPage() {
-  const cases = JSON.parse(localStorage.getItem('casecompass_cases_list') || '[]');
+  let cases = JSON.parse(localStorage.getItem('casecompass_cases_list') || 'null');
+  if (!cases || cases.length === 0) {
+    cases = api.getCases();
+  }
   const filterPills = [
     { value: 'all', label: 'All Records' },
     { value: 'verified', label: 'Verified' },
@@ -199,6 +210,31 @@ export function renderCasesPage() {
           </form>
         </div>
       </div>
+
+      <!-- Delete Case Confirmation Modal -->
+      <div id="delete-case-modal" class="modal-overlay" style="display:none;position:fixed;inset:0;z-index:70;background:rgba(0,0,0,0.65);align-items:center;justify-content:center;padding:var(--space-md);backdrop-filter:blur(4px);">
+        <div class="card" style="width:100%;max-width:460px;padding:var(--space-xl);animation:slideUp 0.25s ease;box-shadow:var(--shadow-lg);border:1px solid #fecaca;">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:var(--space-md);">
+            <div style="width:42px;height:42px;border-radius:50%;background:#fee2e2;color:#dc2626;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <span class="material-symbols-outlined" style="font-size:24px;">delete_forever</span>
+            </div>
+            <div>
+              <h3 class="text-headline-sm" style="color:#991b1b;font-weight:700;margin:0;">Delete Case Record?</h3>
+              <p style="font-size:0.8125rem;color:var(--on-surface-variant);margin:2px 0 0;">Permanent dossier removal</p>
+            </div>
+          </div>
+          <p class="text-body-sm" id="delete-modal-case-message" style="color:var(--on-surface);margin-bottom:var(--space-lg);line-height:1.5;">
+            Are you sure you want to delete this case record?
+          </p>
+          <div style="display:flex;gap:var(--space-sm);justify-content:flex-end;">
+            <button type="button" class="btn btn--secondary" id="cancel-delete-modal-btn">Cancel</button>
+            <button type="button" class="btn btn--sm" id="confirm-delete-case-btn" style="background:#dc2626;color:#ffffff;border:none;padding:9px 18px;border-radius:var(--radius-md);font-weight:600;display:inline-flex;align-items:center;gap:6px;cursor:pointer;">
+              <span class="material-symbols-outlined" style="font-size:16px;">delete</span>
+              Delete Case
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   `;
 }
@@ -210,6 +246,69 @@ export function initCasesPage() {
   const emptyState = document.getElementById('empty-filter-state');
   const casesListEl = document.getElementById('cases-list');
   let currentStatus = 'all';
+
+  // Delete modal state
+  const deleteModal = document.getElementById('delete-case-modal');
+  const cancelDeleteBtn = document.getElementById('cancel-delete-modal-btn');
+  const confirmDeleteBtn = document.getElementById('confirm-delete-case-btn');
+  let pendingDeleteId = null;
+  let pendingDeleteTitle = '';
+
+  function closeDeleteModal() {
+    if (deleteModal) deleteModal.style.display = 'none';
+    pendingDeleteId = null;
+    pendingDeleteTitle = '';
+  }
+
+  cancelDeleteBtn?.addEventListener('click', closeDeleteModal);
+  deleteModal?.addEventListener('click', (e) => {
+    if (e.target === deleteModal) closeDeleteModal();
+  });
+
+  confirmDeleteBtn?.addEventListener('click', async () => {
+    if (!pendingDeleteId) return;
+    const idToDelete = pendingDeleteId;
+    const titleToDelete = pendingDeleteTitle;
+    closeDeleteModal();
+
+    await api.deleteCase(idToDelete);
+
+    const targetCard = document.querySelector(`.case-record-item[data-case-id="${idToDelete}"]`);
+    if (targetCard) {
+      targetCard.style.transition = 'all 0.25s ease';
+      targetCard.style.opacity = '0';
+      targetCard.style.transform = 'translateX(-20px)';
+      setTimeout(() => {
+        targetCard.remove();
+        applyFilter();
+      }, 250);
+    }
+
+    const toast = document.getElementById('cases-alert-toast');
+    const toastText = document.getElementById('cases-alert-toast-text');
+    if (toast && toastText) {
+      toastText.textContent = `Case "${titleToDelete}" has been permanently deleted.`;
+      toast.style.background = '#fef2f2';
+      toast.style.borderColor = '#fecaca';
+      toast.style.color = '#991b1b';
+      const icon = toast.querySelector('.material-symbols-outlined');
+      if (icon) {
+        icon.textContent = 'delete';
+        icon.style.color = '#dc2626';
+      }
+      toast.style.display = 'flex';
+      setTimeout(() => {
+        toast.style.display = 'none';
+        toast.style.background = '#ecfdf5';
+        toast.style.borderColor = '#a7f3d0';
+        toast.style.color = '#065f46';
+        if (icon) {
+          icon.textContent = 'check_circle';
+          icon.style.color = '#059669';
+        }
+      }, 4000);
+    }
+  });
 
   function applyFilter() {
     const query = (searchInput?.value || '').toLowerCase().trim();
@@ -292,6 +391,19 @@ export function initCasesPage() {
           api.setActiveCase(caseId);
           window.location.hash = '#/timeline';
         }
+      });
+    });
+
+    document.querySelectorAll('.btn-delete-case').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        pendingDeleteId = btn.getAttribute('data-case-id');
+        pendingDeleteTitle = btn.getAttribute('data-case-title') || 'this case';
+        const msgEl = document.getElementById('delete-modal-case-message');
+        if (msgEl) {
+          msgEl.innerHTML = `Are you sure you want to permanently delete <strong>"${pendingDeleteTitle}"</strong>? All associated proceedings, timelines, and court records for this case will be purged.`;
+        }
+        if (deleteModal) deleteModal.style.display = 'flex';
       });
     });
   }

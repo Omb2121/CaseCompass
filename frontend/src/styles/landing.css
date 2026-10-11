@@ -69,6 +69,19 @@
   cursor: pointer;
 }
 
+.landing-nav__brand-img {
+  height: 3.5rem;
+  max-height: 58px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+  transition: transform 0.2s ease;
+}
+
+.landing-nav__brand-img:hover {
+  transform: scale(1.02);
+}
+
 .landing-nav__logo {
   width: 36px;
   height: 36px;

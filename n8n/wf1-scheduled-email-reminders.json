@@ -1,0 +1,162 @@
+{
+  "name": "WF1 Scheduled Reminders & Email Alerts",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 8 * * *"
+            }
+          ]
+        }
+      },
+      "id": "node-schedule-cron",
+      "name": "Daily 8 AM Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        200,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "BACKEND_BASE_URL",
+              "value": "http://127.0.0.1:8000"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "node-rem-config",
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [
+        420,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $('Config').item.json.BACKEND_BASE_URL }}/api/reminders/due-today",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "node-fetch-due",
+      "name": "Fetch Due Judgement Reminders",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        640,
+        300
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "casecompass-api-key-creds",
+          "name": "CaseCompass Backend API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "notifications@casecompass.in",
+        "toEmail": "={{ $json.email }}",
+        "subject": "CaseCompass Court Alert: Judgement / Hearing Scheduled for Tomorrow",
+        "text": "=Dear Litigant / Legal-Aid Volunteer,\n\n{{ $json.message }}\n\nCase ID: {{ $json.case_id }}\nScheduled Date: {{ $json.judgement_date }}\n\nPlease ensure all relevant filings, documents, and representation are organized.\n\n--\nCaseCompass Legal Aid Support\nHelpline: 15100 (DLSA)\nNotice: This organizes the record. It is not legal advice and does not predict outcomes.",
+        "options": {}
+      },
+      "id": "node-send-email",
+      "name": "Send Email Alert",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        880,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Config').item.json.BACKEND_BASE_URL }}/api/reminders/{{ $json.id }}/mark-sent",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "node-mark-sent",
+      "name": "Mark Sent in Database",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1100,
+        300
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "casecompass-api-key-creds",
+          "name": "CaseCompass Backend API Key"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Daily 8 AM Trigger": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Fetch Due Judgement Reminders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Due Judgement Reminders": {
+      "main": [
+        [
+          {
+            "node": "Send Email Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email Alert": {
+      "main": [
+        [
+          {
+            "node": "Mark Sent in Database",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

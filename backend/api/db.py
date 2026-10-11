@@ -106,6 +106,20 @@ def init_db(db_path: str = DB_PATH) -> None:
         updated_at TEXT NOT NULL
     );
 
+    CREATE TABLE IF NOT EXISTS reminders (
+        id TEXT PRIMARY KEY,
+        case_id TEXT NOT NULL,
+        email TEXT NOT NULL,
+        target_date TEXT NOT NULL,
+        notice_date TEXT NOT NULL,
+        status TEXT NOT NULL DEFAULT 'pending',
+        created_at TEXT NOT NULL,
+        notified_at TEXT,
+        details_json TEXT,
+        FOREIGN KEY (case_id) REFERENCES cases(id) ON DELETE CASCADE
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_reminders_notice_date ON reminders(notice_date, status);
     CREATE INDEX IF NOT EXISTS idx_documents_case_id ON documents(case_id);
     CREATE INDEX IF NOT EXISTS idx_pages_document_id ON pages(document_id);
     CREATE INDEX IF NOT EXISTS idx_items_document_id ON items(document_id);

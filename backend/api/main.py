@@ -21,6 +21,7 @@ from .routes_trust import router as trust_router
 from .routes_sandbox import router as sandbox_router
 from .routes_audit import router as audit_router
 from .routes_glossary import router as glossary_router
+from .routes_reminders import router as reminders_router, due_router
 
 
 @asynccontextmanager
@@ -63,6 +64,8 @@ app.include_router(trust_router)
 app.include_router(sandbox_router)
 app.include_router(audit_router)
 app.include_router(glossary_router)
+app.include_router(reminders_router)
+app.include_router(due_router)
 
 
 @app.get("/")

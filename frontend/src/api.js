@@ -352,6 +352,71 @@ export const api = {
   },
 
   /**
+   * Register email reminder for case judgement / hearing
+   */
+  async subscribeReminder(caseId, email, targetDate) {
+    try {
+      const res = await fetch(`/api/cases/${caseId}/reminders`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-API-Key': 'casecompass-secret-key-2025'
+        },
+        body: JSON.stringify({
+          email: email,
+          target_date: targetDate,
+          days_before: 1
+        })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        // save to localStorage as cache
+        const key = `casecompass_reminders_${caseId}`;
+        const existing = JSON.parse(localStorage.getItem(key) || '[]');
+        existing.unshift(data);
+        localStorage.setItem(key, JSON.stringify(existing));
+        return data;
+      }
+    } catch (e) {
+      console.warn('Backend offline, saving reminder locally', e);
+    }
+
+    // Local fallback
+    const key = `casecompass_reminders_${caseId}`;
+    const existing = JSON.parse(localStorage.getItem(key) || '[]');
+    const fallback = {
+      id: `rem_${Date.now()}`,
+      case_id: caseId,
+      email: email,
+      target_date: targetDate || '2025-02-14',
+      notice_date: '1 day prior',
+      status: 'pending',
+      created_at: new Date().toISOString()
+    };
+    existing.unshift(fallback);
+    localStorage.setItem(key, JSON.stringify(existing));
+    return fallback;
+  },
+
+  /**
+   * Get registered reminders for case
+   */
+  async getCaseReminders(caseId) {
+    try {
+      const res = await fetch(`/api/cases/${caseId}/reminders`, {
+        headers: { 'X-API-Key': 'casecompass-secret-key-2025' }
+      });
+      if (res.ok) {
+        return await res.json();
+      }
+    } catch {
+      // ignore
+    }
+    const key = `casecompass_reminders_${caseId}`;
+    return JSON.parse(localStorage.getItem(key) || '[]');
+  },
+
+  /**
    * Get LIVE timeline events specifically for this case
    */
   getCaseTimeline(caseId) {

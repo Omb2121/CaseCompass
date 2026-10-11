@@ -221,7 +221,7 @@ export function renderSummaryPage() {
             </div>
           </div>
 
-          <!-- Interactive Pre-Hearing Checklist -->
+            <!-- Pre-Hearing Checklist -->
           <div class="card" style="padding: var(--space-lg);">
             <div class="section-title" style="display: flex; justify-content: space-between; align-items: center;">
               <span>Pre-Hearing Checklist</span>
@@ -245,6 +245,30 @@ export function renderSummaryPage() {
                 <span>Confirm counsel presence and vakalatnama</span>
               </label>
             </div>
+          </div>
+
+          <!-- Hearing / Judgement Date Email Reminder Notification Card -->
+          <div class="card" style="padding: var(--space-lg); border: 1px solid #bfdbfe; background: #eff6ff;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+              <span class="material-symbols-outlined" style="color: var(--primary); font-size: 22px;">notifications_active</span>
+              <span style="font-size: 0.9375rem; font-weight: 700; color: var(--primary);">Judgement & Hearing Notification</span>
+            </div>
+            <p style="font-size: 0.8125rem; color: var(--on-surface-variant); line-height: 1.4; margin-bottom: 12px;">
+              Save your email in the system to receive an automatic reminder <strong>1 day before</strong> your next hearing / judgement date (<strong>${nextHearingDate}</strong>).
+            </p>
+
+            <form id="form-reminder-subscribe" style="display: flex; flex-direction: column; gap: 10px;">
+              <div>
+                <input type="email" id="reminder-email-input" placeholder="litigant@example.com" required
+                  style="width: 100%; box-sizing: border-box; padding: 9px 12px; font-size: 0.875rem; border-radius: var(--radius-sm); border: 1px solid var(--outline); background: white;">
+              </div>
+              <button type="submit" class="btn btn--primary btn--sm" id="btn-save-reminder" style="width: 100%; justify-content: center;">
+                <span class="material-symbols-outlined" style="font-size: 16px;">save</span>
+                <span>Save Email & Set Reminder</span>
+              </button>
+            </form>
+
+            <div id="reminder-status-msg" style="margin-top: 10px; font-size: 0.8125rem; display: none;"></div>
           </div>
 
           <!-- Legal Aid DLSA Contact -->
@@ -383,4 +407,49 @@ export function initSummaryPage() {
       updateProgress();
     });
   });
+
+  // Judgement / Hearing Reminder Subscription
+  const reminderForm = document.getElementById('form-reminder-subscribe');
+  const emailInput = document.getElementById('reminder-email-input');
+  const statusMsg = document.getElementById('reminder-status-msg');
+  const saveBtn = document.getElementById('btn-save-reminder');
+
+  reminderForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = emailInput?.value?.trim();
+    if (!email) return;
+
+    if (saveBtn) {
+      saveBtn.disabled = true;
+      saveBtn.innerHTML = '<span class="material-symbols-outlined" style="font-size:16px;">hourglass_top</span> Saving to Database...';
+    }
+
+    try {
+      const res = await api.subscribeReminder(activeCase.id, email, activeCase.nextHearing || '2025-02-14');
+      if (statusMsg) {
+        statusMsg.style.display = 'block';
+        statusMsg.style.color = '#065f46';
+        statusMsg.style.background = '#d1fae5';
+        statusMsg.style.padding = '8px 10px';
+        statusMsg.style.borderRadius = '6px';
+        statusMsg.innerHTML = `<strong>✔ Alert Registered in Database!</strong><br>Email <code>${email}</code> saved. You will receive an automated alert on <strong>${res.notice_date || '1 day prior'}</strong> before the scheduled date.`;
+      }
+      if (emailInput) emailInput.value = '';
+    } catch (err) {
+      if (statusMsg) {
+        statusMsg.style.display = 'block';
+        statusMsg.style.color = '#991b1b';
+        statusMsg.style.background = '#fee2e2';
+        statusMsg.style.padding = '8px 10px';
+        statusMsg.style.borderRadius = '6px';
+        statusMsg.textContent = 'Failed to register alert. Please check connection.';
+      }
+    } finally {
+      if (saveBtn) {
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = '<span class="material-symbols-outlined" style="font-size:16px;">save</span> Save Email & Set Reminder';
+      }
+    }
+  });
 }
+

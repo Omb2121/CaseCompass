@@ -1,0 +1,9 @@
+{
+  "case_id": "case-sunita-001",
+  "query": "When is the next date of hearing?",
+  "intent": "record_lookup",
+  "is_refusal": false,
+  "answer": "The next hearing is scheduled for 14 February 2026 as per the order dated 12 January 2026.",
+  "citations": ["item-001"],
+  "language": "en"
+}

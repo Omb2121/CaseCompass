@@ -14,9 +14,32 @@ const CASES_STORAGE_KEY = 'casecompass_cases_list';
 const ACTIVE_CASE_KEY = 'casecompass_active_case_id';
 
 export function initStore() {
-  if (!localStorage.getItem(CASES_STORAGE_KEY)) {
+  const existing = localStorage.getItem(CASES_STORAGE_KEY);
+  if (!existing) {
     localStorage.setItem(CASES_STORAGE_KEY, JSON.stringify(defaultCases));
+  } else {
+    try {
+      const parsed = JSON.parse(existing);
+      let updated = false;
+      parsed.forEach(c => {
+        const match = defaultCases.find(d => String(d.id) === String(c.id));
+        if (match) {
+          if (!c.reportedBy && match.reportedBy) { c.reportedBy = match.reportedBy; updated = true; }
+          if (!c.judge && match.judge) { c.judge = match.judge; updated = true; }
+          if (!c.timespan && match.timespan) { c.timespan = match.timespan; updated = true; }
+          if (c.isDisposed === undefined && match.isDisposed !== undefined) { c.isDisposed = match.isDisposed; updated = true; }
+          if (!c.benchItem && match.benchItem) { c.benchItem = match.benchItem; updated = true; }
+          if (!c.hearingPurpose && match.hearingPurpose) { c.hearingPurpose = match.hearingPurpose; updated = true; }
+        }
+      });
+      if (updated) {
+        localStorage.setItem(CASES_STORAGE_KEY, JSON.stringify(parsed));
+      }
+    } catch {
+      localStorage.setItem(CASES_STORAGE_KEY, JSON.stringify(defaultCases));
+    }
   }
+
   if (!localStorage.getItem(ACTIVE_CASE_KEY)) {
     localStorage.setItem(ACTIVE_CASE_KEY, '1');
   }
@@ -45,12 +68,72 @@ export function getCaseSeriousness(c) {
 }
 
 export const api = {
+  getCurrentRole() {
+    return localStorage.getItem('casecompass_role') || 'admin';
+  },
+
+  setCurrentRole(role) {
+    localStorage.setItem('casecompass_role', role);
+  },
+
+  getCurrentUser() {
+    return localStorage.getItem('casecompass_user') || 'Admin User';
+  },
+
   /**
-   * Get all case records with seriousness classification (synchronous)
+   * Get case records with role-based visibility and optional timespan filters (synchronous)
    */
-  getCases() {
+  getCases(options = {}) {
     const raw = JSON.parse(localStorage.getItem(CASES_STORAGE_KEY) || JSON.stringify(defaultCases));
-    return raw.map(c => ({ ...c, seriousness: getCaseSeriousness(c) }));
+    let cases = raw.map(c => ({
+      ...c,
+      seriousness: getCaseSeriousness(c),
+      reportedBy: c.reportedBy || (c.createdByUser || 'Ramesh Kumar'),
+      timespan: c.timespan || 'day',
+      isDisposed: !!c.isDisposed,
+    }));
+
+    if (options.ignoreRoleFilter) {
+      return cases;
+    }
+
+    const role = options.role || this.getCurrentRole();
+    const currentUser = (options.user || this.getCurrentUser()).toLowerCase();
+
+    // 1. USER ROLE: Only sees cases reported by them
+    if (role === 'user') {
+      cases = cases.filter(c => {
+        const rep = (c.reportedBy || '').toLowerCase();
+        const createdBy = (c.createdByUser || '').toLowerCase();
+        const title = (c.title || '').toLowerCase();
+        return rep.includes(currentUser) || currentUser.includes(rep) ||
+               createdBy === currentUser ||
+               title.includes(currentUser);
+      });
+    }
+
+    // 2. JUDGE ROLE: Sees day cause list, month roster, and past adjudicated cases
+    else if (role === 'judge') {
+      const timespan = options.timespan;
+      if (timespan === 'day') {
+        cases = cases.filter(c => c.timespan === 'day' && !c.isDisposed);
+      } else if (timespan === 'month') {
+        cases = cases.filter(c => (c.timespan === 'day' || c.timespan === 'month') && !c.isDisposed);
+      } else if (timespan === 'past') {
+        cases = cases.filter(c => c.isDisposed || c.timespan === 'past');
+      }
+    }
+
+    // 3. ADMIN ROLE: Sees all cases, with optional day/month timespan filtering
+    else if (role === 'admin' && options.timespan) {
+      if (options.timespan === 'day') {
+        cases = cases.filter(c => c.timespan === 'day');
+      } else if (options.timespan === 'month') {
+        cases = cases.filter(c => c.timespan === 'day' || c.timespan === 'month');
+      }
+    }
+
+    return cases;
   },
 
   /**
@@ -76,6 +159,10 @@ export const api = {
             filingDate: b.created_at ? b.created_at.split('T')[0] : '15 Mar 2024',
             section: b.section || 'IPC §420, §468',
             seriousness: b.seriousness || (b.status === 'flagged' ? 'high' : (b.status === 'verified' ? 'low' : 'medium')),
+            reportedBy: b.reported_by || 'Ramesh Kumar',
+            judge: b.judge || 'Hon. Smt. Archana Kulkarni',
+            timespan: 'day',
+            isDisposed: false,
           }));
           const combined = [...customCases, ...mapped];
           localStorage.setItem(CASES_STORAGE_KEY, JSON.stringify(combined));
@@ -92,8 +179,7 @@ export const api = {
    * Get the active case object
    */
   getActiveCase() {
-    const raw = JSON.parse(localStorage.getItem(CASES_STORAGE_KEY) || JSON.stringify(defaultCases));
-    const cases = raw.map(c => ({ ...c, seriousness: getCaseSeriousness(c) }));
+    const cases = this.getCases({ ignoreRoleFilter: true });
     const activeId = localStorage.getItem(ACTIVE_CASE_KEY) || '1';
     const found = cases.find(c => String(c.id) === String(activeId));
     if (found) return found;
@@ -109,13 +195,15 @@ export const api = {
 
   /**
    * Create a new case record and ensure it appears immediately in All Records.
-   * Starts with a clean, live initial timeline and 0 documents.
+   * Automatically attributes ownership to the reporting user and records timespan.
    */
   async createCase(data) {
     const cases = JSON.parse(localStorage.getItem(CASES_STORAGE_KEY) || JSON.stringify(defaultCases));
     const newId = `CR-${Date.now()}`;
     const formattedDate = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
     const assignedSeriousness = data.seriousness || (data.status === 'flagged' ? 'high' : (data.status === 'verified' ? 'low' : 'medium'));
+    const currentUser = this.getCurrentUser();
+    const currentRole = this.getCurrentRole();
 
     const newRecord = {
       id: newId,
@@ -126,10 +214,17 @@ export const api = {
       statusLabel: data.statusLabel || (data.status === 'verified' ? 'Verified' : (data.status === 'flagged' ? 'Needs Attention' : (data.status === 'processing' ? 'Processing' : 'Pending Review'))),
       seriousness: assignedSeriousness,
       documents: 0,
-      nextHearing: data.nextHearing || 'Upcoming Scheduling',
+      nextHearing: data.nextHearing || 'Today (Listed for Hearing)',
       filingDate: formattedDate,
       section: data.section || 'BNS / IPC Procedural Intake',
       isCustom: true,
+      reportedBy: data.reportedBy?.trim() || currentUser,
+      createdByUser: currentUser,
+      judge: data.judge || 'Hon. Smt. Archana Kulkarni',
+      timespan: data.timespan || 'day',
+      hearingPurpose: data.hearingPurpose || 'Initial Docket Intake & Scrutiny',
+      benchItem: `Item ${Math.floor(10 + Math.random() * 80)} · Regular Intake`,
+      isDisposed: false,
     };
 
     // Prepend to cases list

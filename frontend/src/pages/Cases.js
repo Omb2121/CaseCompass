@@ -1,7 +1,9 @@
 /**
  * CaseCompass — 1. Cases Page
- * Real-time Case Records Management divided into High, Medium, and Low seriousness/review levels.
- * Separates cases into structured urgency tiers with filtering, search, live creation, and deletion.
+ * Real-time Case Records Management supporting three distinct portals:
+ * 1. User / Citizen Portal: Litigant only sees the case which they reported and related docket proceedings.
+ * 2. Admin Portal: Court Registry Administrator sees all cases, filters across day/month timespans, and has full management authority.
+ * 3. Judge Portal: Hon'ble Presiding Judge sees all cases throughout the day (cause list), month (hearing roster), and previous adjudicated decisions.
  */
 
 import { api, getCaseSeriousness } from '../api.js';
@@ -29,7 +31,7 @@ function statusIcon(status) {
 function seriousnessBadge(seriousness) {
   const level = (seriousness || 'medium').toLowerCase();
   if (level === 'high') {
-    return `<span class="badge badge--seriousness-high" title="Critical Review Priority · Serious Penal Matter / Flagged Record">
+    return `<span class="badge badge--seriousness-high" title="Critical Review Priority · Urgent Criminal / Flagged Matter">
       <span class="material-symbols-outlined" style="font-size:12px;">priority_high</span>
       HIGH SERIOUSNESS
     </span>`;
@@ -46,119 +48,249 @@ function seriousnessBadge(seriousness) {
   </span>`;
 }
 
-function renderCaseCard(c) {
+function renderCaseCard(c, currentRole = 'admin') {
   const safeTitle = (c.title || '').replace(/"/g, '&quot;');
   const seriousness = getCaseSeriousness(c);
   const borderColor = seriousness === 'high' ? '#ef4444' : (seriousness === 'medium' ? '#f59e0b' : '#10b981');
+  const isDisposed = !!c.isDisposed;
 
   return `
-    <div class="card-flat case-record-item" data-case-id="${c.id}" data-case-status="${c.status}" data-case-seriousness="${seriousness}"
+    <div class="card-flat case-record-item" data-case-id="${c.id}" data-case-status="${c.status}"
+         data-case-seriousness="${seriousness}" data-case-timespan="${c.timespan || 'day'}"
+         data-case-is-disposed="${isDisposed ? 'true' : 'false'}"
          data-case-title="${safeTitle}" data-case-cnr="${c.cnr}" data-case-court="${c.court}"
+         data-case-reported-by="${(c.reportedBy || '').replace(/"/g, '&quot;')}"
          style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:var(--space-md);padding:var(--space-md) var(--space-lg);border-left:5px solid ${borderColor};transition:all 0.2s;cursor:pointer;"
          onmouseover="this.style.boxShadow='var(--shadow-md)';this.style.transform='translateY(-1px)'"
          onmouseout="this.style.boxShadow='var(--shadow-xs)';this.style.transform='translateY(0)'">
+      
       <div style="display:flex;align-items:center;gap:var(--space-md);min-width:0;flex:1;">
         <div style="width:42px;height:42px;border-radius:var(--radius-md);background:${seriousness === 'high' ? '#fee2e2' : (seriousness === 'medium' ? '#fef3c7' : '#d1fae5')};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
           <span class="material-symbols-outlined" style="font-size:22px;color:${borderColor}">
-            ${seriousness === 'high' ? 'warning' : (seriousness === 'medium' ? 'folder_open' : 'verified')}
+            ${currentRole === 'judge' ? 'gavel' : (seriousness === 'high' ? 'warning' : (seriousness === 'medium' ? 'folder_open' : 'verified'))}
           </span>
         </div>
+        
         <div style="min-width:0;">
           <div style="display:flex;align-items:center;gap:var(--space-sm);flex-wrap:wrap;">
             <span class="text-body-md" style="font-weight:700;color:var(--on-surface);">${c.title}</span>
             ${seriousnessBadge(seriousness)}
+            
             <span class="badge ${statusBadgeClass(c.status)}">
               <span class="material-symbols-outlined" style="font-size:12px">${statusIcon(c.status)}</span>
               ${c.statusLabel || c.status}
             </span>
-            ${c.isCustom ? `<span class="badge" style="background:#eff6ff;color:#1d4ed8;font-size:0.6875rem;">Newly Registered</span>` : ''}
+
+            ${isDisposed ? `
+              <span class="badge" style="background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0;font-weight:700;font-size:0.6875rem;">
+                <span class="material-symbols-outlined" style="font-size:12px;">task_alt</span> Previous Judgment Decided
+              </span>
+            ` : ''}
+
+            ${currentRole === 'user' ? `
+              <span class="badge" style="background:#eff6ff;color:#1d4ed8;font-size:0.6875rem;font-weight:600;">
+                <span class="material-symbols-outlined" style="font-size:12px;">person</span> Reported by You
+              </span>
+            ` : (c.reportedBy ? `
+              <span class="badge hide-mobile" style="background:#f8fafc;color:#475569;font-size:0.6875rem;border:1px solid #e2e8f0;">
+                Reported by: ${c.reportedBy}
+              </span>
+            ` : '')}
+
+            ${currentRole === 'judge' && c.benchItem ? `
+              <span class="badge" style="background:#fef3c7;color:#92400e;border:1px solid #fde68a;font-weight:700;font-size:0.6875rem;">
+                ${c.benchItem}
+              </span>
+            ` : ''}
           </div>
+
           <div style="display:flex;align-items:center;gap:var(--space-sm);flex-wrap:wrap;margin-top:4px;">
             <span class="text-code-sm" style="color:var(--secondary);background:var(--surface-container-low);padding:1px 6px;border-radius:var(--radius-sm);font-weight:600;">CNR: ${c.cnr}</span>
             <span class="text-body-sm" style="color:var(--on-surface-variant);">${c.court}</span>
             ${c.section ? `<span style="font-size:0.75rem;color:var(--outline);">&middot; ${c.section}</span>` : ''}
+            ${c.hearingPurpose ? `<span style="font-size:0.75rem;color:#b45309;font-weight:600;">&middot; Purpose: ${c.hearingPurpose}</span>` : ''}
           </div>
         </div>
       </div>
+
       <div style="display:flex;align-items:center;gap:var(--space-md);flex-shrink:0;flex-wrap:wrap;">
         <div style="text-align:center;min-width:44px;">
           <div class="text-label-sm" style="color:var(--on-surface-variant);text-transform:uppercase;">Docs</div>
           <div class="text-body-md" style="font-weight:700;color:var(--primary);">${c.documents || 0}</div>
         </div>
-        <div style="text-align:center;min-width:84px;">
-          <div class="text-label-sm" style="color:var(--on-surface-variant);text-transform:uppercase;">Next Hearing</div>
-          <div class="text-body-sm" style="font-weight:600;color:var(--on-surface);">${c.nextHearing || 'Upcoming'}</div>
+
+        <div style="text-align:center;min-width:88px;">
+          <div class="text-label-sm" style="color:var(--on-surface-variant);text-transform:uppercase;">
+            ${isDisposed ? 'Decided Order' : 'Hearing Date'}
+          </div>
+          <div class="text-body-sm" style="font-weight:600;color:var(--on-surface);">
+            ${c.nextHearing || 'Today'}
+          </div>
         </div>
+
         <button class="btn btn--secondary btn--sm btn-open-timeline" data-case-id="${c.id}" style="font-size:0.75rem;border-radius:var(--radius-md);" title="Open timeline for this case">
-          <span>View Timeline</span>
+          <span>${currentRole === 'judge' ? 'Bench Dossier' : 'View Timeline'}</span>
           <span class="material-symbols-outlined" style="font-size:14px;">arrow_forward</span>
         </button>
-        <button class="btn btn--sm btn-delete-case" data-case-id="${c.id}" data-case-title="${safeTitle}" title="Delete this case record"
-                style="font-size:0.75rem;border-radius:var(--radius-md);color:#dc2626;background:#fef2f2;border:1px solid #fecaca;padding:6px 12px;display:inline-flex;align-items:center;gap:4px;cursor:pointer;transition:all 0.15s ease;"
-                onmouseover="this.style.background='#fee2e2';this.style.borderColor='#f87171'"
-                onmouseout="this.style.background='#fef2f2';this.style.borderColor='#fecaca'">
-          <span class="material-symbols-outlined" style="font-size:15px;color:#dc2626;">delete</span>
-          <span style="font-weight:600;">Delete</span>
-        </button>
+
+        ${currentRole === 'admin' ? `
+          <button class="btn btn--sm btn-delete-case" data-case-id="${c.id}" data-case-title="${safeTitle}" title="Admin Delete Authority"
+                  style="font-size:0.75rem;border-radius:var(--radius-md);color:#dc2626;background:#fef2f2;border:1px solid #fecaca;padding:6px 12px;display:inline-flex;align-items:center;gap:4px;cursor:pointer;transition:all 0.15s ease;"
+                  onmouseover="this.style.background='#fee2e2';this.style.borderColor='#f87171'"
+                  onmouseout="this.style.background='#fef2f2';this.style.borderColor='#fecaca'">
+            <span class="material-symbols-outlined" style="font-size:15px;color:#dc2626;">delete</span>
+            <span style="font-weight:600;">Delete</span>
+          </button>
+        ` : (currentRole === 'user' ? `
+          <button class="btn btn--sm btn-delete-case" data-case-id="${c.id}" data-case-title="${safeTitle}" title="Withdraw this reported case"
+                  style="font-size:0.75rem;border-radius:var(--radius-md);color:#64748b;background:#f8fafc;border:1px solid #e2e8f0;padding:6px 10px;display:inline-flex;align-items:center;gap:4px;cursor:pointer;">
+            <span class="material-symbols-outlined" style="font-size:14px;">delete</span>
+            <span>Remove</span>
+          </button>
+        ` : '')}
       </div>
     </div>
   `;
 }
 
 export function renderCasesPage() {
-  const cases = api.getCases();
+  const currentRole = api.getCurrentRole();
+  const currentUser = api.getCurrentUser();
+  const cases = api.getCases({ role: currentRole, user: currentUser });
 
   // Divide into High, Medium, Low
   const highCases = cases.filter(c => getCaseSeriousness(c) === 'high');
   const mediumCases = cases.filter(c => getCaseSeriousness(c) === 'medium');
   const lowCases = cases.filter(c => getCaseSeriousness(c) === 'low');
 
-  const filterPills = [
-    { value: 'all', label: `All Records (${cases.length})` },
-    { value: 'flagged', label: 'Flagged' },
-    { value: 'pending', label: 'Pending' },
-    { value: 'verified', label: 'Verified' },
-    { value: 'processing', label: 'Processing' },
-  ];
+  // Timespan counts for Admin & Judge
+  const allRegistryCases = api.getCases({ ignoreRoleFilter: true });
+  const dayCases = allRegistryCases.filter(c => c.timespan === 'day' && !c.isDisposed);
+  const monthCases = allRegistryCases.filter(c => (c.timespan === 'day' || c.timespan === 'month') && !c.isDisposed);
+  const pastJudgeCases = allRegistryCases.filter(c => c.isDisposed || c.timespan === 'past');
+
+  // Portal-specific Filters
+  let filterPills = [];
+
+  if (currentRole === 'admin') {
+    // Admin Timespan Authority Filters
+    filterPills = [
+      { value: 'all', label: `All Records (${cases.length})`, isTimespan: false },
+      { value: 'timespan-day', label: `📅 Listed Today (Day) (${dayCases.length})`, isTimespan: true },
+      { value: 'timespan-month', label: `🗓️ Listed This Month (Month) (${monthCases.length})`, isTimespan: true },
+      { value: 'flagged', label: 'Flagged', isTimespan: false },
+      { value: 'pending', label: 'Pending', isTimespan: false },
+      { value: 'verified', label: 'Verified', isTimespan: false },
+    ];
+  } else if (currentRole === 'judge') {
+    // Judge Bench Cause List Filters
+    filterPills = [
+      { value: 'judge-day', label: `📅 Today's Cause List (Day) (${dayCases.length})`, isTimespan: true },
+      { value: 'judge-month', label: `🗓️ Monthly Hearing Roster (Month) (${monthCases.length})`, isTimespan: true },
+      { value: 'judge-past', label: `📜 Previous Adjudicated Cases (${pastJudgeCases.length})`, isTimespan: true },
+      { value: 'all', label: `All Bench Cases (${cases.length})`, isTimespan: false },
+      { value: 'flagged', label: 'Urgent Flagged', isTimespan: false },
+    ];
+  } else {
+    // User / Citizen Filter Pills (only personal reported cases)
+    filterPills = [
+      { value: 'all', label: `My Reported Cases (${cases.length})`, isTimespan: false },
+      { value: 'verified', label: 'Verified', isTimespan: false },
+      { value: 'pending', label: 'Pending Review', isTimespan: false },
+      { value: 'flagged', label: 'Needs Attention', isTimespan: false },
+    ];
+  }
 
   return `
     <div class="page-content animate-fade-in" style="max-width: 1200px;">
       <!-- Success Toast Notification Placeholder -->
       <div id="cases-alert-toast" style="display:none;margin-bottom:var(--space-md);padding:12px 18px;border-radius:var(--radius-md);background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46;align-items:center;gap:10px;">
         <span class="material-symbols-outlined" style="color:#059669;font-size:20px;">check_circle</span>
-        <span id="cases-alert-toast-text" style="font-size:0.875rem;font-weight:600;">Case registered successfully</span>
+        <span id="cases-alert-toast-text" style="font-size:0.875rem;font-weight:600;">Action completed successfully</span>
       </div>
+
+      <!-- PORTAL ROLE BANNER -->
+      ${currentRole === 'user' ? `
+        <div style="padding:12px 16px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:var(--radius-md);margin-bottom:var(--space-lg);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;color:#1e40af;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span class="material-symbols-outlined" style="font-size:22px;color:#2563eb;">person</span>
+            <div>
+              <strong style="font-size:0.875rem;">Citizen & Litigant Access Mode:</strong>
+              <div style="font-size:0.75rem;color:#3b82f6;">
+                Viewing cases reported by <strong>${currentUser}</strong>. Confidential cases belonging to other litigants are restricted.
+              </div>
+            </div>
+          </div>
+          <span class="badge" style="background:#dbeafe;color:#1d4ed8;font-weight:700;">Litigant View (${cases.length} Reported)</span>
+        </div>
+      ` : (currentRole === 'judge' ? `
+        <div style="padding:12px 16px;background:#fffbeb;border:1px solid #fde68a;border-radius:var(--radius-md);margin-bottom:var(--space-lg);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;color:#92400e;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span class="material-symbols-outlined" style="font-size:22px;color:#d97706;">gavel</span>
+            <div>
+              <strong style="font-size:0.875rem;">Hon'ble Presiding Judge Bench Portal:</strong>
+              <div style="font-size:0.75rem;color:#b45309;">
+                Bench roster for <strong>${currentUser}</strong> — Daily cause list, monthly hearing roster, and all past adjudicated decisions.
+              </div>
+            </div>
+          </div>
+          <span class="badge" style="background:#fef3c7;color:#92400e;font-weight:700;">Presiding Magistrate</span>
+        </div>
+      ` : `
+        <div style="padding:12px 16px;background:#faf5ff;border:1px solid #e9d5ff;border-radius:var(--radius-md);margin-bottom:var(--space-lg);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;color:#5b21b6;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span class="material-symbols-outlined" style="font-size:22px;color:#7c3aed;">admin_panel_settings</span>
+            <div>
+              <strong style="font-size:0.875rem;">Court Registry Administrator Portal:</strong>
+              <div style="font-size:0.75rem;color:#7c3aed;">
+                Master Registry Authority: Total oversight of all dossiers across Day and Month timespans with full modification powers.
+              </div>
+            </div>
+          </div>
+          <span class="badge" style="background:#ede9fe;color:#5b21b6;font-weight:700;">Registry Authority</span>
+        </div>
+      `)}
 
       <!-- Page Header -->
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--space-md);margin-bottom:var(--space-lg);">
         <div>
-          <h1 class="page-heading">1. Cases Dossier Management</h1>
+          <h1 class="page-heading">
+            ${currentRole === 'user' ? 'My Reported Legal Cases' : (currentRole === 'judge' ? 'Hon\'ble Presiding Judge Bench Dossier' : '1. Cases Dossier Management')}
+          </h1>
           <p class="text-body-sm" style="color:var(--on-surface-variant);margin-top:4px;">
-            Dossiers divided into <strong>High</strong>, <strong>Medium</strong>, and <strong>Low</strong> seriousness based on penal gravity and review requirements.
+            ${currentRole === 'user'
+              ? 'Personal legal dockets reported by you with verified timelines, hearing alerts, and plain summaries.'
+              : (currentRole === 'judge'
+                ? 'Daily cause list hearings throughout the day, monthly rosters, and past adjudicated judgments.'
+                : 'All district dossiers categorized into High, Medium, and Low seriousness with full registry timespans.')}
           </p>
         </div>
         <button class="btn btn--primary" id="open-create-modal-btn">
           <span class="material-symbols-outlined" style="font-size:18px">add</span>
-          New Case Record
+          ${currentRole === 'user' ? 'Report New Case' : (currentRole === 'judge' ? 'Register Bench Case' : 'New Case Record')}
         </button>
       </div>
 
       <!-- Empty state when zero cases are registered in the portal -->
       <div id="no-cases-registered-banner" style="display:${cases.length === 0 ? 'block' : 'none'};text-align:center;padding:var(--space-2xl) var(--space-lg);background:var(--surface-container-lowest);border-radius:var(--radius-lg);border:1px dashed var(--outline-variant);margin-bottom:var(--space-lg);">
         <span class="material-symbols-outlined" style="font-size:56px;color:var(--outline);">folder_off</span>
-        <h3 class="text-headline-sm" style="color:var(--on-surface);margin-top:var(--space-sm);font-weight:700;">No Cases Registered</h3>
+        <h3 class="text-headline-sm" style="color:var(--on-surface);margin-top:var(--space-sm);font-weight:700;">
+          ${currentRole === 'user' ? 'No Reported Cases Found' : 'No Cases Registered'}
+        </h3>
         <p class="text-body-sm" style="color:var(--on-surface-variant);max-width:480px;margin:8px auto var(--space-md);">
-          There are currently no cases registered in the portal. Click <strong>"New Case Record"</strong> above to register your first dossier.
+          ${currentRole === 'user'
+            ? `You have not reported any legal cases under ${currentUser}. Click "Report New Case" to register your initial docket.`
+            : 'There are currently no active cases registered in this registry view. Click "New Case Record" to register your first dossier.'}
         </p>
         <button class="btn btn--primary" id="btn-banner-new-case">
           <span class="material-symbols-outlined" style="font-size:18px;">add</span>
-          Register First Case
+          ${currentRole === 'user' ? 'Report First Case' : 'Register First Case'}
         </button>
       </div>
 
-      <!-- Seriousness Quick KPI Summary Grid (only appears when cases are registered) -->
+      <!-- Seriousness Quick KPI Summary Grid (only appears when cases exist) -->
       <div id="seriousness-kpi-container" style="display:${cases.length > 0 ? 'grid' : 'none'};grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));gap:var(--space-md);margin-bottom:var(--space-lg);">
-        <!-- High Seriousness Card (only rendered if highCases exist) -->
+        <!-- High Seriousness Card -->
         <div class="seriousness-kpi-card" id="kpi-card-high" data-quick-filter="seriousness-high" data-target-group="group-high" style="border-left: 5px solid #ef4444;display:${highCases.length > 0 ? 'block' : 'none'};">
           <div style="display:flex;align-items:center;justify-content:space-between;">
             <div>
@@ -179,7 +311,7 @@ export function renderCasesPage() {
           </div>
         </div>
 
-        <!-- Medium Seriousness Card (only rendered if mediumCases exist) -->
+        <!-- Medium Seriousness Card -->
         <div class="seriousness-kpi-card" id="kpi-card-medium" data-quick-filter="seriousness-medium" data-target-group="group-medium" style="border-left: 5px solid #f59e0b;display:${mediumCases.length > 0 ? 'block' : 'none'};">
           <div style="display:flex;align-items:center;justify-content:space-between;">
             <div>
@@ -200,7 +332,7 @@ export function renderCasesPage() {
           </div>
         </div>
 
-        <!-- Low Seriousness Card (only rendered if lowCases exist) -->
+        <!-- Low Seriousness Card -->
         <div class="seriousness-kpi-card" id="kpi-card-low" data-quick-filter="seriousness-low" data-target-group="group-low" style="border-left: 5px solid #10b981;display:${lowCases.length > 0 ? 'block' : 'none'};">
           <div style="display:flex;align-items:center;justify-content:space-between;">
             <div>
@@ -222,7 +354,7 @@ export function renderCasesPage() {
         </div>
       </div>
 
-      <!-- Search & Filter Controls -->
+      <!-- Search & Filter Controls Bar -->
       <div class="card-flat" id="search-filter-controls-bar" style="display:${cases.length > 0 ? 'flex' : 'none'};padding:var(--space-md);margin-bottom:var(--space-lg);flex-wrap:wrap;gap:var(--space-md);align-items:center;justify-content:space-between;">
         <div style="display:flex;align-items:center;gap:var(--space-sm);flex:1;min-width:220px;max-width:380px;">
           <span class="material-symbols-outlined" style="font-size:20px;color:var(--outline)">search</span>
@@ -230,6 +362,7 @@ export function renderCasesPage() {
                  style="flex:1;border:1px solid var(--outline-variant);padding:8px 12px;border-radius:var(--radius-md);outline:none;"
                  aria-label="Search cases">
         </div>
+
         <div style="display:flex;align-items:center;gap:var(--space-xs);flex-wrap:wrap;" id="filter-pills-container">
           ${filterPills.map((p, i) => `
             <button class="btn btn--sm ${i === 0 ? 'btn--primary' : 'btn--secondary'}"
@@ -246,7 +379,7 @@ export function renderCasesPage() {
 
       <!-- Cases Count Summary -->
       <div style="display:${cases.length > 0 ? 'flex' : 'none'};margin-bottom:var(--space-sm);font-size:0.8125rem;color:var(--on-surface-variant);justify-content:space-between;align-items:center;" id="displayed-case-count">
-        <span>Showing <strong>${cases.length}</strong> registered dossiers divided into seriousness tiers</span>
+        <span>Showing <strong>${cases.length}</strong> ${currentRole === 'user' ? 'reported cases' : (currentRole === 'judge' ? 'bench cases' : 'registry dossiers')}</span>
       </div>
 
       <!-- ======================================================== -->
@@ -265,7 +398,7 @@ export function renderCasesPage() {
             <span class="hide-mobile" style="font-size:0.6875rem;opacity:0.85;font-weight:600;">Critical review required &middot; Flagged evidence / Penal trial</span>
           </div>
           <div class="cases-group-list" id="list-high" style="display:flex;flex-direction:column;gap:var(--space-sm);">
-            ${highCases.map(c => renderCaseCard(c)).join('')}
+            ${highCases.map(c => renderCaseCard(c, currentRole)).join('')}
           </div>
         </div>
 
@@ -280,7 +413,7 @@ export function renderCasesPage() {
             <span class="hide-mobile" style="font-size:0.6875rem;opacity:0.85;font-weight:600;">Active trial proceedings &middot; Pending documentary review</span>
           </div>
           <div class="cases-group-list" id="list-medium" style="display:flex;flex-direction:column;gap:var(--space-sm);">
-            ${mediumCases.map(c => renderCaseCard(c)).join('')}
+            ${mediumCases.map(c => renderCaseCard(c, currentRole)).join('')}
           </div>
         </div>
 
@@ -295,7 +428,7 @@ export function renderCasesPage() {
             <span class="hide-mobile" style="font-size:0.6875rem;opacity:0.85;font-weight:600;">Verified clean dockets &middot; Civil compliance & routine scheduling</span>
           </div>
           <div class="cases-group-list" id="list-low" style="display:flex;flex-direction:column;gap:var(--space-sm);">
-            ${lowCases.map(c => renderCaseCard(c)).join('')}
+            ${lowCases.map(c => renderCaseCard(c, currentRole)).join('')}
           </div>
         </div>
       </div>
@@ -303,7 +436,7 @@ export function renderCasesPage() {
       <!-- Empty Filter State -->
       <div id="empty-filter-state" style="display:none;text-align:center;padding:var(--space-xl);color:var(--on-surface-variant);">
         <span class="material-symbols-outlined" style="font-size:48px;color:var(--outline-variant)">search_off</span>
-        <p class="text-body-md" style="margin-top:var(--space-sm);">No records match your selected seriousness or status filters.</p>
+        <p class="text-body-md" style="margin-top:var(--space-sm);">No records match your selected criteria or timespan.</p>
       </div>
 
       <!-- Register New Case Modal -->
@@ -315,8 +448,12 @@ export function renderCasesPage() {
                 <span class="material-symbols-outlined" style="font-size:20px;">folder_open</span>
               </div>
               <div>
-                <h2 class="text-headline-sm" style="color:var(--primary);font-weight:700;">Register New Case Record</h2>
-                <p style="font-size:0.75rem;color:var(--on-surface-variant);">Assign seriousness and dossier parameters</p>
+                <h2 class="text-headline-sm" style="color:var(--primary);font-weight:700;">
+                  ${currentRole === 'user' ? 'Report / Register My Case' : 'Register New Case Record'}
+                </h2>
+                <p style="font-size:0.75rem;color:var(--on-surface-variant);">
+                  ${currentRole === 'user' ? `Attributed directly to your identity (${currentUser})` : 'Assign seriousness, timespan, and dossier parameters'}
+                </p>
               </div>
             </div>
             <button id="close-modal-btn" style="background:none;border:none;cursor:pointer;color:var(--on-surface-variant);padding:4px;" aria-label="Close modal">
@@ -336,12 +473,26 @@ export function renderCasesPage() {
                 Case Seriousness & Review Priority *
               </label>
               <select id="modal-case-seriousness" style="width:100%;padding:10px 14px;border:1.5px solid var(--primary);border-radius:var(--radius-md);background:var(--surface-container-lowest);font-weight:600;outline:none;">
-                <option value="high">🔴 High Seriousness (Urgent Criminal / Flagged Evidence Matter)</option>
+                <option value="high">🔴 High Seriousness (Urgent Criminal / Flagged Matter)</option>
                 <option value="medium" selected>🟡 Medium Seriousness (Active Trial / Pending Review)</option>
-                <option value="low">🟢 Low Seriousness (Routine Compliance / Verified Civil Docket)</option>
+                <option value="low">🟢 Low Seriousness (Routine Compliance / Civil Docket)</option>
               </select>
-              <div style="font-size:0.6875rem;color:var(--on-surface-variant);margin-top:3px;">
-                Controls placement into High, Medium, or Low separated dossier sections.
+            </div>
+
+            <!-- Timespan Listing -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+              <div>
+                <label class="text-label-md" style="color:var(--on-surface);display:block;margin-bottom:4px;font-weight:600;">Hearing Timespan *</label>
+                <select id="modal-case-timespan" style="width:100%;padding:10px 14px;border:1px solid var(--outline-variant);border-radius:var(--radius-md);background:white;outline:none;font-weight:600;">
+                  <option value="day" selected>📅 Listed Today (Day)</option>
+                  <option value="month">🗓️ Listed This Month (Month)</option>
+                  <option value="past">📜 Previous Adjudicated Case</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-label-md" style="color:var(--on-surface);display:block;margin-bottom:4px;font-weight:600;">Reported By</label>
+                <input type="text" id="modal-case-reported-by" value="${currentUser}"
+                       style="width:100%;padding:10px 14px;border:1px solid var(--outline-variant);border-radius:var(--radius-md);outline:none;background:#f8fafc;" ${currentRole === 'user' ? 'readonly' : ''}>
               </div>
             </div>
 
@@ -352,7 +503,7 @@ export function renderCasesPage() {
                        style="width:100%;padding:10px 14px;border:1px solid var(--outline-variant);border-radius:var(--radius-md);outline:none;">
               </div>
               <div>
-                <label class="text-label-md" style="color:var(--on-surface);display:block;margin-bottom:4px;font-weight:600;">Initial Review Status</label>
+                <label class="text-label-md" style="color:var(--on-surface);display:block;margin-bottom:4px;font-weight:600;">Review Status</label>
                 <select id="modal-case-status" style="width:100%;padding:10px 14px;border:1px solid var(--outline-variant);border-radius:var(--radius-md);background:white;outline:none;">
                   <option value="pending" selected>Pending Review</option>
                   <option value="verified">Verified</option>
@@ -369,8 +520,8 @@ export function renderCasesPage() {
             </div>
 
             <div>
-              <label class="text-label-md" style="color:var(--on-surface);display:block;margin-bottom:4px;font-weight:600;">Legal Section / Acts</label>
-              <input type="text" id="modal-case-section" placeholder="e.g., BNS §316 / IPC §420, §468"
+              <label class="text-label-md" style="color:var(--on-surface);display:block;margin-bottom:4px;font-weight:600;">Hearing Purpose / Bench Notes</label>
+              <input type="text" id="modal-case-purpose" placeholder="e.g., Cross-Examination of PW-2 / Arguments on Bail"
                      style="width:100%;padding:10px 14px;border:1px solid var(--outline-variant);border-radius:var(--radius-md);outline:none;">
             </div>
 
@@ -378,7 +529,7 @@ export function renderCasesPage() {
               <button type="button" class="btn btn--secondary" id="cancel-modal-btn">Cancel</button>
               <button type="submit" class="btn btn--primary" id="btn-submit-new-case">
                 <span class="material-symbols-outlined" style="font-size:18px;">save</span>
-                Register Dossier
+                ${currentRole === 'user' ? 'Report Dossier' : 'Register Dossier'}
               </button>
             </div>
           </form>
@@ -394,7 +545,7 @@ export function renderCasesPage() {
             </div>
             <div>
               <h3 class="text-headline-sm" style="color:#991b1b;font-weight:700;margin:0;">Delete Case Record?</h3>
-              <p style="font-size:0.8125rem;color:var(--on-surface-variant);margin:2px 0 0;">Permanent dossier removal</p>
+              <p style="font-size:0.8125rem;color:var(--on-surface-variant);margin:2px 0 0;">Permanent removal</p>
             </div>
           </div>
           <p class="text-body-sm" id="delete-modal-case-message" style="color:var(--on-surface);margin-bottom:var(--space-lg);line-height:1.5;">
@@ -409,16 +560,20 @@ export function renderCasesPage() {
           </div>
         </div>
       </div>
+
     </div>
   `;
 }
 
 export function initCasesPage() {
+  const currentRole = api.getCurrentRole();
+  const currentUser = api.getCurrentUser();
+
   const searchInput = document.getElementById('case-search-input');
   const clearBtn = document.getElementById('clear-filters-btn');
   const caseCountEl = document.getElementById('displayed-case-count');
   const emptyState = document.getElementById('empty-filter-state');
-  let currentFilter = 'all';
+  let currentFilter = currentRole === 'judge' ? 'judge-day' : 'all';
 
   // Delete modal state
   const deleteModal = document.getElementById('delete-case-modal');
@@ -465,21 +620,12 @@ export function initCasesPage() {
       toast.style.background = '#fef2f2';
       toast.style.borderColor = '#fecaca';
       toast.style.color = '#991b1b';
-      const icon = toast.querySelector('.material-symbols-outlined');
-      if (icon) {
-        icon.textContent = 'delete';
-        icon.style.color = '#dc2626';
-      }
       toast.style.display = 'flex';
       setTimeout(() => {
         toast.style.display = 'none';
         toast.style.background = '#ecfdf5';
         toast.style.borderColor = '#a7f3d0';
         toast.style.color = '#065f46';
-        if (icon) {
-          icon.textContent = 'check_circle';
-          icon.style.color = '#059669';
-        }
       }, 4000);
     }
   });
@@ -542,7 +688,7 @@ export function initCasesPage() {
 
     const allRecordsPill = document.querySelector('[data-filter-mode="all"]');
     if (allRecordsPill) {
-      allRecordsPill.textContent = `All Records (${totalCount})`;
+      allRecordsPill.textContent = currentRole === 'user' ? `My Reported Cases (${totalCount})` : `All Records (${totalCount})`;
     }
   }
 
@@ -562,13 +708,26 @@ export function initCasesPage() {
     caseCards.forEach(card => {
       const status = card.getAttribute('data-case-status');
       const seriousness = card.getAttribute('data-case-seriousness');
+      const timespan = card.getAttribute('data-case-timespan') || 'day';
+      const isDisposed = card.getAttribute('data-case-is-disposed') === 'true';
       const title = (card.getAttribute('data-case-title') || '').toLowerCase();
       const cnr = (card.getAttribute('data-case-cnr') || '').toLowerCase();
       const court = (card.getAttribute('data-case-court') || '').toLowerCase();
 
       let matchesFilter = true;
+
       if (currentFilter === 'all') {
         matchesFilter = true;
+      } else if (currentFilter === 'timespan-day') {
+        matchesFilter = timespan === 'day';
+      } else if (currentFilter === 'timespan-month') {
+        matchesFilter = timespan === 'day' || timespan === 'month';
+      } else if (currentFilter === 'judge-day') {
+        matchesFilter = timespan === 'day' && !isDisposed;
+      } else if (currentFilter === 'judge-month') {
+        matchesFilter = (timespan === 'day' || timespan === 'month') && !isDisposed;
+      } else if (currentFilter === 'judge-past') {
+        matchesFilter = isDisposed || timespan === 'past';
       } else if (currentFilter === 'seriousness-high') {
         matchesFilter = seriousness === 'high';
       } else if (currentFilter === 'seriousness-medium') {
@@ -594,7 +753,6 @@ export function initCasesPage() {
     });
 
     // Control visibility of the 3 separated section blocks
-    // Only show a group if it has visible cases
     if (groupHigh) {
       groupHigh.style.display = visibleHigh > 0 ? 'block' : 'none';
     }
@@ -666,7 +824,7 @@ export function initCasesPage() {
 
   clearBtn?.addEventListener('click', () => {
     if (searchInput) searchInput.value = '';
-    setFilter('all');
+    setFilter(currentRole === 'judge' ? 'judge-day' : 'all');
   });
 
   // Card click navigation
@@ -699,7 +857,7 @@ export function initCasesPage() {
         pendingDeleteTitle = btn.getAttribute('data-case-title') || 'this case';
         const msgEl = document.getElementById('delete-modal-case-message');
         if (msgEl) {
-          msgEl.innerHTML = `Are you sure you want to permanently delete <strong>"${pendingDeleteTitle}"</strong>? All associated proceedings, timelines, and court records for this case will be purged.`;
+          msgEl.innerHTML = `Are you sure you want to permanently delete <strong>"${pendingDeleteTitle}"</strong>? All associated proceedings, timelines, and court records will be purged.`;
         }
         if (deleteModal) deleteModal.style.display = 'flex';
       });
@@ -735,37 +893,39 @@ export function initCasesPage() {
 
     const title = document.getElementById('modal-case-title')?.value || '';
     const seriousness = document.getElementById('modal-case-seriousness')?.value || 'medium';
+    const timespan = document.getElementById('modal-case-timespan')?.value || 'day';
+    const reportedBy = document.getElementById('modal-case-reported-by')?.value || currentUser;
     const cnr = document.getElementById('modal-case-cnr')?.value || '';
     const court = document.getElementById('modal-case-court')?.value || '';
-    const section = document.getElementById('modal-case-section')?.value || '';
+    const purpose = document.getElementById('modal-case-purpose')?.value || '';
     const status = document.getElementById('modal-case-status')?.value || 'pending';
 
     if (!title.trim()) return;
 
-    // Create via API client & persist in storage
     const newRecord = await api.createCase({
       title,
       seriousness,
+      timespan,
+      reportedBy,
       cnr,
       court,
-      section,
+      hearingPurpose: purpose,
       status,
     });
 
     closeModal();
     form.reset();
 
-    // Reset filter to 'All Records'
-    setFilter('all');
+    // Reset filter
+    setFilter(currentRole === 'judge' ? 'judge-day' : 'all');
 
     // Prepend new record into appropriate seriousness group list
     const targetListId = seriousness === 'high' ? 'list-high' : (seriousness === 'low' ? 'list-low' : 'list-medium');
     const targetList = document.getElementById(targetListId);
     if (targetList) {
-      const cardHtml = renderCaseCard(newRecord);
+      const cardHtml = renderCaseCard(newRecord, currentRole);
       targetList.insertAdjacentHTML('afterbegin', cardHtml);
 
-      // Flash highlight on the newly added card
       const newlyAddedCard = targetList.querySelector(`[data-case-id="${newRecord.id}"]`);
       if (newlyAddedCard) {
         newlyAddedCard.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.4)';
@@ -777,18 +937,19 @@ export function initCasesPage() {
       }
     }
 
-    // Reattach listeners & update counters
     attachCardListeners();
     updateGroupCounters();
     applyFilter();
 
-    // Show toast
     const toast = document.getElementById('cases-alert-toast');
     const toastText = document.getElementById('cases-alert-toast-text');
     if (toast && toastText) {
-      toastText.textContent = `New Case "${newRecord.title}" (${seriousness.toUpperCase()} Seriousness) registered and placed in its dossier section!`;
+      toastText.textContent = `New Case "${newRecord.title}" successfully registered under ${reportedBy}!`;
       toast.style.display = 'flex';
       setTimeout(() => { toast.style.display = 'none'; }, 4000);
     }
   });
+
+  // Apply default initial filter
+  applyFilter();
 }

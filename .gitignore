@@ -1,4 +1,8 @@
-# Frontend dependencies and build
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+frontend/*.local
 node_modules/
 dist/
 dist-ssr/
@@ -11,7 +15,6 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
-lerna-debug.log*
 
 # Python & Backend
 __pycache__/

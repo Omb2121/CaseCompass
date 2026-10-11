@@ -70,108 +70,87 @@ export function renderLandingPage() {
         </div>
       </header>
 
-      <!-- 3. Hero Section -->
-      <section class="landing-hero">
-        <div class="hero-left">
-          <div class="hero-pill-badge">
-            <span class="hero-pill-badge__dot"></span>
-            <span>Indian Legal Record Intelligence &middot; AI-Assisted, Human-Verified</span>
-          </div>
-          <h1 class="hero-title">
-            From Court Orders<br>to <span class="highlight">Clarity.</span>
-          </h1>
-          <p class="hero-desc">
-            CaseCompass helps legal-aid volunteers and families organize court documents, follow case timelines with clarity, and understand important statutory deadlines.
-          </p>
-          <div class="hero-cta-group">
-            <button class="btn-hero-primary" id="btn-hero-explore">
-              <span>${isAuth ? 'Enter Workspace' : 'Get Started'}</span>
-              <span class="material-symbols-outlined" style="font-size:18px;">arrow_forward</span>
-            </button>
-            <button class="btn-hero-secondary" id="btn-hero-demo">
-              <span class="material-symbols-outlined" style="font-size:18px;color:#0F2A4A;">play_circle</span>
-              <span>Start Demo Walkthrough</span>
-            </button>
-          </div>
-          <div class="hero-trust-bullets">
-            <div class="hero-trust-bullet">
-              <span class="material-symbols-outlined">check_circle</span>
-              <span><strong>Grounded Source Information:</strong> Direct page and line citations for every fact</span>
+      <!-- 3. Hero Section with Courtroom Background Image (Matching Reference) -->
+      <div class="landing-hero-container">
+        <section class="landing-hero">
+          <div class="hero-left">
+            <div class="hero-pill-badge">
+              <span class="hero-pill-badge__dot"></span>
+              <span>Indian Legal Record Intelligence &middot; AI-Assisted, Human-Verified</span>
             </div>
-            <div class="hero-trust-bullet">
-              <span class="material-symbols-outlined">check_circle</span>
-              <span><strong>Zero Hallucination Tolerance</strong> &middot; Audited Indian Legal Precedents</span>
+            <h1 class="hero-title">
+              From Court Orders<br>to <span class="highlight">Clarity.</span>
+            </h1>
+            <p class="hero-desc">
+              CaseCompass helps legal-aid volunteers, public defenders, and families organize court documents, follow case timelines with clarity, and understand important statutory deadlines.
+            </p>
+            <div class="hero-cta-group">
+              <button class="btn-hero-primary" id="btn-hero-explore">
+                <span class="material-symbols-outlined" style="font-size:18px;">balance</span>
+                <span>${isAuth ? 'Enter Workspace' : 'Get Started'}</span>
+              </button>
+              <button class="btn-hero-secondary" id="btn-hero-demo">
+                <span class="material-symbols-outlined" style="font-size:18px;">play_circle</span>
+                <span>Start Demo Walkthrough</span>
+              </button>
             </div>
-          </div>
-        </div>
-
-        <!-- Right: Mac Window Graphic Mockup -->
-        <div class="hero-right">
-          <div class="hero-mockup-window">
-            <div class="mockup-titlebar">
-              <div class="mockup-dots">
-                <span class="mockup-dot mockup-dot--red"></span>
-                <span class="mockup-dot mockup-dot--yellow"></span>
-                <span class="mockup-dot mockup-dot--green"></span>
+            <div class="hero-trust-bullets">
+              <div class="hero-trust-bullet">
+                <span class="material-symbols-outlined">check_circle</span>
+                <span><strong>Grounded Source Information:</strong> Direct page and line citations for every fact</span>
               </div>
-              <div class="mockup-case-title">
-                JMFC Pune &mdash; Cri. Case No. 4291/2024
-              </div>
-              <span class="badge badge--verified" style="font-size:0.625rem;padding:2px 8px;">
-                Verified
-              </span>
-            </div>
-            <div class="mockup-body">
-              <div class="mockup-case-banner">
-                <div style="font-size:0.75rem;color:#64748b;font-weight:600;text-transform:uppercase;">Active Docket File</div>
-                <div style="font-weight:700;font-size:1.0625rem;color:#0F2A4A;margin-top:2px;">
-                  State of Maharashtra v. Kulkarni, Deshmukh
-                </div>
-                <div style="display:flex;gap:8px;margin-top:8px;font-size:0.75rem;">
-                  <span class="badge badge--neutral">CNR: MHPU01-004291-2024</span>
-                  <span class="badge badge--verified">12 Exhibits Bound</span>
-                </div>
-              </div>
-
-              <!-- Mockup Event Card 1 -->
-              <div class="mockup-event-card">
-                <div style="display:flex;align-items:center;gap:10px;">
-                  <span class="material-symbols-outlined" style="color:#059669;font-size:22px;">verified_user</span>
-                  <div>
-                    <div style="font-size:0.8125rem;font-weight:700;color:#0F2A4A;">PW-1 Deposition & Evidence</div>
-                    <div style="font-size:0.6875rem;color:#64748b;">Examination completed · 14 Aug 2024</div>
-                  </div>
-                </div>
-                <span class="badge badge--verified" style="font-size:0.6875rem;">Intact (SHA-256)</span>
-              </div>
-
-              <!-- Mockup Event Card 2 -->
-              <div class="mockup-event-card" style="border-left: 3px solid #f59e0b;">
-                <div style="display:flex;align-items:center;gap:10px;">
-                  <span class="material-symbols-outlined" style="color:#f59e0b;font-size:22px;">flag</span>
-                  <div>
-                    <div style="font-size:0.8125rem;font-weight:700;color:#0F2A4A;">Bail Condition #3 Inspection</div>
-                    <div style="font-size:0.6875rem;color:#64748b;">Date mismatch flagged on pg 6</div>
-                  </div>
-                </div>
-                <span class="badge badge--pending" style="font-size:0.6875rem;">Needs Review</span>
-              </div>
-
-              <!-- Mockup Event Card 3: Next Hearing -->
-              <div class="mockup-event-card" style="background:#eff4ff;border-color:#bfdbfe;">
-                <div style="display:flex;align-items:center;gap:10px;">
-                  <span class="material-symbols-outlined" style="color:#2563eb;font-size:22px;">event</span>
-                  <div>
-                    <div style="font-size:0.8125rem;font-weight:700;color:#0F2A4A;">Next Scheduled Listing</div>
-                    <div style="font-size:0.6875rem;color:#2563eb;font-weight:600;">14 Feb 2025 &middot; Cross-Exam PW-3</div>
-                  </div>
-                </div>
-                <span class="badge badge--processing" style="font-size:0.6875rem;">Scheduled</span>
+              <div class="hero-trust-bullet">
+                <span class="material-symbols-outlined">check_circle</span>
+                <span><strong>Zero Hallucination Tolerance</strong> &middot; Audited Indian Legal Precedents</span>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+
+          <!-- Right: Reference-Style Search & Quick Action Cards (Replacing Old Mockup) -->
+          <div class="hero-right">
+            <div class="hero-cards-stack">
+              <!-- Card 1: Find a Case Docket -->
+              <div class="hero-action-card">
+                <h2 class="hero-card-title">Find a Case Docket</h2>
+                <p class="hero-card-subtitle">
+                  Find a verified court docket by CNR number, district court, or party name.
+                </p>
+                <div class="hero-toggle-pills">
+                  <button type="button" class="hero-toggle-pill active" id="pill-search-cnr">CNR Number ✓</button>
+                  <button type="button" class="hero-toggle-pill" id="pill-search-court">Court Name</button>
+                </div>
+                <div class="hero-search-box">
+                  <input
+                    type="text"
+                    id="hero-docket-input"
+                    class="hero-search-input"
+                    placeholder="Type CNR (e.g. MHPU01-004291-2024)"
+                    value="MHPU01-004291-2024"
+                  />
+                  <button type="button" id="btn-hero-search-docket" class="hero-search-btn" title="Search Docket">
+                    <span class="material-symbols-outlined" style="font-size:18px;">search</span>
+                  </button>
+                </div>
+                <div class="hero-card-helper">
+                  Search by 16-character CNR, FIR number, or district court
+                </div>
+              </div>
+
+              <!-- Card 2: Evidence & Timeline Audit -->
+              <div class="hero-action-card">
+                <h3 class="hero-card-title" style="font-size:1.375rem;">Evidence & Timeline Audit</h3>
+                <p class="hero-card-subtitle" style="margin-bottom:1.15rem;">
+                  Inspect verified court orders, bail conditions, and procedural hearing dates in the evidence lens.
+                </p>
+                <button type="button" class="btn-card-action auth-protected-link" data-target="#/timeline">
+                  <span>Explore Case Timeline</span>
+                  <span class="material-symbols-outlined" style="font-size:16px;">arrow_forward</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
 
       <!-- 4. Feature Ribbon (4 Pillars) -->
       <section class="feature-ribbon">
@@ -963,6 +942,46 @@ export function initLandingPage() {
       openAuthModal('login');
     }
   });
+
+  // Hero docket search card pills & search action
+  const pillCnr = document.getElementById('pill-search-cnr');
+  const pillCourt = document.getElementById('pill-search-court');
+  const heroInput = document.getElementById('hero-docket-input');
+  const heroSearchBtn = document.getElementById('btn-hero-search-docket');
+
+  pillCnr?.addEventListener('click', () => {
+    pillCnr.classList.add('active');
+    pillCourt?.classList.remove('active');
+    if (heroInput) {
+      heroInput.placeholder = 'Type CNR (e.g. MHPU01-004291-2024)';
+      heroInput.value = 'MHPU01-004291-2024';
+    }
+  });
+
+  pillCourt?.addEventListener('click', () => {
+    pillCourt.classList.add('active');
+    pillCnr?.classList.remove('active');
+    if (heroInput) {
+      heroInput.placeholder = 'Enter Court Name (e.g. JMFC Pune)';
+      heroInput.value = 'JMFC Pune Court No. 3';
+    }
+  });
+
+  function executeHeroSearch() {
+    if (localStorage.getItem('casecompass_auth') === 'true') {
+      window.location.hash = '#/cases';
+    } else {
+      openAuthModal('login');
+    }
+  }
+
+  heroSearchBtn?.addEventListener('click', executeHeroSearch);
+  heroInput?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      executeHeroSearch();
+    }
+  });
+
 
   // Protected links check auth before navigating
   document.querySelectorAll('.auth-protected-link').forEach(link => {

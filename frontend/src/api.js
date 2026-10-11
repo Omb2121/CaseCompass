@@ -31,11 +31,31 @@ export function initStore() {
 
 initStore();
 
+export function getCaseSeriousness(c) {
+  if (!c) return 'medium';
+  if (c.seriousness) return c.seriousness.toLowerCase();
+  if (c.status === 'flagged') return 'high';
+  if (/§302|§307|§420|§468|pocso|ndps|murder|forgery|quash|warrant|482|fraud/i.test(c.section || '') || /bihar|crime|state of/i.test(c.title || '')) {
+    if (c.status !== 'verified') return 'high';
+  }
+  if (c.status === 'pending' || c.status === 'processing') return 'medium';
+  if (c.status === 'verified') return 'low';
+  return 'medium';
+}
+
 export const api = {
   /**
-   * Get all case records
+   * Get all case records with seriousness classification (synchronous)
    */
-  async getCases() {
+  getCases() {
+    const raw = JSON.parse(localStorage.getItem(CASES_STORAGE_KEY) || JSON.stringify(defaultCases));
+    return raw.map(c => ({ ...c, seriousness: getCaseSeriousness(c) }));
+  },
+
+  /**
+   * Sync case records from backend asynchronously if available
+   */
+  async syncCasesFromBackend() {
     try {
       const res = await fetch('/api/cases');
       if (res.ok) {
@@ -54,27 +74,29 @@ export const api = {
             nextHearing: b.next_hearing || '14 Feb 2025',
             filingDate: b.created_at ? b.created_at.split('T')[0] : '15 Mar 2024',
             section: b.section || 'IPC §420, §468',
+            seriousness: b.seriousness || (b.status === 'flagged' ? 'high' : (b.status === 'verified' ? 'low' : 'medium')),
           }));
           const combined = [...customCases, ...mapped];
           localStorage.setItem(CASES_STORAGE_KEY, JSON.stringify(combined));
-          return combined;
+          return combined.map(c => ({ ...c, seriousness: getCaseSeriousness(c) }));
         }
       }
     } catch {
       // Use local storage
     }
-    return JSON.parse(localStorage.getItem(CASES_STORAGE_KEY) || JSON.stringify(defaultCases));
+    return this.getCases();
   },
 
   /**
    * Get the active case object
    */
   getActiveCase() {
-    const cases = JSON.parse(localStorage.getItem(CASES_STORAGE_KEY) || JSON.stringify(defaultCases));
+    const raw = JSON.parse(localStorage.getItem(CASES_STORAGE_KEY) || JSON.stringify(defaultCases));
+    const cases = raw.map(c => ({ ...c, seriousness: getCaseSeriousness(c) }));
     const activeId = localStorage.getItem(ACTIVE_CASE_KEY) || '1';
     const found = cases.find(c => String(c.id) === String(activeId));
     if (found) return found;
-    return cases[0] || defaultDemoCase;
+    return cases[0] || { ...defaultDemoCase, seriousness: 'high' };
   },
 
   /**
@@ -92,6 +114,7 @@ export const api = {
     const cases = JSON.parse(localStorage.getItem(CASES_STORAGE_KEY) || JSON.stringify(defaultCases));
     const newId = `CR-${Date.now()}`;
     const formattedDate = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    const assignedSeriousness = data.seriousness || (data.status === 'flagged' ? 'high' : (data.status === 'verified' ? 'low' : 'medium'));
 
     const newRecord = {
       id: newId,
@@ -100,6 +123,7 @@ export const api = {
       court: data.court?.trim() || 'Court of JMFC, Pune',
       status: data.status || 'pending',
       statusLabel: data.statusLabel || (data.status === 'verified' ? 'Verified' : (data.status === 'flagged' ? 'Needs Attention' : (data.status === 'processing' ? 'Processing' : 'Pending Review'))),
+      seriousness: assignedSeriousness,
       documents: 0,
       nextHearing: data.nextHearing || 'Upcoming Scheduling',
       filingDate: formattedDate,

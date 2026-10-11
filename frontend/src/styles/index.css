@@ -83,8 +83,9 @@
   --margin: 2rem;
   --margin-mobile: 1rem;
 
-  /* Typography Families (from Stitch) */
-  --font-headline: 'Atkinson Hyperlegible Next', 'Source Serif 4', Georgia, serif;
+  /* Typography Families */
+  --font-brand: 'Archivo Black', 'Abril Fatface', system-ui, sans-serif;
+  --font-headline: 'Archivo Black', 'Abril Fatface', 'Source Serif 4', Georgia, serif;
   --font-body: 'Noto Sans', 'Source Sans 3', system-ui, sans-serif;
   --font-label: 'Noto Sans', 'Source Sans 3', system-ui, sans-serif;
   --font-code: 'Fira Code', 'Courier New', monospace;
@@ -259,29 +260,29 @@ body {
 }
 
 .app-header__logo {
-  height: 2rem;
+  height: 2.35rem;
   width: auto;
   object-fit: contain;
 }
 
 .app-header__title {
-  font-family: var(--font-headline);
-  font-size: 1.125rem;
-  font-weight: 600;
+  font-family: var(--font-brand);
+  font-size: 1.625rem;
+  font-weight: 700;
   color: var(--primary);
-  letter-spacing: -0.01em;
-  line-height: 1;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
 }
 
 .app-header__tagline {
   font-family: var(--font-label);
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   font-weight: 700;
   color: var(--on-surface-variant);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  line-height: 1;
-  margin-top: 2px;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  margin-top: 3px;
 }
 
 .app-header__actions {

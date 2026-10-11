@@ -82,18 +82,22 @@
 }
 
 .landing-nav__title {
-  font-family: var(--font-headline);
-  font-size: 1.25rem;
+  font-family: 'Archivo Black', 'Abril Fatface', system-ui, sans-serif;
+  font-size: 1.625rem;
   font-weight: 700;
   color: #0F2A4A;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
   line-height: 1.1;
 }
 
 .landing-nav__tagline {
-  font-size: 0.6875rem;
+  font-family: 'Source Sans 3', system-ui, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
   color: #515f74;
-  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-top: 3px;
 }
 
 .landing-nav__links {

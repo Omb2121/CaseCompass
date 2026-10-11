@@ -544,7 +544,7 @@ export function renderLandingPage() {
               <div style="width:32px;height:32px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:#ffffff;border-radius:6px;display:flex;align-items:center;justify-content:center;">
                 <span class="material-symbols-outlined" style="font-size:18px;">balance</span>
               </div>
-              <strong style="font-size:1.125rem;color:#ffffff;font-family:var(--font-headline);">CaseCompass</strong>
+              <strong style="font-size:1.375rem;color:#ffffff;font-family:'Archivo Black', 'Abril Fatface', sans-serif;letter-spacing:-0.02em;">CaseCompass</strong>
             </div>
             <p style="font-size:0.8125rem;color:#94a3b8;line-height:1.5;max-width:320px;">
               From Court Orders to Clarity. Empowering Indian legal-aid advocates and families with auditable court docket intelligence.

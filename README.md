@@ -210,28 +210,22 @@ A constrained, privacy-respecting question-answering assistant for litigants and
 
 | Layer | Technologies |
 |---|---|
-| **Backend** | Python 3.11+, FastAPI, Uvicorn |
-| **Text Capture & OCR** | PDF text extraction (`pypdf` / `pdfplumber`), Tesseract OCR (`eng`, `hin`, `mar`) |
-| **Image Preprocessing** | OpenCV (`cv2`), Pillow, Pillow-HEIF |
+| **Backend** | Python 3.10+, FastAPI, Uvicorn, SQLite |
+| **Text Capture & OCR** | PDF text extraction (`pypdf`), Tesseract OCR (`eng`, `hin`, `mar`) |
+| **Image Preprocessing** | OpenCV, Pillow |
 | **Date Parsing** | `python-dateutil`, Devanagari digit & regional month converters |
-| **Optional AI (Mode B)** | Local LLM via Ollama (`llama3`, `mistral`) or external API endpoints |
-| **Export Engine** | HTML/CSS PDF rendering, `icalendar` (`.ics`), CSV, JSON |
-| **Frontend** | Modern, responsive mobile-first UI with dark/light theme support |
-| **Storage & Log** | SQLite / JSON store with SHA-256 tamper-evident audit chaining |
-| **Testing** | `pytest`, `pytest-asyncio` |
-=======
-# CaseCompass Backend API
-
-> **Mandatory Disclaimer:** *This organizes the record. It is not legal advice and does not predict outcomes.*
-
-CaseCompass is an AI-powered court-document organizer designed for legal-aid volunteers and undertrial prisoner families. It organizes messy court orders into verified chronological timelines while refusing to guess or provide legal advice.
+| **Optional AI (Mode B)** | Local LLM via Ollama (`llama3`, `mistral`) or Google Gemini API |
+| **Export Engine** | `icalendar` (`.ics`), Family Summary JSON / PDF |
+| **Frontend** | Vite + Vanilla JS / CSS, mobile-first design with dark/light themes |
+| **Storage & Log** | SQLite relational storage + SHA-256 tamper-evident audit chaining |
+| **Testing** | `pytest`, `fastapi.testclient` |
 
 ---
 
 ## Startup Instructions
 
 ### 1. Requirements
-- Python 3.10+ (tested on Python 3.13)
+- Python 3.10+ (tested on Python 3.11 & 3.13)
 - FastAPI, Uvicorn, Pydantic v2, SQLite, Pytest, python-multipart
 
 ### 2. Running the Server
@@ -251,39 +245,12 @@ The server will be available at `http://localhost:8000`.
 - **Swagger UI:** `http://localhost:8000/docs`
 - **ReDoc:** `http://localhost:8000/redoc`
 - **Health Check:** `http://localhost:8000/api/health`
->>>>>>> 3f201fc (feat(backend): implement Phase 1 structure, models, API endpoints, SQLite DB, and test suite)
 
 ---
 
 ## Project Structure
 
 ```text
-<<<<<<< HEAD
-casecompass/
-├── backend/
-│   ├── app/
-│   │   ├── intake/          # Upload handling, file hashing, preprocessing
-│   │   ├── textcapture/     # PDF text layer extraction & Tesseract OCR
-│   │   ├── extraction/      # Mode A (rules) & Mode B (LLM adapter)
-│   │   ├── verifier/        # Substring & fuzzy quote verifier
-│   │   ├── rules/           # Deterministic flags engine (R1–R12)
-│   │   ├── explain/         # Multilingual templates, glossaries & safety filters
-│   │   ├── qa/              # Ask Your Case intent classification & citations
-│   │   ├── export/          # PDF generator, .ics calendar, and CSV/JSON export
-│   │   └── audit/           # Hash-chained tamper-evident event log
-│   └── tests/               # Comprehensive pytest test suite
-├── frontend/                # Litigant and volunteer interface
-├── data/
-│   ├── glossary/            # English, Hindi, and Marathi verified legal terms
-│   ├── synthetic_cases/     # Fictional demonstration matters
-│   └── golden_set/          # Hand-labeled evaluation dataset
-├── scripts/
-│   ├── seed_demo.py         # Seeds reproducible synthetic demo case
-│   └── run_eval.py          # Executes accuracy evaluation and Trust Report
-├── .env.example
-├── LICENSE
-└── README.md
-=======
 backend/
   core/
     models.py          # Strict Pydantic v2 models (extra="forbid")
@@ -309,21 +276,20 @@ backend/
 tests/
   test_fixtures.py     # Schema and fixture verification tests
   test_api_endpoints.py# API integration & route tests
+  test_ai_pipeline.py  # AI/ML & XAI pipeline tests
 run_backend.bat
 run_backend.ps1
 requirements.txt
->>>>>>> 3f201fc (feat(backend): implement Phase 1 structure, models, API endpoints, SQLite DB, and test suite)
 ```
 
 ---
 
-<<<<<<< HEAD
 ## Getting Started
 
 ### Prerequisites
-- **Python**: 3.11 or newer
+- **Python**: 3.10+ (tested on Python 3.11 & 3.13)
 - **Tesseract OCR**: With English, Hindi, and Marathi language packs (`eng`, `hin`, `mar`)
-- **Node.js**: 18+ (if running decoupled frontend)
+- **Node.js**: 18+ (for frontend)
 - *(Optional)* **Ollama**: For local AI in Mode B
 
 ### Installation
@@ -342,10 +308,7 @@ source .venv/bin/activate
 .venv\Scripts\Activate.ps1
 
 # 3. Install backend dependencies
-pip install -r backend/requirements.txt
-
-# 4. Configure environment
-cp .env.example .env
+pip install -r requirements.txt
 ```
 
 ### Environment Configuration (`.env`)

@@ -114,13 +114,11 @@ export function renderCasesPage() {
   const lowCases = cases.filter(c => getCaseSeriousness(c) === 'low');
 
   const filterPills = [
-    { value: 'all', label: `All Records (${cases.length})`, type: 'status' },
-    { value: 'seriousness-high', label: `🔴 High Seriousness (${highCases.length})`, type: 'seriousness' },
-    { value: 'seriousness-medium', label: `🟡 Medium Seriousness (${mediumCases.length})`, type: 'seriousness' },
-    { value: 'seriousness-low', label: `🟢 Low Seriousness (${lowCases.length})`, type: 'seriousness' },
-    { value: 'flagged', label: 'Flagged', type: 'status' },
-    { value: 'pending', label: 'Pending', type: 'status' },
-    { value: 'verified', label: 'Verified', type: 'status' },
+    { value: 'all', label: `All Records (${cases.length})` },
+    { value: 'flagged', label: 'Flagged' },
+    { value: 'pending', label: 'Pending' },
+    { value: 'verified', label: 'Verified' },
+    { value: 'processing', label: 'Processing' },
   ];
 
   return `
@@ -145,10 +143,23 @@ export function renderCasesPage() {
         </button>
       </div>
 
-      <!-- Seriousness Quick KPI Summary Grid -->
-      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));gap:var(--space-md);margin-bottom:var(--space-lg);">
-        <!-- High Seriousness Card -->
-        <div class="seriousness-kpi-card" data-quick-filter="seriousness-high" style="border-left: 5px solid #ef4444;">
+      <!-- Empty state when zero cases are registered in the portal -->
+      <div id="no-cases-registered-banner" style="display:${cases.length === 0 ? 'block' : 'none'};text-align:center;padding:var(--space-2xl) var(--space-lg);background:var(--surface-container-lowest);border-radius:var(--radius-lg);border:1px dashed var(--outline-variant);margin-bottom:var(--space-lg);">
+        <span class="material-symbols-outlined" style="font-size:56px;color:var(--outline);">folder_off</span>
+        <h3 class="text-headline-sm" style="color:var(--on-surface);margin-top:var(--space-sm);font-weight:700;">No Cases Registered</h3>
+        <p class="text-body-sm" style="color:var(--on-surface-variant);max-width:480px;margin:8px auto var(--space-md);">
+          There are currently no cases registered in the portal. Click <strong>"New Case Record"</strong> above to register your first dossier.
+        </p>
+        <button class="btn btn--primary" id="btn-banner-new-case">
+          <span class="material-symbols-outlined" style="font-size:18px;">add</span>
+          Register First Case
+        </button>
+      </div>
+
+      <!-- Seriousness Quick KPI Summary Grid (only appears when cases are registered) -->
+      <div id="seriousness-kpi-container" style="display:${cases.length > 0 ? 'grid' : 'none'};grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));gap:var(--space-md);margin-bottom:var(--space-lg);">
+        <!-- High Seriousness Card (only rendered if highCases exist) -->
+        <div class="seriousness-kpi-card" id="kpi-card-high" data-quick-filter="seriousness-high" data-target-group="group-high" style="border-left: 5px solid #ef4444;display:${highCases.length > 0 ? 'block' : 'none'};">
           <div style="display:flex;align-items:center;justify-content:space-between;">
             <div>
               <div style="font-size:0.75rem;font-weight:700;color:#b91c1c;text-transform:uppercase;letter-spacing:0.06em;display:flex;align-items:center;gap:4px;">
@@ -156,7 +167,7 @@ export function renderCasesPage() {
                 High Seriousness
               </div>
               <div style="font-size:1.625rem;font-weight:800;color:#991b1b;margin-top:2px;" id="kpi-count-high">
-                ${highCases.length} Cases
+                ${highCases.length} ${highCases.length === 1 ? 'Case' : 'Cases'}
               </div>
             </div>
             <div style="width:40px;height:40px;border-radius:50%;background:#fee2e2;display:flex;align-items:center;justify-content:center;color:#ef4444;">
@@ -168,8 +179,8 @@ export function renderCasesPage() {
           </div>
         </div>
 
-        <!-- Medium Seriousness Card -->
-        <div class="seriousness-kpi-card" data-quick-filter="seriousness-medium" style="border-left: 5px solid #f59e0b;">
+        <!-- Medium Seriousness Card (only rendered if mediumCases exist) -->
+        <div class="seriousness-kpi-card" id="kpi-card-medium" data-quick-filter="seriousness-medium" data-target-group="group-medium" style="border-left: 5px solid #f59e0b;display:${mediumCases.length > 0 ? 'block' : 'none'};">
           <div style="display:flex;align-items:center;justify-content:space-between;">
             <div>
               <div style="font-size:0.75rem;font-weight:700;color:#b45309;text-transform:uppercase;letter-spacing:0.06em;display:flex;align-items:center;gap:4px;">
@@ -177,7 +188,7 @@ export function renderCasesPage() {
                 Medium Seriousness
               </div>
               <div style="font-size:1.625rem;font-weight:800;color:#92400e;margin-top:2px;" id="kpi-count-medium">
-                ${mediumCases.length} Cases
+                ${mediumCases.length} ${mediumCases.length === 1 ? 'Case' : 'Cases'}
               </div>
             </div>
             <div style="width:40px;height:40px;border-radius:50%;background:#fef3c7;display:flex;align-items:center;justify-content:center;color:#f59e0b;">
@@ -189,8 +200,8 @@ export function renderCasesPage() {
           </div>
         </div>
 
-        <!-- Low Seriousness Card -->
-        <div class="seriousness-kpi-card" data-quick-filter="seriousness-low" style="border-left: 5px solid #10b981;">
+        <!-- Low Seriousness Card (only rendered if lowCases exist) -->
+        <div class="seriousness-kpi-card" id="kpi-card-low" data-quick-filter="seriousness-low" data-target-group="group-low" style="border-left: 5px solid #10b981;display:${lowCases.length > 0 ? 'block' : 'none'};">
           <div style="display:flex;align-items:center;justify-content:space-between;">
             <div>
               <div style="font-size:0.75rem;font-weight:700;color:#047857;text-transform:uppercase;letter-spacing:0.06em;display:flex;align-items:center;gap:4px;">
@@ -198,7 +209,7 @@ export function renderCasesPage() {
                 Low Seriousness
               </div>
               <div style="font-size:1.625rem;font-weight:800;color:#065f46;margin-top:2px;" id="kpi-count-low">
-                ${lowCases.length} Cases
+                ${lowCases.length} ${lowCases.length === 1 ? 'Case' : 'Cases'}
               </div>
             </div>
             <div style="width:40px;height:40px;border-radius:50%;background:#d1fae5;display:flex;align-items:center;justify-content:center;color:#10b981;">
@@ -212,7 +223,7 @@ export function renderCasesPage() {
       </div>
 
       <!-- Search & Filter Controls -->
-      <div class="card-flat" style="padding:var(--space-md);margin-bottom:var(--space-lg);display:flex;flex-wrap:wrap;gap:var(--space-md);align-items:center;justify-content:space-between;">
+      <div class="card-flat" id="search-filter-controls-bar" style="display:${cases.length > 0 ? 'flex' : 'none'};padding:var(--space-md);margin-bottom:var(--space-lg);flex-wrap:wrap;gap:var(--space-md);align-items:center;justify-content:space-between;">
         <div style="display:flex;align-items:center;gap:var(--space-sm);flex:1;min-width:220px;max-width:380px;">
           <span class="material-symbols-outlined" style="font-size:20px;color:var(--outline)">search</span>
           <input type="search" id="case-search-input" placeholder="Search by case title, CNR, or court…"
@@ -234,16 +245,17 @@ export function renderCasesPage() {
       </div>
 
       <!-- Cases Count Summary -->
-      <div style="margin-bottom:var(--space-sm);font-size:0.8125rem;color:var(--on-surface-variant);display:flex;justify-content:space-between;align-items:center;" id="displayed-case-count">
+      <div style="display:${cases.length > 0 ? 'flex' : 'none'};margin-bottom:var(--space-sm);font-size:0.8125rem;color:var(--on-surface-variant);justify-content:space-between;align-items:center;" id="displayed-case-count">
         <span>Showing <strong>${cases.length}</strong> registered dossiers divided into seriousness tiers</span>
       </div>
 
       <!-- ======================================================== -->
       <!-- SEPARATED SECTIONS: HIGH, MEDIUM, AND LOW CASES -->
+      <!-- Only appears when cases exist in that category -->
       <!-- ======================================================== -->
       <div id="cases-divided-container">
         <!-- 1. HIGH SERIOUSNESS SECTION -->
-        <div class="seriousness-group-block" id="group-high" style="margin-bottom: var(--space-xl);">
+        <div class="seriousness-group-block" id="group-high" style="display:${highCases.length > 0 ? 'block' : 'none'};margin-bottom: var(--space-xl);">
           <div class="seriousness-section-header header--high">
             <div style="display:flex;align-items:center;gap:8px;">
               <span class="material-symbols-outlined" style="font-size:18px;">priority_high</span>
@@ -253,16 +265,12 @@ export function renderCasesPage() {
             <span class="hide-mobile" style="font-size:0.6875rem;opacity:0.85;font-weight:600;">Critical review required &middot; Flagged evidence / Penal trial</span>
           </div>
           <div class="cases-group-list" id="list-high" style="display:flex;flex-direction:column;gap:var(--space-sm);">
-            ${highCases.length > 0 ? highCases.map(c => renderCaseCard(c)).join('') : `
-              <div style="padding:16px;text-align:center;color:#64748b;background:#fef2f2;border-radius:var(--radius-md);border:1px dashed #fca5a5;font-size:0.8125rem;">
-                No high-seriousness cases currently flagged.
-              </div>
-            `}
+            ${highCases.map(c => renderCaseCard(c)).join('')}
           </div>
         </div>
 
         <!-- 2. MEDIUM SERIOUSNESS SECTION -->
-        <div class="seriousness-group-block" id="group-medium" style="margin-bottom: var(--space-xl);">
+        <div class="seriousness-group-block" id="group-medium" style="display:${mediumCases.length > 0 ? 'block' : 'none'};margin-bottom: var(--space-xl);">
           <div class="seriousness-section-header header--medium">
             <div style="display:flex;align-items:center;gap:8px;">
               <span class="material-symbols-outlined" style="font-size:18px;">schedule</span>
@@ -272,16 +280,12 @@ export function renderCasesPage() {
             <span class="hide-mobile" style="font-size:0.6875rem;opacity:0.85;font-weight:600;">Active trial proceedings &middot; Pending documentary review</span>
           </div>
           <div class="cases-group-list" id="list-medium" style="display:flex;flex-direction:column;gap:var(--space-sm);">
-            ${mediumCases.length > 0 ? mediumCases.map(c => renderCaseCard(c)).join('') : `
-              <div style="padding:16px;text-align:center;color:#64748b;background:#fffbeb;border-radius:var(--radius-md);border:1px dashed #fcd34d;font-size:0.8125rem;">
-                No medium-seriousness cases in pending queue.
-              </div>
-            `}
+            ${mediumCases.map(c => renderCaseCard(c)).join('')}
           </div>
         </div>
 
         <!-- 3. LOW SERIOUSNESS SECTION -->
-        <div class="seriousness-group-block" id="group-low" style="margin-bottom: var(--space-xl);">
+        <div class="seriousness-group-block" id="group-low" style="display:${lowCases.length > 0 ? 'block' : 'none'};margin-bottom: var(--space-xl);">
           <div class="seriousness-section-header header--low">
             <div style="display:flex;align-items:center;gap:8px;">
               <span class="material-symbols-outlined" style="font-size:18px;">check_circle</span>
@@ -291,11 +295,7 @@ export function renderCasesPage() {
             <span class="hide-mobile" style="font-size:0.6875rem;opacity:0.85;font-weight:600;">Verified clean dockets &middot; Civil compliance & routine scheduling</span>
           </div>
           <div class="cases-group-list" id="list-low" style="display:flex;flex-direction:column;gap:var(--space-sm);">
-            ${lowCases.length > 0 ? lowCases.map(c => renderCaseCard(c)).join('') : `
-              <div style="padding:16px;text-align:center;color:#64748b;background:#f0fdf4;border-radius:var(--radius-md);border:1px dashed #86efac;font-size:0.8125rem;">
-                No low-seriousness routine cases registered.
-              </div>
-            `}
+            ${lowCases.map(c => renderCaseCard(c)).join('')}
           </div>
         </div>
       </div>
@@ -490,12 +490,48 @@ export function initCasesPage() {
     const mediumCards = allCards.filter(c => c.getAttribute('data-case-seriousness') === 'medium');
     const lowCards = allCards.filter(c => c.getAttribute('data-case-seriousness') === 'low');
 
-    const kpiHigh = document.getElementById('kpi-count-high');
-    const kpiMed = document.getElementById('kpi-count-medium');
-    const kpiLow = document.getElementById('kpi-count-low');
-    if (kpiHigh) kpiHigh.textContent = `${highCards.length} Cases`;
-    if (kpiMed) kpiMed.textContent = `${mediumCards.length} Cases`;
-    if (kpiLow) kpiLow.textContent = `${lowCards.length} Cases`;
+    const totalCount = allCards.length;
+    const kpiContainer = document.getElementById('seriousness-kpi-container');
+    const noCasesBanner = document.getElementById('no-cases-registered-banner');
+    const controlsBar = document.getElementById('search-filter-controls-bar');
+    const countSummary = document.getElementById('displayed-case-count');
+
+    if (kpiContainer) {
+      kpiContainer.style.display = totalCount > 0 ? 'grid' : 'none';
+    }
+    if (noCasesBanner) {
+      noCasesBanner.style.display = totalCount === 0 ? 'block' : 'none';
+    }
+    if (controlsBar) {
+      controlsBar.style.display = totalCount > 0 ? 'flex' : 'none';
+    }
+    if (countSummary) {
+      countSummary.style.display = totalCount > 0 ? 'flex' : 'none';
+    }
+
+    // High Card: only show if highCards.length > 0
+    const cardHigh = document.getElementById('kpi-card-high');
+    if (cardHigh) {
+      cardHigh.style.display = highCards.length > 0 ? 'block' : 'none';
+      const kpiHigh = document.getElementById('kpi-count-high');
+      if (kpiHigh) kpiHigh.textContent = `${highCards.length} ${highCards.length === 1 ? 'Case' : 'Cases'}`;
+    }
+
+    // Medium Card: only show if mediumCards.length > 0
+    const cardMed = document.getElementById('kpi-card-medium');
+    if (cardMed) {
+      cardMed.style.display = mediumCards.length > 0 ? 'block' : 'none';
+      const kpiMed = document.getElementById('kpi-count-medium');
+      if (kpiMed) kpiMed.textContent = `${mediumCards.length} ${mediumCards.length === 1 ? 'Case' : 'Cases'}`;
+    }
+
+    // Low Card: only show if lowCards.length > 0
+    const cardLow = document.getElementById('kpi-card-low');
+    if (cardLow) {
+      cardLow.style.display = lowCards.length > 0 ? 'block' : 'none';
+      const kpiLow = document.getElementById('kpi-count-low');
+      if (kpiLow) kpiLow.textContent = `${lowCards.length} ${lowCards.length === 1 ? 'Case' : 'Cases'}`;
+    }
 
     const bHigh = document.getElementById('header-badge-high');
     const bMed = document.getElementById('header-badge-medium');
@@ -503,6 +539,11 @@ export function initCasesPage() {
     if (bHigh) bHigh.textContent = `${highCards.length} Records`;
     if (bMed) bMed.textContent = `${mediumCards.length} Records`;
     if (bLow) bLow.textContent = `${lowCards.length} Records`;
+
+    const allRecordsPill = document.querySelector('[data-filter-mode="all"]');
+    if (allRecordsPill) {
+      allRecordsPill.textContent = `All Records (${totalCount})`;
+    }
   }
 
   function applyFilter() {
@@ -553,21 +594,22 @@ export function initCasesPage() {
     });
 
     // Control visibility of the 3 separated section blocks
+    // Only show a group if it has visible cases
     if (groupHigh) {
-      groupHigh.style.display = (visibleHigh > 0 || currentFilter === 'seriousness-high' || currentFilter === 'all') ? 'block' : 'none';
+      groupHigh.style.display = visibleHigh > 0 ? 'block' : 'none';
     }
     if (groupMedium) {
-      groupMedium.style.display = (visibleMedium > 0 || currentFilter === 'seriousness-medium' || currentFilter === 'all') ? 'block' : 'none';
+      groupMedium.style.display = visibleMedium > 0 ? 'block' : 'none';
     }
     if (groupLow) {
-      groupLow.style.display = (visibleLow > 0 || currentFilter === 'seriousness-low' || currentFilter === 'all') ? 'block' : 'none';
+      groupLow.style.display = visibleLow > 0 ? 'block' : 'none';
     }
 
     if (caseCountEl) {
       caseCountEl.innerHTML = `Showing <strong>${visibleCount}</strong> of ${caseCards.length} records (${visibleHigh} High, ${visibleMedium} Medium, ${visibleLow} Low)`;
     }
     if (emptyState) {
-      emptyState.style.display = visibleCount === 0 ? 'block' : 'none';
+      emptyState.style.display = (visibleCount === 0 && caseCards.length > 0) ? 'block' : 'none';
     }
   }
 
@@ -604,12 +646,18 @@ export function initCasesPage() {
     });
   });
 
-  // KPI Card clicks
+  // KPI Card clicks - highlight & filter / scroll
   document.querySelectorAll('.seriousness-kpi-card').forEach(card => {
     card.addEventListener('click', () => {
       const qf = card.getAttribute('data-quick-filter');
       if (qf) {
-        setFilter(currentFilter === qf ? 'all' : qf);
+        const next = currentFilter === qf ? 'all' : qf;
+        setFilter(next);
+        const targetGroupId = card.getAttribute('data-target-group');
+        const targetEl = targetGroupId ? document.getElementById(targetGroupId) : null;
+        if (targetEl && targetEl.style.display !== 'none') {
+          targetEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
       }
     });
   });
@@ -676,6 +724,7 @@ export function initCasesPage() {
   }
 
   openBtn?.addEventListener('click', openModal);
+  document.getElementById('btn-banner-new-case')?.addEventListener('click', openModal);
   closeBtn?.addEventListener('click', closeModal);
   cancelBtn?.addEventListener('click', closeModal);
   modal?.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });

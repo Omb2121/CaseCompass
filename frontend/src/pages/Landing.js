@@ -536,42 +536,17 @@ export function renderLandingPage() {
         </div>
       </section>
 
-      <!-- 12. Bottom Call to Action Dark Banner -->
-      <section class="landing-cta-block">
-        <div class="landing-cta-block__inner">
-          <div class="cta-emblem">
-            <span class="material-symbols-outlined" style="font-size:26px;">balance</span>
-          </div>
-          <h2>Start with the record. Find the clarity.</h2>
-          <p>
-            Explore how CaseCompass organizes court documents, creates clean audit trails, and builds transparent communication.
-          </p>
-          <div style="display:flex;justify-content:center;gap:1rem;flex-wrap:wrap;">
-            <button class="btn auth-protected-link" data-target="#/cases" style="background:#ffffff;color:#0F2A4A;font-weight:700;padding:12px 28px;border-radius:8px;border:none;cursor:pointer;">
-              <span>${isAuth ? 'Enter Workspace' : 'Sign In to Workspace'}</span>
-              <span class="material-symbols-outlined" style="font-size:18px;">arrow_forward</span>
-            </button>
-            <a href="#features" class="btn" style="background:transparent;color:#ffffff;border:1px solid rgba(255,255,255,0.4);padding:12px 24px;border-radius:8px;">
-              <span>Explore Features</span>
-            </a>
-          </div>
-          <div style="font-size:0.75rem;color:#7a92b7;margin-top:2rem;">
-            Free for legal-aid clinics, public defenders, and verified pro-bono advocates.
-          </div>
-        </div>
-      </section>
-
       <!-- 13. Comprehensive Footer -->
       <footer class="landing-footer">
         <div class="landing-footer__inner">
           <div class="footer-col">
             <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
-              <div style="width:32px;height:32px;background:#0F2A4A;color:#ffffff;border-radius:6px;display:flex;align-items:center;justify-content:center;">
+              <div style="width:32px;height:32px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:#ffffff;border-radius:6px;display:flex;align-items:center;justify-content:center;">
                 <span class="material-symbols-outlined" style="font-size:18px;">balance</span>
               </div>
-              <strong style="font-size:1.125rem;color:#0F2A4A;font-family:var(--font-headline);">CaseCompass</strong>
+              <strong style="font-size:1.125rem;color:#ffffff;font-family:var(--font-headline);">CaseCompass</strong>
             </div>
-            <p style="font-size:0.8125rem;color:#64748b;line-height:1.5;max-width:320px;">
+            <p style="font-size:0.8125rem;color:#94a3b8;line-height:1.5;max-width:320px;">
               From Court Orders to Clarity. Empowering Indian legal-aid advocates and families with auditable court docket intelligence.
             </p>
           </div>

@@ -891,11 +891,11 @@
   margin-bottom: 2.25rem;
 }
 
-/* Main Landing Footer */
+/* Main Landing Footer - Elegant Navy Blue */
 .landing-footer {
-  background: #ffffff;
-  border-top: 1px solid #e2e8f0;
-  padding: 4rem 2rem 2.5rem;
+  background: #0B1A2D;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 4.5rem 2rem 2.5rem;
 }
 
 .landing-footer__inner {
@@ -905,15 +905,15 @@
   grid-template-columns: 1.5fr repeat(3, 1fr);
   gap: 3rem;
   padding-bottom: 3rem;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .footer-col h4 {
   font-size: 0.8125rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #0F2A4A;
+  letter-spacing: 0.08em;
+  color: #ffffff;
   margin-bottom: 1.25rem;
 }
 
@@ -926,13 +926,14 @@
 
 .footer-col a {
   font-size: 0.875rem;
-  color: #64748b;
+  color: #94a3b8;
   text-decoration: none;
-  transition: color 0.15s ease;
+  transition: all 0.15s ease;
 }
 
 .footer-col a:hover {
-  color: #0F2A4A;
+  color: #38bdf8;
+  transform: translateX(2px);
 }
 
 .landing-footer__disclaimer {
@@ -942,9 +943,13 @@
   justify-content: space-between;
   align-items: center;
   font-size: 0.75rem;
-  color: #94a3b8;
+  color: #64748b;
   flex-wrap: wrap;
   gap: 1rem;
+}
+
+.landing-footer__disclaimer strong {
+  color: #94a3b8;
 }
 
 /* =======================================================

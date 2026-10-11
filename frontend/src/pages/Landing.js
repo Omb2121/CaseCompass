@@ -37,7 +37,6 @@ export function renderLandingPage() {
           <a href="#deep-audit" class="landing-nav__link">Potential Impact</a>
           <a href="#ethical-design" class="landing-nav__link">Trust & Privacy</a>
           <a href="#legal-aid" class="landing-nav__link">Legal Aid</a>
-          <a href="#faq" class="landing-nav__link">FAQ</a>
         </nav>
 
         <div class="landing-nav__actions" id="nav-actions-container">
@@ -88,10 +87,6 @@ export function renderLandingPage() {
               <button class="btn-hero-primary" id="btn-hero-explore">
                 <span>${isAuth ? 'Enter Workspace' : 'Get Started'}</span>
                 <span class="material-symbols-outlined" style="font-size:18px;">arrow_forward</span>
-              </button>
-              <button class="btn-hero-secondary" id="btn-hero-demo">
-                <span class="material-symbols-outlined" style="font-size:18px;color:#0F2A4A;">play_circle</span>
-                <span>Start Demo Walkthrough</span>
               </button>
             </div>
             <div class="hero-trust-bullets">
@@ -541,79 +536,6 @@ export function renderLandingPage() {
         </div>
       </section>
 
-      <!-- 11. Frequently Asked Questions (Accordion) -->
-      <section class="landing-section" id="faq">
-        <div class="section-heading-centered" style="margin-bottom:2.5rem;">
-          <span class="section-label-pill">Common Questions</span>
-          <h2>Frequently Asked Questions</h2>
-          <p>
-            Clear answers about data privacy, legal ethics, and system capabilities.
-          </p>
-        </div>
-
-        <div class="faq-container">
-          <div class="faq-item">
-            <div class="faq-question">
-              <span>What is CaseCompass?</span>
-              <span class="material-symbols-outlined faq-arrow">expand_more</span>
-            </div>
-            <div class="faq-answer">
-              CaseCompass is an intelligent document management and audit verification workspace built specifically for Indian legal dockets. It helps legal-aid volunteers, paralegals, and advocates organize unstructured case filings, reconstruct procedural timelines, and audit case facts with strict page-level citations.
-            </div>
-          </div>
-
-          <div class="faq-item">
-            <div class="faq-question">
-              <span>Does CaseCompass provide legal advice?</span>
-              <span class="material-symbols-outlined faq-arrow">expand_more</span>
-            </div>
-            <div class="faq-answer">
-              No. CaseCompass is strictly a record organization and verification tool. It does not provide legal advice, draft legal opinions, or predict court outcomes. It serves as an assistive docket assistant that helps users understand what court records contain.
-            </div>
-          </div>
-
-          <div class="faq-item">
-            <div class="faq-question">
-              <span>Can I search Marathi, Hindi, and regional court documents?</span>
-              <span class="material-symbols-outlined faq-arrow">expand_more</span>
-            </div>
-            <div class="faq-answer">
-              Yes. CaseCompass supports bilingual OCR and document parsing for Indian district courts, supporting English, Marathi, Hindi, and regional scripts commonly found in FIRs, panchnamas, and subordinate court orders.
-            </div>
-          </div>
-
-          <div class="faq-item">
-            <div class="faq-question">
-              <span>How is document integrity and chain-of-custody maintained?</span>
-              <span class="material-symbols-outlined faq-arrow">expand_more</span>
-            </div>
-            <div class="faq-answer">
-              Upon ingestion, each document receives a unique cryptographic SHA-256 fingerprint. Any subsequent review, extraction, or annotation is logged into an immutable chain of custody ledger visible in the Trust & Verification tab.
-            </div>
-          </div>
-
-          <div class="faq-item">
-            <div class="faq-question">
-              <span>Is CaseCompass free for legal-aid organizations?</span>
-              <span class="material-symbols-outlined faq-arrow">expand_more</span>
-            </div>
-            <div class="faq-answer">
-              Yes. CaseCompass is provided free of charge for recognized legal-aid clinics, DLSA/SLSA empanelled advocates, law school legal clinics, and verified pro-bono defense lawyers.
-            </div>
-          </div>
-
-          <div class="faq-item">
-            <div class="faq-question">
-              <span>Is information automatically sent to external AI servers?</span>
-              <span class="material-symbols-outlined faq-arrow">expand_more</span>
-            </div>
-            <div class="faq-answer">
-              CaseCompass operates with a "Running without AI" mode and private sandbox defaults. Sensitive case records are never used to train public language models and remain securely contained within your designated jurisdiction environment.
-            </div>
-          </div>
-        </div>
-      </section>
-
       <!-- 12. Bottom Call to Action Dark Banner -->
       <section class="landing-cta-block">
         <div class="landing-cta-block__inner">
@@ -669,7 +591,6 @@ export function renderLandingPage() {
             <h4>Resources & Help</h4>
             <ul>
               <li><a href="#how-it-works">How It Works</a></li>
-              <li><a href="#faq">Frequently Asked Questions</a></li>
               <li><a href="#legal-aid">NALSA Legal Aid Directory</a></li>
               <li><a href="#deep-audit">Citation Standards</a></li>
             </ul>
@@ -832,22 +753,7 @@ export function renderLandingPage() {
 }
 
 export function initLandingPage() {
-  // 1. FAQ Accordion toggle
-  const faqItems = document.querySelectorAll('.faq-item');
-  faqItems.forEach(item => {
-    const question = item.querySelector('.faq-question');
-    question?.addEventListener('click', () => {
-      const isOpen = item.classList.contains('open');
-      faqItems.forEach(i => i.classList.remove('open'));
-      if (!isOpen) {
-        item.classList.add('open');
-      }
-    });
-  });
-
-  if (faqItems[0]) faqItems[0].classList.add('open');
-
-  // 2. Authentication Modal Controls
+  // 1. Authentication Modal Controls
   let modal = document.getElementById('login-modal-overlay');
   const loginBtn = document.getElementById('btn-landing-login');
   const signupBtn = document.getElementById('btn-landing-signup');
@@ -892,14 +798,6 @@ export function initLandingPage() {
     }
   });
 
-  // Demo walkthrough button checks auth or prompts
-  document.getElementById('btn-hero-demo')?.addEventListener('click', () => {
-    if (localStorage.getItem('casecompass_auth') === 'true') {
-      window.location.hash = '#/review';
-    } else {
-      openAuthModal('login');
-    }
-  });
 
   // Protected links check auth before navigating
   document.querySelectorAll('.auth-protected-link').forEach(link => {

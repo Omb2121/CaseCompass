@@ -1,7 +1,8 @@
 /**
  * CaseCompass — 3. Timeline Page
- * Interactive Case Timeline with End-of-Timeline Docket Determination
- * Allows setting case status: verified, pending, flagged, processing.
+ * Totally LIVE Timeline: reflects only the actual active case proceedings.
+ * When a user creates a new case, only that case's live docket events are displayed.
+ * No unnecessary or hardcoded demo timelines.
  */
 
 import { api } from '../api.js';
@@ -35,7 +36,7 @@ function statusBadgeHtml(status) {
 
 export function renderTimelinePage() {
   const activeCase = api.getActiveCase();
-  const timelineEvents = JSON.parse(localStorage.getItem('casecompass_timeline_events') || '[]');
+  const timelineEvents = api.getCaseTimeline(activeCase.id);
 
   return `
     <div class="page-content animate-fade-in" style="max-width: 960px; margin: 0 auto;">
@@ -43,7 +44,7 @@ export function renderTimelinePage() {
       <div id="timeline-status-toast" style="display:none;margin-bottom:var(--space-md);padding:12px 18px;border-radius:var(--radius-md);background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46;align-items:center;justify-content:space-between;gap:10px;">
         <div style="display:flex;align-items:center;gap:10px;">
           <span class="material-symbols-outlined" style="color:#059669;font-size:20px;">check_circle</span>
-          <span id="timeline-status-toast-text" style="font-size:0.875rem;font-weight:600;">Status updated successfully!</span>
+          <span id="timeline-status-toast-text" style="font-size:0.875rem;font-weight:600;">Updated successfully!</span>
         </div>
         <a href="#/cases" style="color:#059669;font-weight:700;font-size:0.8125rem;text-decoration:underline;">View in All Records →</a>
       </div>
@@ -56,6 +57,7 @@ export function renderTimelinePage() {
               ${activeCase.title}
             </h1>
             ${statusBadgeHtml(activeCase.status)}
+            ${activeCase.isCustom ? `<span class="badge" style="background:#eff6ff;color:#1d4ed8;font-size:0.6875rem;">Active User Docket</span>` : ''}
           </div>
           <p class="text-body-sm" style="color:var(--on-surface-variant);">
             CNR: <strong style="color:var(--primary);">${activeCase.cnr}</strong> · ${activeCase.court}
@@ -64,8 +66,12 @@ export function renderTimelinePage() {
         <div style="display:flex;align-items:center;gap:8px;">
           <a href="#/cases" class="btn btn--secondary btn--sm" style="border-radius:var(--radius-md);text-decoration:none;">
             <span class="material-symbols-outlined" style="font-size:16px;">folder_open</span>
-            <span>All Cases</span>
+            <span>Change Case</span>
           </a>
+          <button class="btn btn--primary btn--sm" id="btn-open-add-event" style="border-radius:var(--radius-md);">
+            <span class="material-symbols-outlined" style="font-size:16px;">add</span>
+            <span>Add Proceeding Event</span>
+          </button>
         </div>
       </div>
 
@@ -87,17 +93,21 @@ export function renderTimelinePage() {
         </div>
       </div>
 
-      <!-- Timeline Heading -->
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-md);">
+      <!-- Timeline Heading & Actions -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-md);flex-wrap:wrap;gap:8px;">
         <div>
-          <h2 class="text-headline-sm" style="color:var(--primary);font-weight:700;">Case Proceedings Timeline</h2>
-          <p style="font-size:0.8125rem;color:var(--on-surface-variant);">Chronological court filings, witness examinations, and orders</p>
+          <h2 class="text-headline-sm" style="color:var(--primary);font-weight:700;">Live Case Proceedings</h2>
+          <p style="font-size:0.8125rem;color:var(--on-surface-variant);">
+            Strict chronological record for <strong>${activeCase.title}</strong>
+          </p>
         </div>
-        <span class="badge badge--neutral" style="border-radius:var(--radius-sm);font-weight:600;">${timelineEvents.length} Events Logged</span>
+        <span class="badge badge--neutral" style="border-radius:var(--radius-sm);font-weight:600;" id="timeline-count-badge">
+          ${timelineEvents.length} Events Logged
+        </span>
       </div>
 
-      <!-- Timeline Events -->
-      <div class="stagger-children" style="position:relative;padding-left:28px;margin-bottom:var(--space-xl);">
+      <!-- Timeline Events Container -->
+      <div class="stagger-children" id="timeline-events-container" style="position:relative;padding-left:28px;margin-bottom:var(--space-xl);">
         <!-- Vertical line -->
         <div style="position:absolute;left:11px;top:8px;bottom:8px;width:2px;background:var(--outline-variant);border-radius:1px;"></div>
 
@@ -105,7 +115,7 @@ export function renderTimelinePage() {
           const colors = eventTypeColor(evt.type);
           const isLast = i === timelineEvents.length - 1;
           return `
-            <div style="position:relative;padding-bottom:${isLast ? '0' : 'var(--space-lg)'};display:flex;gap:var(--space-md);">
+            <div class="timeline-event-row" style="position:relative;padding-bottom:${isLast ? '0' : 'var(--space-lg)'};display:flex;gap:var(--space-md);">
               <!-- Dot -->
               <div style="position:absolute;left:-24px;top:4px;width:14px;height:14px;border-radius:50%;border:2px solid ${colors.border};background:var(--surface-container-lowest);z-index:1;"></div>
 
@@ -158,7 +168,6 @@ export function renderTimelinePage() {
 
         <!-- 4 Status Action Buttons -->
         <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:12px;margin-top:var(--space-md);">
-          <!-- 1. Verified Button -->
           <button class="btn btn-status-choice ${activeCase.status === 'verified' ? 'active-choice' : ''}" data-set-status="verified"
                   style="display:flex;flex-direction:column;align-items:center;padding:14px;border-radius:10px;border:2px solid ${activeCase.status === 'verified' ? '#059669' : '#e2e8f0'};background:${activeCase.status === 'verified' ? '#ecfdf5' : '#ffffff'};cursor:pointer;transition:all 0.15s ease;">
             <span class="material-symbols-outlined" style="font-size:26px;color:#059669;margin-bottom:6px;">verified</span>
@@ -166,7 +175,6 @@ export function renderTimelinePage() {
             <span style="font-size:0.75rem;color:#64748b;text-align:center;margin-top:2px;">All orders & citations verified</span>
           </button>
 
-          <!-- 2. Pending Review Button -->
           <button class="btn btn-status-choice ${activeCase.status === 'pending' ? 'active-choice' : ''}" data-set-status="pending"
                   style="display:flex;flex-direction:column;align-items:center;padding:14px;border-radius:10px;border:2px solid ${activeCase.status === 'pending' ? '#d97706' : '#e2e8f0'};background:${activeCase.status === 'pending' ? '#fffbeb' : '#ffffff'};cursor:pointer;transition:all 0.15s ease;">
             <span class="material-symbols-outlined" style="font-size:26px;color:#d97706;margin-bottom:6px;">schedule</span>
@@ -174,7 +182,6 @@ export function renderTimelinePage() {
             <span style="font-size:0.75rem;color:#64748b;text-align:center;margin-top:2px;">Awaiting clerk verification</span>
           </button>
 
-          <!-- 3. Flagged Button -->
           <button class="btn btn-status-choice ${activeCase.status === 'flagged' ? 'active-choice' : ''}" data-set-status="flagged"
                   style="display:flex;flex-direction:column;align-items:center;padding:14px;border-radius:10px;border:2px solid ${activeCase.status === 'flagged' ? '#dc2626' : '#e2e8f0'};background:${activeCase.status === 'flagged' ? '#fef2f2' : '#ffffff'};cursor:pointer;transition:all 0.15s ease;">
             <span class="material-symbols-outlined" style="font-size:26px;color:#dc2626;margin-bottom:6px;">flag</span>
@@ -182,7 +189,6 @@ export function renderTimelinePage() {
             <span style="font-size:0.75rem;color:#64748b;text-align:center;margin-top:2px;">Discrepancy / Attention needed</span>
           </button>
 
-          <!-- 4. Processing Button -->
           <button class="btn btn-status-choice ${activeCase.status === 'processing' ? 'active-choice' : ''}" data-set-status="processing"
                   style="display:flex;flex-direction:column;align-items:center;padding:14px;border-radius:10px;border:2px solid ${activeCase.status === 'processing' ? '#4f46e5' : '#e2e8f0'};background:${activeCase.status === 'processing' ? '#eef2ff' : '#ffffff'};cursor:pointer;transition:all 0.15s ease;">
             <span class="material-symbols-outlined" style="font-size:26px;color:#4f46e5;margin-bottom:6px;">sync</span>
@@ -195,10 +201,57 @@ export function renderTimelinePage() {
           <span style="font-size:0.75rem;color:#64748b;">
             Selecting any status immediately synchronizes this case in the <strong>All Records</strong> table.
           </span>
-          <a href="#/cases" class="btn btn--primary btn--sm" style="text-decoration:none;border-radius:8px;">
-            <span>Return to All Records</span>
-            <span class="material-symbols-outlined" style="font-size:16px;">arrow_forward</span>
-          </a>
+          <div style="display:flex;gap:8px;">
+            <a href="#/review" class="btn btn--secondary btn--sm" style="text-decoration:none;border-radius:8px;">
+              <span>Go to Evidence Review</span>
+              <span class="material-symbols-outlined" style="font-size:16px;">arrow_forward</span>
+            </a>
+            <a href="#/cases" class="btn btn--primary btn--sm" style="text-decoration:none;border-radius:8px;">
+              <span>Return to All Records</span>
+              <span class="material-symbols-outlined" style="font-size:16px;">arrow_forward</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Add Proceeding Event Modal -->
+      <div id="add-event-modal" class="modal-overlay" style="display:none;position:fixed;inset:0;z-index:60;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;padding:var(--space-md);backdrop-filter:blur(4px);">
+        <div class="card" style="width:100%;max-width:480px;padding:var(--space-lg);animation:slideUp 0.3s ease;box-shadow:var(--shadow-lg);">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-md);border-bottom:1px solid var(--outline-variant);padding-bottom:10px;">
+            <h3 class="text-headline-sm" style="color:var(--primary);font-weight:700;">Add Timeline Proceeding</h3>
+            <button id="close-add-event-btn" style="background:none;border:none;cursor:pointer;color:var(--on-surface-variant);padding:4px;" aria-label="Close modal">
+              <span class="material-symbols-outlined">close</span>
+            </button>
+          </div>
+          <form id="add-event-form" style="display:flex;flex-direction:column;gap:var(--space-md);">
+            <div>
+              <label class="text-label-md" style="display:block;margin-bottom:4px;font-weight:600;">Proceeding / Event Title *</label>
+              <input type="text" id="event-title-input" required placeholder="e.g., FIR Lodged / Bail Hearing / Charge Frame" style="width:100%;padding:10px 12px;border:1px solid var(--outline-variant);border-radius:var(--radius-md);">
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+              <div>
+                <label class="text-label-md" style="display:block;margin-bottom:4px;font-weight:600;">Event Date</label>
+                <input type="text" id="event-date-input" placeholder="e.g., 18 Jan 2025" style="width:100%;padding:10px 12px;border:1px solid var(--outline-variant);border-radius:var(--radius-md);">
+              </div>
+              <div>
+                <label class="text-label-md" style="display:block;margin-bottom:4px;font-weight:600;">Event Type</label>
+                <select id="event-type-select" style="width:100%;padding:10px 12px;border:1px solid var(--outline-variant);border-radius:var(--radius-md);background:white;">
+                  <option value="filing">Filing / Police</option>
+                  <option value="hearing" selected>Court Hearing</option>
+                  <option value="proceeding">Proceeding</option>
+                  <option value="order">Judicial Order</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label class="text-label-md" style="display:block;margin-bottom:4px;font-weight:600;">Description & Procedural Notes</label>
+              <textarea id="event-desc-input" rows="3" placeholder="Enter witness statements, order summary, or court directions..." style="width:100%;padding:10px 12px;border:1px solid var(--outline-variant);border-radius:var(--radius-md);font-family:inherit;"></textarea>
+            </div>
+            <div style="display:flex;gap:var(--space-sm);justify-content:flex-end;margin-top:var(--space-sm);">
+              <button type="button" class="btn btn--secondary" id="cancel-add-event-btn">Cancel</button>
+              <button type="submit" class="btn btn--primary">Add to Timeline</button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
@@ -221,18 +274,16 @@ export function initTimelinePage() {
     processing: { label: 'In Processing', cls: 'badge--processing', icon: 'sync', border: '#4f46e5', bg: '#eef2ff', text: 'Case marked as In Processing.' },
   };
 
+  // Status buttons
   choiceBtns.forEach(btn => {
     btn.addEventListener('click', async () => {
       const newStatus = btn.getAttribute('data-set-status');
       if (!newStatus) return;
 
-      // Update case via API
       await api.updateCaseStatus(activeCase.id, newStatus);
       activeCase.status = newStatus;
 
-      // Update UI buttons
       choiceBtns.forEach(b => {
-        const s = b.getAttribute('data-set-status');
         b.style.borderColor = '#e2e8f0';
         b.style.background = '#ffffff';
         b.classList.remove('active-choice');
@@ -243,7 +294,6 @@ export function initTimelinePage() {
       btn.style.background = conf.bg;
       btn.classList.add('active-choice');
 
-      // Update Top Badge
       if (topBadge && topBadgeText) {
         topBadge.className = `badge ${conf.cls}`;
         topBadge.innerHTML = `
@@ -252,17 +302,95 @@ export function initTimelinePage() {
         `;
       }
 
-      // Update current outcome text
       if (currentOutcomeName) {
         currentOutcomeName.textContent = conf.label;
       }
 
-      // Show toast
       if (toast && toastText) {
         toastText.textContent = `${conf.text} Updated across All Records.`;
         toast.style.display = 'flex';
         setTimeout(() => { toast.style.display = 'none'; }, 4000);
       }
     });
+  });
+
+  // Modal for Adding Proceeding Event
+  const modal = document.getElementById('add-event-modal');
+  const openBtn = document.getElementById('btn-open-add-event');
+  const closeBtn = document.getElementById('close-add-event-btn');
+  const cancelBtn = document.getElementById('cancel-add-event-btn');
+  const form = document.getElementById('add-event-form');
+  const eventsContainer = document.getElementById('timeline-events-container');
+  const countBadge = document.getElementById('timeline-count-badge');
+
+  function openModal() {
+    if (modal) modal.style.display = 'flex';
+    document.getElementById('event-title-input')?.focus();
+  }
+  function closeModal() {
+    if (modal) modal.style.display = 'none';
+  }
+
+  openBtn?.addEventListener('click', openModal);
+  closeBtn?.addEventListener('click', closeModal);
+  cancelBtn?.addEventListener('click', closeModal);
+  modal?.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+
+  form?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const title = document.getElementById('event-title-input')?.value || '';
+    const date = document.getElementById('event-date-input')?.value || new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    const type = document.getElementById('event-type-select')?.value || 'hearing';
+    const desc = document.getElementById('event-desc-input')?.value || 'Proceeding recorded and appended to live timeline.';
+
+    if (!title.trim()) return;
+
+    const iconMap = { filing: 'description', hearing: 'record_voice_over', proceeding: 'gavel', order: 'fact_check' };
+    const icon = iconMap[type] || 'gavel';
+
+    const newEvt = api.addTimelineEvent(activeCase.id, {
+      label: title,
+      date,
+      type,
+      description: desc,
+      icon,
+      verified: true,
+    });
+
+    closeModal();
+    form.reset();
+
+    // Re-render page or append event smoothly
+    const currentList = api.getCaseTimeline(activeCase.id);
+    if (countBadge) countBadge.textContent = `${currentList.length} Events Logged`;
+
+    if (eventsContainer) {
+      const colors = eventTypeColor(type);
+      const rowHtml = `
+        <div class="timeline-event-row" style="position:relative;padding-bottom:var(--space-lg);display:flex;gap:var(--space-md);animation:fadeIn 0.3s ease;">
+          <div style="position:absolute;left:-24px;top:4px;width:14px;height:14px;border-radius:50%;border:2px solid ${colors.border};background:var(--surface-container-lowest);z-index:1;"></div>
+          <div class="card-flat" style="flex:1;padding:var(--space-md);border-left:3px solid ${colors.border};border-radius:var(--radius-md);background:#eff6ff;">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:var(--space-sm);flex-wrap:wrap;margin-bottom:4px;">
+              <div style="display:flex;align-items:center;gap:var(--space-sm);">
+                <span class="material-symbols-outlined" style="font-size:18px;color:${colors.icon}">${icon}</span>
+                <span class="text-body-md" style="font-weight:700;color:var(--on-surface);">${newEvt.label}</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;">
+                <span class="text-body-sm" style="color:var(--on-surface-variant);font-weight:500;">${newEvt.date}</span>
+                <span class="badge badge--verified" style="font-size:0.625rem;padding:2px 8px;"><span class="material-symbols-outlined" style="font-size:11px">check</span> Verified</span>
+              </div>
+            </div>
+            <p class="text-body-sm" style="color:var(--on-surface-variant);line-height:1.5;">${newEvt.description}</p>
+          </div>
+        </div>
+      `;
+      eventsContainer.insertAdjacentHTML('beforeend', rowHtml);
+    }
+
+    if (toast && toastText) {
+      toastText.textContent = `New proceeding "${title}" logged live to docket timeline!`;
+      toast.style.display = 'flex';
+      setTimeout(() => { toast.style.display = 'none'; }, 4000);
+    }
   });
 }

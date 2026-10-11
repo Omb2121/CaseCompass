@@ -767,3 +767,36 @@ textarea:focus {
 @media (min-width: 1024px) {
   .page-content--review { max-width: 1440px; }
 }
+
+/* Print Stylesheet for Official Case Dossier Printing */
+@media print {
+  body, html {
+    overflow: visible !important;
+    height: auto !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  .app-header,
+  .app-sidebar,
+  .mobile-sidebar,
+  .mobile-sidebar-overlay,
+  .app-footer,
+  .btn,
+  #btn-export-word,
+  #btn-print-report,
+  #btn-open-add-event {
+    display: none !important;
+  }
+  #app.is-workspace .app-main {
+    position: static !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    width: 100% !important;
+  }
+  .card, .card-flat {
+    box-shadow: none !important;
+    border: 1px solid #cbd5e1 !important;
+    break-inside: avoid;
+  }
+}

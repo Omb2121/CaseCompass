@@ -1,39 +1,58 @@
 /**
  * CaseCompass — 2. Upload Page
- * Matches Stitch screen: "CaseCompass — Upload Documents"
+ * Ingest court records, orders, and FIRs into the active case docket.
+ * Synchronizes immediately with Evidence Review Lens and Live Timeline.
  */
 
-import { demoCase, uploadedDocuments } from '../data/demoData.js';
+import { api } from '../api.js';
 
 export function renderUploadPage() {
+  const activeCase = api.getActiveCase();
+  const existingDocs = api.getCaseDocuments(activeCase.id);
+
   return `
-    <div class="page-content animate-fade-in">
+    <div class="page-content animate-fade-in" style="max-width: 1040px; margin: 0 auto;">
+      <!-- Success Toast / Notification -->
+      <div id="upload-success-toast" style="display:none;margin-bottom:var(--space-md);padding:14px 20px;border-radius:var(--radius-lg);background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46;align-items:center;justify-content:space-between;gap:12px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="material-symbols-outlined" style="color:#059669;font-size:24px;">check_circle</span>
+          <div>
+            <div style="font-weight:700;font-size:0.9375rem;" id="upload-success-title">Documents Ingested Successfully!</div>
+            <div style="font-size:0.8125rem;color:#047857;" id="upload-success-desc">
+              FIR & court orders integrated into Evidence Lens & live timeline.
+            </div>
+          </div>
+        </div>
+        <a href="#/review" class="btn btn--primary btn--sm" style="text-decoration:none;border-radius:8px;background:#059669;">
+          <span>View in Evidence Review Lens</span>
+          <span class="material-symbols-outlined" style="font-size:16px;">arrow_forward</span>
+        </a>
+      </div>
+
       <!-- Page Header -->
       <div style="margin-bottom:var(--space-lg);">
-        <h1 class="page-heading" style="font-family:var(--font-headline);">Upload Documents</h1>
+        <h1 class="page-heading">2. Document Intake & FIR Upload</h1>
         <p class="text-body-sm" style="color:var(--on-surface-variant);margin-top:4px;">
-          Add court records, orders, and evidence to the active docket
+          Upload court records, FIR depositions, chargesheets, and orders to activate Evidence Lens
         </p>
       </div>
 
       <!-- Case Context Bar -->
       <div class="card-flat" style="padding:var(--space-md);margin-bottom:var(--space-lg);display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:var(--space-md);">
-        <div style="display:flex;align-items:center;gap:var(--space-sm);">
-          <span style="width:8px;height:8px;background:var(--primary);border-radius:50%;"></span>
-          <span class="text-body-md" style="font-weight:700;color:var(--on-surface);">Active: ${demoCase.title}</span>
-          <span class="text-code-sm" style="color:var(--secondary);background:var(--surface-container-low);padding:2px 8px;border-radius:var(--radius-sm);">CNR: ${demoCase.cnr}</span>
+        <div style="display:flex;align-items:center;gap:var(--space-sm);flex-wrap:wrap;">
+          <span style="width:10px;height:10px;background:var(--primary);border-radius:50%;"></span>
+          <span class="text-body-md" style="font-weight:700;color:var(--on-surface);">Active Matter: ${activeCase.title}</span>
+          <span class="text-code-sm" style="color:var(--secondary);background:var(--surface-container-low);padding:2px 8px;border-radius:var(--radius-sm);">CNR: ${activeCase.cnr}</span>
+          <span class="badge badge--neutral">${existingDocs.length} Docs currently in dossier</span>
         </div>
         <a href="#/cases" class="btn btn--ghost btn--sm">Change Case ⇄</a>
       </div>
 
       <!-- Drop Zone -->
-      <div id="drop-target" class="card" style="padding:var(--space-xl);text-align:center;border:2px dashed var(--outline-variant);border-radius:var(--radius-xl);margin-bottom:var(--space-lg);transition:background 0.2s,border-color 0.2s;cursor:pointer;"
-           ondragover="event.preventDefault();this.style.borderColor='var(--primary)';this.style.background='var(--surface-container-low)'"
-           ondragleave="this.style.borderColor='var(--outline-variant)';this.style.background='var(--surface-container-lowest)'"
-           ondrop="event.preventDefault();this.style.borderColor='var(--outline-variant)';this.style.background='var(--surface-container-lowest)'">
+      <div id="drop-target" class="card" style="padding:var(--space-xl);text-align:center;border:2px dashed var(--outline-variant);border-radius:var(--radius-xl);margin-bottom:var(--space-lg);transition:all 0.2s;cursor:pointer;">
         <span class="material-symbols-outlined" style="font-size:48px;color:var(--primary);display:block;margin-bottom:var(--space-sm);">cloud_upload</span>
         <p class="text-body-lg" style="font-weight:600;color:var(--on-surface);margin-bottom:4px;">
-          Drag and drop files here
+          Drag and drop FIR or court documents here
         </p>
         <p class="text-body-sm" style="color:var(--on-surface-variant);margin-bottom:var(--space-md);">
           or click to browse · PDF, JPEG, PNG, TIFF · Max 25 MB per file
@@ -50,73 +69,39 @@ export function renderUploadPage() {
       <div style="margin-bottom:var(--space-lg);">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-sm);">
           <div style="display:flex;align-items:center;gap:var(--space-sm);">
-            <span class="section-title" style="margin-bottom:0;">Files in Queue</span>
-            <span id="queue-counter-badge" class="badge badge--neutral">${uploadedDocuments.length} Files in Queue</span>
+            <span class="section-title" style="margin-bottom:0;">Intake Queue</span>
+            <span id="queue-counter-badge" class="badge badge--neutral">0 Files Selected</span>
           </div>
           <div style="display:flex;gap:var(--space-sm);">
-            <button class="btn btn--ghost btn--sm" onclick="window.__clearQueue?.()">
-              <span class="material-symbols-outlined" style="font-size:14px">delete_sweep</span> Clear All
+            <button class="btn btn--ghost btn--sm" id="btn-sample-fir" style="font-size:0.75rem;color:var(--primary);">
+              <span class="material-symbols-outlined" style="font-size:14px">description</span> + Add Sample FIR & Chargesheet
+            </button>
+            <button class="btn btn--ghost btn--sm" id="btn-clear-queue" style="font-size:0.75rem;">
+              <span class="material-symbols-outlined" style="font-size:14px">delete_sweep</span> Clear
             </button>
           </div>
         </div>
 
-        <div id="files-queue-list" style="display:flex;flex-direction:column;gap:2px;border-radius:var(--radius-lg);overflow:hidden;">
-          ${uploadedDocuments.map(doc => renderQueueItem(doc)).join('')}
+        <div id="files-queue-list" style="display:flex;flex-direction:column;gap:8px;border-radius:var(--radius-lg);">
+          <div id="queue-empty-prompt" style="padding:var(--space-lg);text-align:center;color:var(--on-surface-variant);background:var(--surface-container-low);border-radius:var(--radius-md);" class="text-body-sm">
+            No files currently in queue. Drag & drop court documents or click "+ Add Sample FIR & Chargesheet" above.
+          </div>
         </div>
       </div>
 
       <!-- Upload Progress -->
       <div id="global-progress-wrap" style="display:none;align-items:center;gap:var(--space-md);padding:var(--space-md);background:var(--surface-container-low);border-radius:var(--radius-lg);margin-bottom:var(--space-md);">
-        <div style="flex:1;height:6px;background:var(--outline-variant);border-radius:3px;overflow:hidden;">
-          <div id="progress-bar-fill" style="width:0%;height:100%;background:var(--primary);border-radius:3px;transition:width 0.3s;"></div>
+        <div style="flex:1;height:8px;background:var(--outline-variant);border-radius:4px;overflow:hidden;">
+          <div id="progress-bar-fill" style="width:0%;height:100%;background:var(--primary);border-radius:4px;transition:width 0.25s;"></div>
         </div>
-        <span id="progress-percent" class="text-label-md" style="color:var(--primary);min-width:3rem;text-align:right;">0%</span>
+        <span id="progress-percent" class="text-label-md" style="color:var(--primary);min-width:3rem;text-align:right;font-weight:700;">0%</span>
       </div>
 
       <!-- Upload Action -->
       <div style="display:flex;align-items:center;justify-content:flex-end;gap:var(--space-sm);">
-        <button class="btn btn--primary btn--lg" id="upload-primary-btn" onclick="window.__triggerUpload?.()">
+        <button class="btn btn--primary btn--lg" id="upload-primary-btn" disabled>
           <span class="material-symbols-outlined" style="font-size:20px">upload</span>
-          Upload All Documents
-        </button>
-      </div>
-    </div>
-  `;
-}
-
-function renderQueueItem(doc) {
-  const isPdf = doc.type === 'pdf';
-  const iconName = isPdf ? 'picture_as_pdf' : 'image';
-  const iconBg = isPdf ? 'background:var(--error-container);color:var(--error)' : 'background:var(--surface-variant);color:var(--primary)';
-
-  return `
-    <div class="queue-item" data-filename="${doc.name}"
-         style="display:flex;align-items:center;justify-content:space-between;padding:var(--space-md);background:var(--surface-container-lowest);box-shadow:var(--shadow-xs);transition:background 0.15s;"
-         onmouseover="this.style.background='var(--surface-container-low)'"
-         onmouseout="this.style.background='var(--surface-container-lowest)'">
-      <div style="display:flex;align-items:center;gap:var(--space-md);min-width:0;">
-        <div style="width:40px;height:40px;${iconBg};display:flex;align-items:center;justify-content:center;border-radius:var(--radius-md);flex-shrink:0;">
-          <span class="material-symbols-outlined" style="font-size:22px">${iconName}</span>
-        </div>
-        <div style="min-width:0;">
-          <div class="text-body-md" style="font-weight:600;color:var(--primary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${doc.name}</div>
-          <div style="display:flex;align-items:center;gap:8px;" class="text-body-sm" style="color:var(--secondary);">
-            <span>${doc.size}</span>
-            <span>·</span>
-            <span>${doc.date}</span>
-          </div>
-        </div>
-      </div>
-      <div style="display:flex;align-items:center;gap:var(--space-md);flex-shrink:0;">
-        <span class="badge badge--verified" style="border-radius:var(--radius-sm);">
-          <span class="material-symbols-outlined" style="font-size:12px">check</span>
-          ${doc.status === 'uploaded' ? 'Uploaded' : 'Ready'}
-        </span>
-        <button type="button" style="background:none;border:none;cursor:pointer;color:var(--outline);padding:4px;transition:color 0.15s;"
-                onclick="this.closest('.queue-item')?.remove();window.__updateQueueCount?.()"
-                onmouseover="this.style.color='var(--error)'" onmouseout="this.style.color='var(--outline)'"
-                title="Remove file" aria-label="Remove file">
-          <span class="material-symbols-outlined" style="font-size:20px">delete</span>
+          Upload & Ingest All Documents
         </button>
       </div>
     </div>
@@ -124,110 +109,154 @@ function renderQueueItem(doc) {
 }
 
 export function initUploadPage() {
+  const activeCase = api.getActiveCase();
   const fileInput = document.getElementById('file-native-input');
   const dropTarget = document.getElementById('drop-target');
+  const queueList = document.getElementById('files-queue-list');
+  const queueEmpty = document.getElementById('queue-empty-prompt');
+  const counterBadge = document.getElementById('queue-counter-badge');
+  const uploadBtn = document.getElementById('upload-primary-btn');
+  const clearBtn = document.getElementById('btn-clear-queue');
+  const sampleFirBtn = document.getElementById('btn-sample-fir');
+  const successToast = document.getElementById('upload-success-toast');
 
-  // Click to browse
-  dropTarget?.addEventListener('click', (e) => {
-    if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'LABEL') {
-      fileInput?.click();
+  let queueFiles = [];
+
+  function updateUI() {
+    if (counterBadge) counterBadge.textContent = `${queueFiles.length} Files Selected`;
+    if (uploadBtn) uploadBtn.disabled = queueFiles.length === 0;
+    if (queueEmpty) queueEmpty.style.display = queueFiles.length === 0 ? 'block' : 'none';
+  }
+
+  function addFiles(files) {
+    for (const f of files) {
+      if (!queueFiles.some(item => item.name === f.name)) {
+        queueFiles.push(f);
+        renderQueueItem(f);
+      }
     }
-  });
+    updateUI();
+  }
 
-  fileInput?.addEventListener('change', (e) => {
-    if (e.target.files?.length > 0) {
-      Array.from(e.target.files).forEach(file => {
-        addNewFileToQueue(file.name, (file.size / (1024 * 1024)).toFixed(1) + ' MB');
-      });
-    }
-  });
-
-  function addNewFileToQueue(filename, sizeStr) {
-    const list = document.getElementById('files-queue-list');
-    if (!list) return;
-
-    const isPdf = filename.toLowerCase().endsWith('.pdf');
-    const iconName = isPdf ? 'picture_as_pdf' : 'image';
-    const iconBg = isPdf ? 'background:var(--error-container);color:var(--error)' : 'background:var(--surface-variant);color:var(--primary)';
+  function renderQueueItem(file) {
+    if (!queueList) return;
+    const isFir = file.name.toLowerCase().includes('fir');
+    const isPdf = file.name.toLowerCase().endsWith('.pdf');
+    const icon = isFir ? 'local_police' : (isPdf ? 'picture_as_pdf' : 'description');
 
     const item = document.createElement('div');
-    item.className = 'queue-item';
-    item.setAttribute('data-filename', filename);
-    item.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:var(--space-md);background:var(--surface-container-lowest);box-shadow:var(--shadow-xs);animation:fadeIn 0.3s ease;';
+    item.className = 'card-flat queue-item';
+    item.setAttribute('data-filename', file.name);
+    item.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--surface-container-lowest);border-radius:var(--radius-md);animation:fadeIn 0.2s ease;';
     item.innerHTML = `
-      <div style="display:flex;align-items:center;gap:var(--space-md);min-width:0;">
-        <div style="width:40px;height:40px;${iconBg};display:flex;align-items:center;justify-content:center;border-radius:var(--radius-md);flex-shrink:0;">
-          <span class="material-symbols-outlined" style="font-size:22px">${iconName}</span>
+      <div style="display:flex;align-items:center;gap:12px;min-width:0;">
+        <div style="width:38px;height:38px;border-radius:8px;background:${isFir ? '#eff6ff' : 'var(--surface-container-low)'};color:${isFir ? '#1d4ed8' : 'var(--primary)'};display:flex;align-items:center;justify-content:center;">
+          <span class="material-symbols-outlined" style="font-size:20px;">${icon}</span>
         </div>
-        <div style="min-width:0;">
-          <div class="text-body-md" style="font-weight:600;color:var(--primary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${filename}</div>
-          <div style="display:flex;align-items:center;gap:8px;color:var(--secondary);" class="text-body-sm">
-            <span>${sizeStr}</span><span>·</span><span>Freshly Selected</span>
-          </div>
+        <div>
+          <div style="font-weight:700;font-size:0.875rem;color:var(--on-surface);">${file.name}</div>
+          <div style="font-size:0.75rem;color:var(--on-surface-variant);">${isFir ? 'First Information Report (FIR)' : 'Court Filing Record'} · Ready for OCR & Ledger Ingestion</div>
         </div>
       </div>
-      <div style="display:flex;align-items:center;gap:var(--space-md);flex-shrink:0;">
-        <span class="badge badge--neutral" style="border-radius:var(--radius-sm);">Ready</span>
-        <button type="button" style="background:none;border:none;cursor:pointer;color:var(--outline);padding:4px;" onclick="this.closest('.queue-item')?.remove();window.__updateQueueCount?.()" title="Remove file" aria-label="Remove file">
-          <span class="material-symbols-outlined" style="font-size:20px">delete</span>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="badge badge--neutral" style="font-size:0.6875rem;">Queued</span>
+        <button type="button" class="btn-remove-item" style="background:none;border:none;cursor:pointer;color:var(--outline);padding:4px;" title="Remove">
+          <span class="material-symbols-outlined" style="font-size:18px;">close</span>
         </button>
       </div>
     `;
-    list.appendChild(item);
-    updateQueueCount();
+
+    item.querySelector('.btn-remove-item')?.addEventListener('click', () => {
+      queueFiles = queueFiles.filter(f => f.name !== file.name);
+      item.remove();
+      updateUI();
+    });
+
+    queueList.appendChild(item);
   }
 
-  function updateQueueCount() {
-    const items = document.querySelectorAll('.queue-item');
-    const badge = document.getElementById('queue-counter-badge');
-    if (badge) badge.textContent = `${items.length} Files in Queue`;
-  }
+  // File input change
+  fileInput?.addEventListener('change', (e) => {
+    if (e.target.files) addFiles(Array.from(e.target.files));
+  });
 
-  window.__updateQueueCount = updateQueueCount;
+  // Drop target
+  dropTarget?.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropTarget.style.borderColor = 'var(--primary)';
+    dropTarget.style.background = 'var(--surface-container-low)';
+  });
+  dropTarget?.addEventListener('dragleave', () => {
+    dropTarget.style.borderColor = 'var(--outline-variant)';
+    dropTarget.style.background = '';
+  });
+  dropTarget?.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropTarget.style.borderColor = 'var(--outline-variant)';
+    dropTarget.style.background = '';
+    if (e.dataTransfer?.files) addFiles(Array.from(e.dataTransfer.files));
+  });
 
-  window.__clearQueue = () => {
-    const list = document.getElementById('files-queue-list');
-    if (list) {
-      list.innerHTML = `
-        <div style="padding:var(--space-lg);text-align:center;color:var(--secondary);background:var(--surface-container-low);border-radius:var(--radius-md);" class="text-body-md">
-          Queue cleared. Select or drop records above.
-        </div>
-      `;
-      updateQueueCount();
+  // Clear queue
+  clearBtn?.addEventListener('click', () => {
+    queueFiles = [];
+    if (queueList) {
+      queueList.querySelectorAll('.queue-item').forEach(el => el.remove());
     }
-  };
+    updateUI();
+  });
 
-  window.__triggerUpload = () => {
+  // Add sample FIR button
+  sampleFirBtn?.addEventListener('click', () => {
+    const sampleFiles = [
+      { name: `FIR_${activeCase.cnr.replace(/[^a-zA-Z0-9]/g, '_')}_Police_Lodgment.pdf`, size: 1400000 },
+      { name: `Chargesheet_Exhibits_${activeCase.court.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`, size: 2800000 },
+      { name: `Order_Sheet_Initial_Cognizance.pdf`, size: 950000 },
+    ];
+    addFiles(sampleFiles);
+  });
+
+  // Upload trigger
+  uploadBtn?.addEventListener('click', () => {
+    if (queueFiles.length === 0) return;
+
     const progressWrap = document.getElementById('global-progress-wrap');
     const progressBar = document.getElementById('progress-bar-fill');
     const progressPercent = document.getElementById('progress-percent');
-    const actionBtn = document.getElementById('upload-primary-btn');
 
-    if (!progressWrap || !progressBar || !progressPercent) return;
+    if (progressWrap) progressWrap.style.display = 'flex';
+    uploadBtn.disabled = true;
 
-    progressWrap.style.display = 'flex';
-    if (actionBtn) actionBtn.disabled = true;
-
-    let current = 0;
+    let progress = 0;
     const interval = setInterval(() => {
-      current += 15;
-      if (current >= 100) {
-        current = 100;
+      progress += 20;
+      if (progress >= 100) {
+        progress = 100;
         clearInterval(interval);
-        progressBar.style.width = '100%';
-        progressPercent.textContent = '100%';
-        if (actionBtn) actionBtn.disabled = false;
+        if (progressBar) progressBar.style.width = '100%';
+        if (progressPercent) progressPercent.textContent = '100%';
 
-        // Mark queue items as uploaded
-        document.querySelectorAll('.queue-item .badge').forEach(badge => {
-          badge.className = 'badge badge--verified';
-          badge.style.borderRadius = 'var(--radius-sm)';
-          badge.innerHTML = '<span class="material-symbols-outlined" style="font-size:12px">check</span> Uploaded';
+        // Add to persistent case document store and auto-add timeline proceeding!
+        api.addCaseDocuments(activeCase.id, queueFiles);
+
+        // Update queue item badges
+        document.querySelectorAll('.queue-item .badge').forEach(b => {
+          b.className = 'badge badge--verified';
+          b.innerHTML = '<span class="material-symbols-outlined" style="font-size:12px">check</span> Uploaded & Verified';
         });
+
+        // Show success toast with link to Evidence Lens
+        if (successToast) {
+          successToast.style.display = 'flex';
+          const successDesc = document.getElementById('upload-success-desc');
+          if (successDesc) {
+            successDesc.textContent = `${queueFiles.length} court records & FIR successfully indexed into Evidence Lens and live timeline!`;
+          }
+        }
       } else {
-        progressBar.style.width = current + '%';
-        progressPercent.textContent = current + '%';
+        if (progressBar) progressBar.style.width = progress + '%';
+        if (progressPercent) progressPercent.textContent = progress + '%';
       }
-    }, 300);
-  };
+    }, 200);
+  });
 }

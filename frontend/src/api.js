@@ -100,15 +100,16 @@ export const api = {
     const role = options.role || this.getCurrentRole();
     const currentUser = (options.user || this.getCurrentUser()).toLowerCase();
 
-    // 1. USER ROLE: Only sees cases reported by them
+    // 1. USER ROLE: Only sees cases reported/created by them
     if (role === 'user') {
       cases = cases.filter(c => {
         const rep = (c.reportedBy || '').toLowerCase();
         const createdBy = (c.createdByUser || '').toLowerCase();
-        const title = (c.title || '').toLowerCase();
-        return rep.includes(currentUser) || currentUser.includes(rep) ||
-               createdBy === currentUser ||
-               title.includes(currentUser);
+        // Exact match first (cases created by this session user)
+        if (createdBy === currentUser || rep === currentUser) return true;
+        // Substring match fallback for demo data seeded with different names
+        if (rep.includes(currentUser) || currentUser.includes(rep)) return true;
+        return false;
       });
     }
 

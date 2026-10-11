@@ -216,8 +216,8 @@ export function initUploadPage() {
     addFiles(sampleFiles);
   });
 
-  // Upload trigger
-  uploadBtn?.addEventListener('click', () => {
+  // Upload trigger — creates a NEW case from FIR and registers it for all roles
+  uploadBtn?.addEventListener('click', async () => {
     if (queueFiles.length === 0) return;
 
     const progressWrap = document.getElementById('global-progress-wrap');
@@ -227,36 +227,91 @@ export function initUploadPage() {
     if (progressWrap) progressWrap.style.display = 'flex';
     uploadBtn.disabled = true;
 
+    // Accelerated progress: fills to 100% in ~300ms total (6 steps × 50ms)
     let progress = 0;
-    const interval = setInterval(() => {
-      progress += 20;
-      if (progress >= 100) {
-        progress = 100;
-        clearInterval(interval);
-        if (progressBar) progressBar.style.width = '100%';
-        if (progressPercent) progressPercent.textContent = '100%';
-
-        // Add to persistent case document store and auto-add timeline proceeding!
-        api.addCaseDocuments(activeCase.id, queueFiles);
-
-        // Update queue item badges
-        document.querySelectorAll('.queue-item .badge').forEach(b => {
-          b.className = 'badge badge--verified';
-          b.innerHTML = '<span class="material-symbols-outlined" style="font-size:12px">check</span> Uploaded & Verified';
-        });
-
-        // Show success toast with link to Evidence Lens
-        if (successToast) {
-          successToast.style.display = 'flex';
-          const successDesc = document.getElementById('upload-success-desc');
-          if (successDesc) {
-            successDesc.textContent = `${queueFiles.length} court records & FIR successfully indexed into Evidence Lens and live timeline!`;
-          }
+    await new Promise((resolve) => {
+      const interval = setInterval(() => {
+        progress += 17;
+        if (progress >= 100) {
+          progress = 100;
+          clearInterval(interval);
+          if (progressBar) progressBar.style.width = '100%';
+          if (progressPercent) progressPercent.textContent = '100%';
+          resolve();
+        } else {
+          if (progressBar) progressBar.style.width = progress + '%';
+          if (progressPercent) progressPercent.textContent = progress + '%';
         }
-      } else {
-        if (progressBar) progressBar.style.width = progress + '%';
-        if (progressPercent) progressPercent.textContent = progress + '%';
+      }, 50);
+    });
+
+    // ─── Detect if any file is an FIR ──────────────────────────────────────
+    const firFile = queueFiles.find(f => f.name.toLowerCase().includes('fir'));
+    const currentUser = api.getCurrentUser();
+    const currentRole = api.getCurrentRole();
+
+    let targetCaseId = activeCase.id;
+
+    if (firFile) {
+      // ── FIR Upload → Register a brand-new case visible to ALL roles ────────
+      // Extract a case title from the filename (strip extension and underscores)
+      const rawName = firFile.name.replace(/\.pdf$/i, '').replace(/_/g, ' ').replace(/fir/i, '').trim();
+      const firTitle = rawName.length > 4
+        ? `FIR Case – ${rawName}`
+        : `FIR Case – ${new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}`;
+
+      const newCase = await api.createCase({
+        title: firTitle,
+        seriousness: 'high',       // FIR cases start as High priority
+        timespan: 'day',           // Immediately visible in Judge "Today" & Admin "Listed Today"
+        reportedBy: currentUser,   // Attributed to the uploading user
+        createdByUser: currentUser,
+        status: 'pending',
+        hearingPurpose: 'FIR Lodgment & Initial Cognizance',
+        section: 'IPC / BNS – FIR Lodged',
+      });
+
+      targetCaseId = newCase.id;
+    }
+
+    // ── Add all uploaded files to the (newly created or existing) case ─────
+    api.addCaseDocuments(targetCaseId, queueFiles);
+
+    // Update queue item badges to "Uploaded & Verified"
+    document.querySelectorAll('.queue-item .badge').forEach(b => {
+      b.className = 'badge badge--verified';
+      b.innerHTML = '<span class="material-symbols-outlined" style="font-size:12px">check</span> Uploaded & Verified';
+    });
+
+    // ── Show success toast, then redirect to Cases section immediately ──────
+    if (successToast) {
+      successToast.style.display = 'flex';
+      const successTitle = document.getElementById('upload-success-title');
+      const successDesc = document.getElementById('upload-success-desc');
+      if (successTitle) {
+        successTitle.textContent = firFile
+          ? 'FIR Registered! Case Created & Visible to All Portals'
+          : 'Documents Ingested Successfully!';
       }
-    }, 200);
+      if (successDesc) {
+        successDesc.textContent = firFile
+          ? `New case registered under "${currentUser}" — now visible in Cases, Admin, and Judge portals. Redirecting…`
+          : `${queueFiles.length} court records indexed into Evidence Lens and live timeline!`;
+      }
+
+      // Update the "View in Evidence Lens" button to go to Cases section
+      const viewBtn = successToast.querySelector('a');
+      if (viewBtn && firFile) {
+        viewBtn.href = '#/cases';
+        viewBtn.innerHTML = '<span>View in Cases Section</span><span class="material-symbols-outlined" style="font-size:16px">arrow_forward</span>';
+      }
+    }
+
+    // Instantly redirect to Cases section (no artificial delay)
+    if (firFile) {
+      setTimeout(() => {
+        window.location.hash = '#/cases';
+      }, 800);
+    }
   });
 }

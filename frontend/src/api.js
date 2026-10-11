@@ -179,6 +179,33 @@ export const api = {
    * Get the active case object
    */
   getActiveCase() {
+    const role = this.getCurrentRole();
+    if (role === 'user') {
+      const userCases = this.getCases();
+      const activeId = localStorage.getItem(ACTIVE_CASE_KEY);
+      const found = userCases.find(c => String(c.id) === String(activeId));
+      if (found) return found;
+      if (userCases.length > 0) {
+        localStorage.setItem(ACTIVE_CASE_KEY, String(userCases[0].id));
+        return userCases[0];
+      }
+      return {
+        id: 'no-case',
+        title: 'No Reported Case on File',
+        cnr: 'N/A',
+        court: 'District Court',
+        status: 'pending',
+        statusLabel: 'Pending Registration',
+        documents: 0,
+        nextHearing: 'None Scheduled',
+        filingDate: 'N/A',
+        section: 'N/A',
+        seriousness: 'low',
+        reportedBy: this.getCurrentUser(),
+        isCustom: false,
+      };
+    }
+
     const cases = this.getCases({ ignoreRoleFilter: true });
     const activeId = localStorage.getItem(ACTIVE_CASE_KEY) || '1';
     const found = cases.find(c => String(c.id) === String(activeId));

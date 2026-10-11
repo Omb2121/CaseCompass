@@ -10,16 +10,7 @@ export function renderLandingPage() {
 
   return `
     <div class="landing-wrapper">
-      <!-- 1. Top Announcement Bar -->
-      <div class="announcement-bar">
-        <div class="announcement-bar__content">
-          <span class="material-symbols-outlined" style="font-size:16px;color:#9cf2e8;">campaign</span>
-          <span><strong>Special Announcement:</strong> Supporting Pro-bono Legal Aid across District Courts in India.</span>
-          <a href="#how-it-works" id="announcement-link">Read the Launch Announcement &rarr;</a>
-        </div>
-      </div>
-
-      <!-- 2. Sticky Landing Header Navigation -->
+      <!-- 1. Sticky Landing Header Navigation -->
       <header class="landing-nav" id="landing-navbar">
         <a href="#/" class="landing-nav__brand" title="CaseCompass Home">
           <img alt="CaseCompass — From Court Orders to Clarity" class="landing-nav__brand-img" src="/casecompass-logo.png"
@@ -42,30 +33,16 @@ export function renderLandingPage() {
             <span class="material-symbols-outlined" style="font-size:14px;">expand_more</span>
           </div>
 
-          ${isAuth ? `
-            <div class="nav-user-pill">
-              <div class="nav-user-avatar">${currentUser.charAt(0)}</div>
-              <span style="font-weight:600;">${currentUser}</span>
-            </div>
-            <a href="#/cases" class="btn btn--primary btn--sm" style="font-weight:600;padding:8px 16px;border-radius:8px;">
-              <span>Workspace</span>
-              <span class="material-symbols-outlined" style="font-size:16px;">arrow_forward</span>
-            </a>
-            <button class="btn btn--ghost btn--sm" id="btn-landing-logout" title="Sign out" style="color:#64748b;padding:6px 10px;">
-              <span class="material-symbols-outlined" style="font-size:18px;">logout</span>
-            </button>
-          ` : `
-            <button class="btn btn--ghost btn--sm" id="btn-landing-login" style="font-weight:600;color:var(--primary);padding:8px 16px;">
-              Log in
-            </button>
-            <button class="btn btn--primary btn--sm" id="btn-landing-signup" style="font-weight:600;padding:8px 18px;border-radius:8px;">
-              Sign Up
-            </button>
-          `}
+          <a href="#/login" class="btn btn--ghost btn--sm" id="btn-landing-login" style="font-weight:700;color:var(--primary);padding:8px 18px;text-decoration:none;border-radius:8px;">
+            Log In
+          </a>
+          <a href="#/signup" class="btn btn--primary btn--sm" id="btn-landing-signup" style="font-weight:700;padding:8px 20px;border-radius:8px;text-decoration:none;">
+            Sign Up
+          </a>
         </div>
       </header>
 
-      <!-- 3. Hero Section with Supreme Court Background -->
+      <!-- 2. Hero Section with Supreme Court Background -->
       <section class="landing-hero-wrapper">
         <div class="landing-hero">
           <div class="hero-left">
@@ -80,10 +57,10 @@ export function renderLandingPage() {
               CaseCompass helps legal-aid volunteers and families organize court documents, follow case timelines with clarity, and understand important statutory deadlines.
             </p>
             <div class="hero-cta-group">
-              <button class="btn-hero-primary" id="btn-hero-explore">
-                <span>${isAuth ? 'Enter Workspace' : 'Get Started'}</span>
+              <a href="#/login" class="btn-hero-primary" id="btn-hero-explore" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px;">
+                <span>Enter Workspace</span>
                 <span class="material-symbols-outlined" style="font-size:18px;">arrow_forward</span>
-              </button>
+              </a>
             </div>
             <div class="hero-trust-bullets">
               <div class="hero-trust-bullet">
@@ -753,22 +730,28 @@ export function initLandingPage() {
     }
   }
 
-  loginBtn?.addEventListener('click', () => openAuthModal('login'));
-  signupBtn?.addEventListener('click', () => openAuthModal('signup'));
+  loginBtn?.addEventListener('click', (e) => {
+    e.preventDefault();
+    window.location.hash = '#/login';
+  });
+  signupBtn?.addEventListener('click', (e) => {
+    e.preventDefault();
+    window.location.hash = '#/signup';
+  });
   closeBtn?.addEventListener('click', closeAuthModal);
   modal?.addEventListener('click', (e) => {
     if (e.target === modal) closeAuthModal();
   });
 
-  // Hero explore button checks auth
-  heroExploreBtn?.addEventListener('click', () => {
+  // Hero explore button redirects to login page
+  heroExploreBtn?.addEventListener('click', (e) => {
+    e.preventDefault();
     if (localStorage.getItem('casecompass_auth') === 'true') {
       window.location.hash = '#/cases';
     } else {
-      openAuthModal('login');
+      window.location.hash = '#/login';
     }
   });
-
 
   // Protected links check auth before navigating
   document.querySelectorAll('.auth-protected-link').forEach(link => {
@@ -778,7 +761,7 @@ export function initLandingPage() {
       if (localStorage.getItem('casecompass_auth') === 'true') {
         window.location.hash = target;
       } else {
-        openAuthModal('login');
+        window.location.hash = '#/login';
       }
     });
   });

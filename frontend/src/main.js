@@ -19,6 +19,7 @@ import { Router } from './router.js';
 import { renderShell, initShellListeners } from './components/Shell.js';
 
 import { renderLandingPage, initLandingPage } from './pages/Landing.js';
+import { renderAuthPage, initAuthPage } from './pages/Auth.js';
 import { renderCasesPage, initCasesPage } from './pages/Cases.js';
 import { renderUploadPage, initUploadPage } from './pages/Upload.js';
 import { renderTimelinePage, initTimelinePage } from './pages/Timeline.js';
@@ -39,6 +40,22 @@ const routes = [
     render: renderLandingPage,
     init: initLandingPage,
     isLanding: true,
+  },
+  {
+    path: '/login',
+    id: 'login',
+    title: 'Sign In — CaseCompass Workspace',
+    render: () => renderAuthPage('login'),
+    init: () => initAuthPage('login'),
+    isAuthPage: true,
+  },
+  {
+    path: '/signup',
+    id: 'signup',
+    title: 'Sign Up — CaseCompass Workspace',
+    render: () => renderAuthPage('signup'),
+    init: () => initAuthPage('signup'),
+    isAuthPage: true,
   },
   {
     path: '/cases',
@@ -99,18 +116,8 @@ function renderApp(route) {
   const isAuth = localStorage.getItem('casecompass_auth') === 'true';
 
   // 🔒 Authentication Gate: Block unauthorized direct access to workspace
-  if (!route.isLanding && !isAuth) {
-    window.location.hash = '#/';
-    setTimeout(() => {
-      const modal = document.getElementById('login-modal-overlay');
-      if (modal) {
-        if (modal.parentElement !== document.body) {
-          document.body.appendChild(modal);
-        }
-        modal.classList.add('active');
-        document.body.style.overflow = 'hidden';
-      }
-    }, 150);
+  if (!route.isLanding && !route.isAuthPage && !isAuth) {
+    window.location.hash = '#/login';
     return;
   }
 
@@ -121,17 +128,17 @@ function renderApp(route) {
     lingeringModal.remove();
   }
 
-  if (route.isLanding) {
+  if (route.isLanding || route.isAuthPage) {
     document.body.classList.remove('is-workspace');
-    document.body.classList.add('is-landing');
-    appRoot.className = 'is-landing';
-    // Render full-width marketing landing page
+    document.body.classList.add(route.isLanding ? 'is-landing' : 'is-auth-page');
+    appRoot.className = route.isLanding ? 'is-landing' : 'is-auth-page';
+    // Render full-width landing or auth page
     appRoot.innerHTML = route.render();
     if (typeof route.init === 'function') {
       route.init();
     }
   } else {
-    document.body.classList.remove('is-landing');
+    document.body.classList.remove('is-landing', 'is-auth-page');
     document.body.classList.add('is-workspace');
     appRoot.className = 'is-workspace';
     // Render App Shell with sidebar navigation

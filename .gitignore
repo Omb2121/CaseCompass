@@ -1,6 +1,6 @@
 # Frontend
 frontend/node_modules/
-frontend/dist/
+# frontend/dist/ committed for direct static serving reliability
 frontend/dist-ssr/
 frontend/*.local
 node_modules/

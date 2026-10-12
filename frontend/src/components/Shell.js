@@ -8,8 +8,11 @@ import { navItems } from '../data/demoData.js';
 
 
 export function renderShell(activeId) {
-  const currentReviewer = localStorage.getItem('casecompass_reviewer_name') || localStorage.getItem('casecompass_user') || 'Meera';
+  const currentReviewer = localStorage.getItem('casecompass_reviewer_name') || localStorage.getItem('casecompass_user') || 'Legal Advocate';
   const currentRole = localStorage.getItem('casecompass_role') || 'admin';
+  const userEmail = localStorage.getItem('casecompass_user_email') || '';
+  const userPicture = localStorage.getItem('casecompass_user_picture') || '';
+  const isGoogleAuth = localStorage.getItem('casecompass_google_auth') === 'true';
 
   const roleBadgeHtml = currentRole === 'user'
     ? `<span class="badge" style="background:#e0f2fe;color:#0369a1;font-weight:700;display:inline-flex;align-items:center;gap:4px;"><span class="material-symbols-outlined" style="font-size:14px;">person</span> Citizen</span>`
@@ -30,6 +33,16 @@ export function renderShell(activeId) {
           </div>
         </a>
         <div class="app-header__actions" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <!-- Verified Google Account Identity Layer -->
+          <div class="hide-mobile" style="display:flex;align-items:center;gap:6px;background:rgba(15,118,110,0.08);border:1px solid rgba(15,118,110,0.25);padding:3px 10px;border-radius:20px;" title="Signed in with verified Google Account: ${userEmail || currentReviewer}">
+            ${userPicture
+              ? `<img src="${userPicture}" alt="Avatar" style="width:22px;height:22px;border-radius:50%;object-fit:cover;border:1px solid #0f766e;" onerror="this.style.display='none'">`
+              : `<span class="material-symbols-outlined" style="font-size:18px;color:#0f766e;">account_circle</span>`
+            }
+            <span style="font-size:0.6875rem;font-weight:700;color:#0f766e;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${userEmail || currentReviewer}</span>
+            <span style="display:inline-flex;align-items:center;background:#0f766e;color:#fff;border-radius:10px;padding:1px 6px;font-size:0.5625rem;font-weight:800;letter-spacing:0.02em;">GOOGLE VERIFIED ✓</span>
+          </div>
+
           <!-- Section 6: Header Reviewer Name Field (sent with every review, dismiss, deadline call) -->
           <div class="hide-mobile" style="display:flex;align-items:center;gap:4px;background:var(--surface-container-high);padding:3px 8px;border-radius:var(--radius-md);" title="Volunteer Reviewer Identity (Section 6)">
             <span class="material-symbols-outlined" style="font-size:15px;color:var(--primary);">badge</span>
@@ -59,7 +72,7 @@ export function renderShell(activeId) {
             </select>
           </div>
 
-          <button class="btn btn--ghost btn--sm" id="btn-shell-logout" title="Sign out" style="display:flex;align-items:center;gap:4px;padding:6px 10px;cursor:pointer;border-radius:var(--radius-md);">
+          <button class="btn btn--ghost btn--sm" id="btn-shell-logout" title="Sign out from Google Session" style="display:flex;align-items:center;gap:4px;padding:6px 10px;cursor:pointer;border-radius:var(--radius-md);">
             <span class="material-symbols-outlined" style="font-size:18px;color:var(--outline);">logout</span>
             <span class="hide-mobile" style="font-size:0.8125rem;font-weight:600;color:var(--outline);">Sign out</span>
           </button>
@@ -188,8 +201,16 @@ export function initShellListeners() {
   document.getElementById('btn-shell-logout')?.addEventListener('click', (e) => {
     e.preventDefault();
     localStorage.removeItem('casecompass_auth');
+    localStorage.removeItem('casecompass_google_auth');
     localStorage.removeItem('casecompass_user');
+    localStorage.removeItem('casecompass_user_email');
+    localStorage.removeItem('casecompass_user_picture');
+    localStorage.removeItem('casecompass_user_sub');
     localStorage.removeItem('casecompass_role');
+    if (window.google?.accounts?.id) {
+      window.google.accounts.id.disableAutoSelect();
+    }
     window.location.hash = '#/login';
+    window.location.reload();
   });
 }

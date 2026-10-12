@@ -10,6 +10,7 @@
 
 import { casesData as defaultCases, demoCase as defaultDemoCase, timelineEvents as defaultTimeline, reviewDocuments as defaultReviewDocs } from './data/demoData.js';
 import { CANONICAL_GLOSSARY, SUNITA_BENCHMARK_ITEMS, SUNITA_BENCHMARK_FLAGS } from './data/canonicalData.js';
+import { runDocumentIntelligenceScan } from './services/docIntelligence.js';
 
 const CASES_STORAGE_KEY = 'casecompass_cases_list';
 const ACTIVE_CASE_KEY = 'casecompass_active_case_id';
@@ -425,6 +426,47 @@ export const api = {
       return true;
     }
     return false;
+  },
+
+  /**
+   * Section 3 & 4: Full Document Intelligence & LLM Scanning Engine
+   * 01 Ingest -> 02 Read -> 03 Extract (LLM/Regex) -> 04 Deterministic Verifier -> 05 Rules R1-R12 & Next Processes
+   */
+  async scanAndExtractDocuments(caseId, docFiles, mode = 'A') {
+    const scanResult = await runDocumentIntelligenceScan(caseId, docFiles, mode);
+
+    // 1. Update Documents in Evidence Lens
+    const existingDocs = this.getCaseDocuments(caseId);
+    const combinedDocs = [...existingDocs, ...scanResult.docs];
+    localStorage.setItem(`casecompass_docs_${caseId}`, JSON.stringify(combinedDocs));
+
+    // 2. Update Canonical Verified Fact Items
+    localStorage.setItem(`casecompass_canonical_items_${caseId}`, JSON.stringify(scanResult.items));
+
+    // 3. Update Canonical Discrepancy Flags (R1 to R12)
+    localStorage.setItem(`casecompass_canonical_flags_${caseId}`, JSON.stringify(scanResult.flags));
+
+    // 4. Update Live Timeline with 4-Part Cards
+    localStorage.setItem(`casecompass_timeline_${caseId}`, JSON.stringify(scanResult.timeline));
+
+    // 5. Update Active Case Metadata (CNR, Next Hearing, Court, Status)
+    const cases = JSON.parse(localStorage.getItem(CASES_STORAGE_KEY) || '[]');
+    const target = cases.find(c => String(c.id) === String(caseId));
+    if (target) {
+      target.documents = combinedDocs.length;
+      target.nextHearing = scanResult.nextHearingDate || target.nextHearing;
+      if (scanResult.flags.length > 0) {
+        target.status = 'flagged';
+        target.statusLabel = 'Needs Attention';
+        target.seriousness = 'high';
+      } else {
+        target.status = 'verified';
+        target.statusLabel = 'Verified';
+      }
+      localStorage.setItem(CASES_STORAGE_KEY, JSON.stringify(cases));
+    }
+
+    return scanResult;
   },
 
   /**

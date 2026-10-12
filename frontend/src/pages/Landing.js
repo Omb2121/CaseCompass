@@ -768,27 +768,25 @@ export function initLandingPage() {
     if (e.target === modal) closeAuthModal();
   });
 
-  // Hero explore button: Without logging in or signing up the workspace MUST NOT open
+  // Hero explore button: Enforces mandatory Google Security Layer
   heroExploreBtn?.addEventListener('click', (e) => {
     e.preventDefault();
-    if (localStorage.getItem('casecompass_auth') === 'true') {
+    if (localStorage.getItem('casecompass_auth') === 'true' && localStorage.getItem('casecompass_google_auth') === 'true') {
       window.location.hash = '#/cases';
     } else {
-      // Without logging in or signing up, the workspace must not open!
-      openAuthModal('login', true);
+      window.location.hash = '#/login?security=mandatory_google';
     }
   });
 
-  // Toolset explore links: Without logging in or signing up the workspace MUST NOT open
+  // Toolset explore links: Enforces mandatory Google Security Layer
   document.querySelectorAll('.auth-protected-link').forEach(link => {
     link.addEventListener('click', (e) => {
       e.preventDefault();
       const target = link.getAttribute('data-target') || '#/cases';
-      if (localStorage.getItem('casecompass_auth') === 'true') {
+      if (localStorage.getItem('casecompass_auth') === 'true' && localStorage.getItem('casecompass_google_auth') === 'true') {
         window.location.hash = target;
       } else {
-        // Without logging in or signing up, the workspace must not open!
-        openAuthModal('login', true);
+        window.location.hash = '#/login?security=mandatory_google';
       }
     });
   });

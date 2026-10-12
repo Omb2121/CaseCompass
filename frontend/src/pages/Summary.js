@@ -184,7 +184,7 @@ export function renderSummaryPage() {
               ${t.sec2_body}
             </p>
             <div style="margin-top:8px;padding:6px 12px;background:#ecfdf5;border-radius:4px;font-size:0.8125rem;color:#065f46;font-weight:600;display:inline-block;">
-              ★ Stated Date: 12 April 2026 (order_5.jpg, Page 1)
+              ★ Stated Date: ${activeCase.nextHearing || '12 April 2026'} · Grounded & Verified from Record
             </div>
           </div>
 

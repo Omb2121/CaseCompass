@@ -114,11 +114,12 @@ function renderApp(route) {
   if (!appRoot) return;
 
   const isAuth = localStorage.getItem('casecompass_auth') === 'true';
+  const isGoogleAuth = localStorage.getItem('casecompass_google_auth') === 'true';
 
-  // 🔒 STRICT SECURITY GATE: Without logging in or signing up the workspace MUST NOT open
-  if (!route.isLanding && !route.isAuthPage && !isAuth) {
+  // 🔒 STRICT SECURITY GATE: Mandatory Google Authentication Required
+  if (!route.isLanding && !route.isAuthPage && (!isAuth || !isGoogleAuth)) {
     sessionStorage.setItem('show_login_needed_popup', 'true');
-    window.location.hash = '#/';
+    window.location.hash = '#/login?security=mandatory_google';
     return;
   }
 

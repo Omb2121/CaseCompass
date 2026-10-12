@@ -1478,5 +1478,157 @@
     },
     "previous_hash": "fc24217f8efe394bbe3e870e9dc1c77efe63c11e3481742142a002d51016ab8f",
     "current_hash": "c3525e322bbced1c453295415208ff6bad4c0ac8b3c298fdde986e43d4d7cac5"
+  },
+  {
+    "index": 96,
+    "timestamp": "2026-10-12T13:13:27.785544",
+    "action": "ORDER_VERIFICATION_COMPLETE",
+    "details": {
+      "order_id": "ORD_TEST_01",
+      "doc_id": "doc_01",
+      "stats": {
+        "total_claims": 4,
+        "verified_count": 3,
+        "dropped_count": 1,
+        "pass_rate": 0.75
+      }
+    },
+    "previous_hash": "c3525e322bbced1c453295415208ff6bad4c0ac8b3c298fdde986e43d4d7cac5",
+    "current_hash": "60e68b7d66cb7015fcf10e13d25980e6e7092cd8758f26a38fb1e23b80c0e23a"
+  },
+  {
+    "index": 97,
+    "timestamp": "2026-10-12T13:13:27.806129",
+    "action": "ORDER_VERIFICATION_COMPLETE",
+    "details": {
+      "order_id": "ORD_ERR",
+      "doc_id": "doc_01",
+      "stats": {
+        "total_claims": 2,
+        "verified_count": 0,
+        "dropped_count": 2,
+        "pass_rate": 0.0
+      }
+    },
+    "previous_hash": "60e68b7d66cb7015fcf10e13d25980e6e7092cd8758f26a38fb1e23b80c0e23a",
+    "current_hash": "927d21dcdffe536871c56d45638e61a6b284ee57da031f935df4dbdb6c572479"
+  },
+  {
+    "index": 98,
+    "timestamp": "2026-10-12T13:13:28.243738",
+    "action": "DOCUMENT_UPLOADED",
+    "details": {
+      "case_id": "case-sunita-001",
+      "doc_id": "61026c69",
+      "filename": "order_photo.png",
+      "sha256": "1d4c203d5c185173a2b0f28030283807aaa28effb0e3dd20e0b44e9981bc0944",
+      "pages": 1
+    },
+    "previous_hash": "927d21dcdffe536871c56d45638e61a6b284ee57da031f935df4dbdb6c572479",
+    "current_hash": "f58c37ab7e6d9484e6f200a57f50cd63110831816912c78b163113df61d6b827"
+  },
+  {
+    "index": 99,
+    "timestamp": "2026-10-12T13:13:28.261925",
+    "action": "DOCUMENT_UPLOADED",
+    "details": {
+      "case_id": "case-sunita-001",
+      "doc_id": "e7a0200f",
+      "filename": "court_order_sheet.pdf",
+      "sha256": "260e2f55fdddd8a17c66699f0852fed9d9299cfe5b47d5d12c1b6cfb8f824f0c",
+      "pages": 1
+    },
+    "previous_hash": "f58c37ab7e6d9484e6f200a57f50cd63110831816912c78b163113df61d6b827",
+    "current_hash": "d412c4fa070adbba2ee4398875c866f151d779872ce5842c0010d3e804d75292"
+  },
+  {
+    "index": 100,
+    "timestamp": "2026-10-12T13:13:28.278510",
+    "action": "DOCUMENT_UPLOADED",
+    "details": {
+      "case_id": "case-sunita-001",
+      "doc_id": "088d9609",
+      "filename": "pasted_088d9609.txt",
+      "sha256": "5672cc0b7a85a620f13ca6e478c179cebb24d66c067cb45c4c7aaf3a3fbd4477",
+      "pages": 1
+    },
+    "previous_hash": "d412c4fa070adbba2ee4398875c866f151d779872ce5842c0010d3e804d75292",
+    "current_hash": "bbab126c2975f0717efbd451d153ef9135dc6b75405f3187cd9966d7a78ce424"
+  },
+  {
+    "index": 101,
+    "timestamp": "2026-10-12T13:13:28.295801",
+    "action": "ORDER_VERIFICATION_COMPLETE",
+    "details": {
+      "order_id": "ORD_088d9609",
+      "doc_id": "088d9609",
+      "stats": {
+        "total_claims": 5,
+        "verified_count": 5,
+        "dropped_count": 0,
+        "pass_rate": 1.0
+      }
+    },
+    "previous_hash": "bbab126c2975f0717efbd451d153ef9135dc6b75405f3187cd9966d7a78ce424",
+    "current_hash": "c6e50b3fe9dca1e76cfc9a31c9b9691f8521ce33e318e12fc148d6e77bbcd6d9"
+  },
+  {
+    "index": 102,
+    "timestamp": "2026-10-12T13:13:28.370365",
+    "action": "DOCUMENT_UPLOADED",
+    "details": {
+      "case_id": "case-sunita-001",
+      "doc_id": "9d736f2d",
+      "filename": "blurry_photo.png",
+      "sha256": "1d4c203d5c185173a2b0f28030283807aaa28effb0e3dd20e0b44e9981bc0944",
+      "pages": 1
+    },
+    "previous_hash": "c6e50b3fe9dca1e76cfc9a31c9b9691f8521ce33e318e12fc148d6e77bbcd6d9",
+    "current_hash": "75fadc201eb04671f3c5235a9b4ed97601e1139e1ca09d9d2e5b929bacfddef4"
+  },
+  {
+    "index": 103,
+    "timestamp": "2026-10-12T13:13:28.457253",
+    "action": "DOCUMENT_UPLOADED",
+    "details": {
+      "case_id": "case-sunita-001",
+      "doc_id": "624cb592",
+      "filename": "whatsapp_photo.png",
+      "sha256": "1d4c203d5c185173a2b0f28030283807aaa28effb0e3dd20e0b44e9981bc0944",
+      "pages": 1
+    },
+    "previous_hash": "75fadc201eb04671f3c5235a9b4ed97601e1139e1ca09d9d2e5b929bacfddef4",
+    "current_hash": "380ca95ed67aca6eff0d5c382e016e0a28840cabcd482316f8235b551bb5b067"
+  },
+  {
+    "index": 104,
+    "timestamp": "2026-10-12T13:13:28.473124",
+    "action": "DOCUMENT_UPLOADED",
+    "details": {
+      "case_id": "case-sunita-001",
+      "doc_id": "1a0931d9",
+      "filename": "whatsapp_order.pdf",
+      "sha256": "260e2f55fdddd8a17c66699f0852fed9d9299cfe5b47d5d12c1b6cfb8f824f0c",
+      "pages": 1
+    },
+    "previous_hash": "380ca95ed67aca6eff0d5c382e016e0a28840cabcd482316f8235b551bb5b067",
+    "current_hash": "96ba09c6c50de86f2f2c18af80745426b2f066e9e8853ae2cd24b5a862afc37e"
+  },
+  {
+    "index": 105,
+    "timestamp": "2026-10-12T13:13:28.483730",
+    "action": "ORDER_VERIFICATION_COMPLETE",
+    "details": {
+      "order_id": "ORD_1a0931d9",
+      "doc_id": "1a0931d9",
+      "stats": {
+        "total_claims": 0,
+        "verified_count": 0,
+        "dropped_count": 0,
+        "pass_rate": 1.0
+      }
+    },
+    "previous_hash": "96ba09c6c50de86f2f2c18af80745426b2f066e9e8853ae2cd24b5a862afc37e",
+    "current_hash": "dfdf1bf5891ad4281853a97d0a48e9dddeffd8860d4d1a3119db71557481e474"
   }
 ]

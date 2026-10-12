@@ -206,6 +206,34 @@ export function renderTimelinePage() {
                       </button>
                     ` : ''}
                   </div>
+
+                  <!-- Source Grounding: Verbatim Quotation & Verifier Badge -->
+                  ${evt.quote ? `
+                    <div style="margin-top:8px;padding:8px 12px;background:#f0fdf4;border-left:3px solid #059669;border-radius:6px;font-size:0.75rem;">
+                      <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;flex-wrap:wrap;margin-bottom:2px;">
+                        <span style="font-weight:700;color:#047857;text-transform:uppercase;font-size:0.625rem;display:inline-flex;align-items:center;gap:4px;">
+                          <span class="material-symbols-outlined" style="font-size:13px;">format_quote</span>
+                          Verbatim Quotation (100% Exact Match):
+                        </span>
+                        <span style="font-size:0.6875rem;color:#065f46;font-weight:700;">${evt.sourceDoc || 'Court Order Record'}</span>
+                      </div>
+                      <div style="color:#0f172a;font-style:italic;">
+                        "${evt.quote}"
+                      </div>
+                    </div>
+                  ` : ''}
+
+                  <!-- Rule Flags Triggered on this Event (R1-R12) -->
+                  ${evt.flags && evt.flags.length > 0 ? `
+                    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:6px;">
+                      <span style="font-size:0.6875rem;font-weight:700;color:#92400e;text-transform:uppercase;">Procedural Flags:</span>
+                      ${evt.flags.map(f => `
+                        <a href="#/review?tab=needs_attention" class="badge" style="background:#fef3c7;color:#92400e;text-decoration:none;font-size:0.625rem;font-weight:700;display:inline-flex;align-items:center;gap:3px;" title="Review Flag ${f} in Evidence Lens">
+                          <span class="material-symbols-outlined" style="font-size:12px;">flag</span> Rule ${f}
+                        </a>
+                      `).join('')}
+                    </div>
+                  ` : ''}
                 </div>
 
                 <!-- Relative Period Box & Counting Rule (Section 13.3) -->

@@ -9,85 +9,74 @@ import { navItems } from '../data/demoData.js';
 
 export function renderShell(activeId) {
   const currentReviewer = localStorage.getItem('casecompass_reviewer_name') || localStorage.getItem('casecompass_user') || 'Legal Advocate';
-  const currentRole = localStorage.getItem('casecompass_role') || 'admin';
+  const currentRole = localStorage.getItem('casecompass_role') || 'user';
   const userEmail = localStorage.getItem('casecompass_user_email') || '';
   const userPicture = localStorage.getItem('casecompass_user_picture') || '';
-  const isGoogleAuth = localStorage.getItem('casecompass_google_auth') === 'true';
 
-  const roleBadgeHtml = currentRole === 'user'
-    ? `<span class="badge" style="background:#e0f2fe;color:#0369a1;font-weight:700;display:inline-flex;align-items:center;gap:4px;"><span class="material-symbols-outlined" style="font-size:14px;">person</span> Citizen</span>`
-    : (currentRole === 'judge'
-      ? `<span class="badge" style="background:#fef3c7;color:#92400e;font-weight:700;display:inline-flex;align-items:center;gap:4px;"><span class="material-symbols-outlined" style="font-size:14px;">gavel</span> Hon'ble Judge</span>`
-      : `<span class="badge" style="background:#ede9fe;color:#5b21b6;font-weight:700;display:inline-flex;align-items:center;gap:4px;"><span class="material-symbols-outlined" style="font-size:14px;">admin_panel_settings</span> Court Admin</span>`);
+  const roleIcon = currentRole === 'judge' ? 'gavel' : (currentRole === 'admin' ? 'admin_panel_settings' : 'person');
+  const roleName = currentRole === 'judge' ? 'Judge' : (currentRole === 'admin' ? 'Court Admin' : 'Citizen');
+  const displayName = userEmail ? userEmail.split('@')[0] : currentReviewer;
 
   return `
-    <!-- Header -->
+    <!-- Header: Single clean bar with zero wrapping -->
     <header class="app-header" id="app-header">
       <div class="app-header__inner">
-        <a href="#/cases" class="app-header__brand" style="text-decoration:none;cursor:pointer;display:flex;align-items:center;gap:10px;" title="CaseCompass Workspace">
-          <img alt="CaseCompass Logo" class="app-header__logo" src="/casecompass-logo.png"
-               style="height:2.625rem;max-height:44px;width:auto;display:block;object-fit:contain;">
-          <div style="display:flex;flex-direction:column;line-height:1.15;">
-            <span style="font-family:'Archivo Black', 'Source Serif 4', sans-serif;font-size:1.1875rem;font-weight:800;letter-spacing:-0.02em;color:#0F2A4A;">CaseCompass</span>
-            <span style="font-size:0.625rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:#64748b;">Docket Intelligence</span>
+        <a href="#/cases" class="app-header__brand" title="CaseCompass Home">
+          <img alt="CaseCompass Logo" class="app-header__logo" src="/casecompass-logo.png">
+          <div class="app-header__brand-text">
+            <span class="app-header__brand-title">CaseCompass</span>
+            <span class="app-header__brand-subtitle">Docket Intelligence</span>
           </div>
         </a>
-        <div class="app-header__actions" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-          <!-- Verified Google Account Identity Layer -->
-          <div class="hide-mobile" style="display:flex;align-items:center;gap:6px;background:rgba(15,118,110,0.08);border:1px solid rgba(15,118,110,0.25);padding:3px 10px;border-radius:20px;" title="Signed in with verified Google Account: ${userEmail || currentReviewer}">
+
+        <div class="app-header__actions">
+          <!-- Clean Google Verified User Pill -->
+          <div class="header-user-pill" title="Signed in with Google: ${userEmail || currentReviewer}">
             ${userPicture
-              ? `<img src="${userPicture}" alt="Avatar" style="width:22px;height:22px;border-radius:50%;object-fit:cover;border:1px solid #0f766e;" onerror="this.style.display='none'">`
-              : `<span class="material-symbols-outlined" style="font-size:18px;color:#0f766e;">account_circle</span>`
+              ? `<img src="${userPicture}" alt="" class="header-user-avatar" onerror="this.style.display='none'">`
+              : `<span class="material-symbols-outlined header-user-avatar-icon">account_circle</span>`
             }
-            <span style="font-size:0.6875rem;font-weight:700;color:#0f766e;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${userEmail || currentReviewer}</span>
-            <span style="display:inline-flex;align-items:center;background:#0f766e;color:#fff;border-radius:10px;padding:1px 6px;font-size:0.5625rem;font-weight:800;letter-spacing:0.02em;">GOOGLE VERIFIED ✓</span>
+            <span class="header-user-name">${displayName}</span>
+            <span class="header-verified-tag" title="Google OAuth Verified">
+              <span class="material-symbols-outlined" style="font-size:12px;">check_circle</span>
+              <span class="hide-mobile">Verified</span>
+            </span>
           </div>
 
-          <!-- Section 6: Header Reviewer Name Field (sent with every review, dismiss, deadline call) -->
-          <div class="hide-mobile" style="display:flex;align-items:center;gap:4px;background:var(--surface-container-high);padding:3px 8px;border-radius:var(--radius-md);" title="Volunteer Reviewer Identity (Section 6)">
-            <span class="material-symbols-outlined" style="font-size:15px;color:var(--primary);">badge</span>
-            <span style="font-size:0.6875rem;font-weight:700;color:var(--on-surface-variant);text-transform:uppercase;">Reviewer:</span>
-            <input type="text" id="shell-reviewer-input" value="${currentReviewer}" placeholder="Volunteer"
-                   style="width:90px;background:transparent;border:none;border-bottom:1px solid var(--outline);font-size:0.75rem;font-weight:700;color:var(--primary);outline:none;padding:1px 2px;"
-                   title="Type reviewer name — sent with reviews & audit log">
-          </div>
-
-          <!-- Section 13.4: Accessibility Toggles (High Contrast & Large Text) -->
-          <button class="btn btn--ghost btn--sm btn-shell-accessibility" id="btn-toggle-hc" title="Toggle High Contrast (.hc class)" style="padding:4px 8px;border-radius:6px;">
-            <span class="material-symbols-outlined" style="font-size:16px;">contrast</span>
-            <span class="hide-mobile" style="font-size:0.6875rem;font-weight:700;">HC</span>
-          </button>
-          <button class="btn btn--ghost btn--sm btn-shell-accessibility" id="btn-toggle-lg" title="Toggle Large Text (.lg class)" style="padding:4px 8px;border-radius:6px;">
-            <span class="material-symbols-outlined" style="font-size:16px;">format_size</span>
-            <span class="hide-mobile" style="font-size:0.6875rem;font-weight:700;">20px</span>
-          </button>
-
-          <!-- Active Role Switcher / Indicator -->
-          <div style="display:flex;align-items:center;gap:6px;background:var(--surface-container-high);padding:4px 10px;border-radius:var(--radius-md);">
-            ${roleBadgeHtml}
-            <select id="shell-role-select" title="Switch Portal Persona" style="background:transparent;border:none;font-size:0.75rem;font-weight:700;color:var(--primary);cursor:pointer;outline:none;">
-              <option value="user" ${currentRole === 'user' ? 'selected' : ''}>👤 Citizen Portal</option>
-              <option value="admin" ${currentRole === 'admin' ? 'selected' : ''}>🛡️ Admin Portal</option>
-              <option value="judge" ${currentRole === 'judge' ? 'selected' : ''}>⚖️ Judge Portal</option>
+          <!-- Active Role Switcher -->
+          <div class="header-role-pill" title="Active Portal: ${roleName}">
+            <span class="material-symbols-outlined" style="font-size:16px;color:var(--primary);">${roleIcon}</span>
+            <select id="shell-role-select" class="header-role-select" title="Switch Portal">
+              <option value="user" ${currentRole === 'user' ? 'selected' : ''}>Citizen</option>
+              <option value="admin" ${currentRole === 'admin' ? 'selected' : ''}>Court Admin</option>
+              <option value="judge" ${currentRole === 'judge' ? 'selected' : ''}>Judge</option>
             </select>
           </div>
 
-          <button class="btn btn--ghost btn--sm" id="btn-shell-logout" title="Sign out from Google Session" style="display:flex;align-items:center;gap:4px;padding:6px 10px;cursor:pointer;border-radius:var(--radius-md);">
-            <span class="material-symbols-outlined" style="font-size:18px;color:var(--outline);">logout</span>
-            <span class="hide-mobile" style="font-size:0.8125rem;font-weight:600;color:var(--outline);">Sign out</span>
+          <!-- High Contrast Accessibility Toggle -->
+          <button class="header-icon-btn" id="btn-toggle-hc" title="Toggle High Contrast" aria-label="Toggle High Contrast">
+            <span class="material-symbols-outlined" style="font-size:18px;">contrast</span>
           </button>
 
+          <!-- Sign Out -->
+          <button class="header-icon-btn" id="btn-shell-logout" title="Sign out" aria-label="Sign out">
+            <span class="material-symbols-outlined" style="font-size:18px;">logout</span>
+            <span class="hide-mobile" style="font-size:0.75rem;font-weight:600;">Sign out</span>
+          </button>
+
+          <!-- Mobile Menu Trigger -->
           <button class="header-mobile-menu-btn" id="mobile-menu-btn" title="Open menu" aria-label="Open navigation menu">
-            <span class="material-symbols-outlined" style="font-size:24px">menu</span>
+            <span class="material-symbols-outlined" style="font-size:22px">menu</span>
           </button>
         </div>
       </div>
-      <!-- Section 1: Mandatory Line on Every Screen (exact text, character for character) -->
-      <div class="mandatory-disclaimer-bar">
-        <span class="material-symbols-outlined" style="font-size:16px;color:#d97706;">gavel</span>
-        <span>This organizes the record. It is not legal advice and does not predict outcomes.</span>
-      </div>
     </header>
+
+    <!-- Section 1: Mandatory Line on Every Screen (exact text, character for character) -->
+    <div class="mandatory-disclaimer-strip" id="mandatory-strip">
+      <span class="material-symbols-outlined" style="font-size:14px;color:#b45309;">gavel</span>
+      <span>This organizes the record. It is not legal advice and does not predict outcomes.</span>
+    </div>
 
     <!-- Desktop Sidebar -->
     <aside class="app-sidebar" id="app-sidebar">
@@ -109,9 +98,10 @@ export function renderShell(activeId) {
     <!-- Mobile Sidebar Overlay -->
     <div class="mobile-sidebar-overlay" id="mobile-overlay"></div>
     <div class="mobile-sidebar" id="mobile-sidebar">
+      <div class="mobile-sidebar-header">
         <div style="display:flex;align-items:center;gap:10px;">
-          <img alt="CaseCompass Logo" class="app-header__logo" src="/casecompass-logo.png" style="height:2.5rem;width:auto;object-fit:contain;">
-          <span style="font-family:'Archivo Black', 'Source Serif 4', sans-serif;font-size:1.1875rem;font-weight:800;letter-spacing:-0.02em;color:#0F2A4A;">CaseCompass</span>
+          <img alt="CaseCompass Logo" class="app-header__logo" src="/casecompass-logo.png" style="height:2rem;width:auto;">
+          <span style="font-family:'Archivo Black', 'Source Serif 4', sans-serif;font-size:1.125rem;font-weight:800;color:#0F2A4A;">CaseCompass</span>
         </div>
         <button id="mobile-close-btn" style="background:none;border:none;cursor:pointer;color:var(--on-surface-variant);padding:4px;" aria-label="Close menu">
           <span class="material-symbols-outlined">close</span>

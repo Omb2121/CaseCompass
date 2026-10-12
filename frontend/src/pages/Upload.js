@@ -48,73 +48,71 @@ export function renderUploadPage() {
         <a href="#/cases" class="btn btn--ghost btn--sm">Change Case ⇄</a>
       </div>
 
-      <!-- Operating Mode Toggle & Case Settings (Section 13.3) -->
-      <div class="card" style="padding:var(--space-md);margin-bottom:var(--space-lg);display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:var(--space-md);background:var(--surface-container-low);border-left:4px solid var(--primary);">
-        <div>
-          <div style="font-weight:700;font-size:0.9375rem;color:var(--primary);display:flex;align-items:center;gap:6px;">
-            <span class="material-symbols-outlined" style="font-size:18px;">tune</span>
-            <span>Operating Pipeline Mode</span>
-          </div>
-          <p style="font-size:0.75rem;color:var(--on-surface-variant);margin-top:2px;">
-            Deterministic verifier and R1-R12 rules run on all modes. If AI is unavailable, falls back to Mode A.
-          </p>
+      <!-- Operating Mode Indicator & Toggle -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-md);padding:8px 14px;background:var(--surface-container-low);border-radius:var(--radius-md);border:1px solid var(--outline-variant);flex-wrap:wrap;gap:8px;">
+        <div style="display:flex;align-items:center;gap:6px;font-size:0.75rem;color:var(--on-surface-variant);font-weight:600;">
+          <span class="material-symbols-outlined" style="font-size:16px;color:var(--primary);">tune</span>
+          <span>Pipeline Mode: Deterministic verification & rules R1-R12 active</span>
         </div>
-        <div style="display:flex;align-items:center;gap:8px;background:var(--surface-container-lowest);padding:4px;border-radius:var(--radius-md);border:1px solid var(--outline-variant);">
-          <button type="button" class="btn btn--sm mode-toggle-btn active-mode" id="btn-mode-a" data-mode="A" style="font-size:0.75rem;font-weight:700;padding:6px 12px;border-radius:6px;border:none;cursor:pointer;background:var(--primary);color:#fff;">
-            <span>Mode A: Works without internet (Default)</span>
+        <div style="display:inline-flex;gap:4px;background:var(--surface-container-lowest);padding:2px;border-radius:6px;border:1px solid var(--outline-variant);">
+          <button type="button" class="btn btn--sm mode-toggle-btn active-mode" id="btn-mode-a" data-mode="A" style="font-size:0.6875rem;font-weight:700;padding:4px 10px;border-radius:4px;border:none;cursor:pointer;background:var(--primary);color:#fff;">
+            Mode A: Standard
           </button>
-          <button type="button" class="btn btn--sm mode-toggle-btn" id="btn-mode-b" data-mode="B" style="font-size:0.75rem;font-weight:700;padding:6px 12px;border-radius:6px;border:none;cursor:pointer;background:transparent;color:var(--on-surface-variant);">
-            <span>Mode B: AI-assisted (Optional)</span>
+          <button type="button" class="btn btn--sm mode-toggle-btn" id="btn-mode-b" data-mode="B" style="font-size:0.6875rem;font-weight:700;padding:4px 10px;border-radius:4px;border:none;cursor:pointer;background:transparent;color:var(--on-surface-variant);">
+            Mode B: AI-Assisted
           </button>
         </div>
       </div>
 
       <!-- Drop Zone -->
-      <div id="drop-target" class="card" style="padding:var(--space-xl);text-align:center;border:2px dashed var(--outline-variant);border-radius:var(--radius-xl);margin-bottom:var(--space-lg);transition:all 0.2s;cursor:pointer;">
-        <span class="material-symbols-outlined" style="font-size:48px;color:var(--primary);display:block;margin-bottom:var(--space-sm);">cloud_upload</span>
-        <p class="text-body-lg" style="font-weight:600;color:var(--on-surface);margin-bottom:4px;">
-          Drag and drop FIR or court documents here
+      <div id="drop-target" class="card" style="padding:24px 20px;text-align:center;border:2px dashed var(--outline-variant);border-radius:var(--radius-lg);margin-bottom:var(--space-md);transition:all 0.2s;cursor:pointer;">
+        <span class="material-symbols-outlined" style="font-size:40px;color:var(--primary);display:block;margin-bottom:6px;">cloud_upload</span>
+        <p class="text-body-md" style="font-weight:700;color:var(--on-surface);margin-bottom:2px;">
+          Drag and drop court records or FIR here
         </p>
-        <p class="text-body-sm" style="color:var(--on-surface-variant);margin-bottom:var(--space-md);">
-          or click to browse · PDF, JPEG, PNG, HEIC · Max 25 MB per file
+        <p class="text-body-sm" style="color:var(--on-surface-variant);margin-bottom:12px;font-size:0.8125rem;">
+          PDF, JPEG, PNG, HEIC · Max 25 MB per file
         </p>
-        <label class="btn btn--primary" for="file-native-input" style="cursor:pointer;">
-          <span class="material-symbols-outlined" style="font-size:18px">folder_open</span>
-          Browse Files
+        <label class="btn btn--primary btn--sm" for="file-native-input" style="cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
+          <span class="material-symbols-outlined" style="font-size:16px">folder_open</span>
+          <span>Browse Files</span>
         </label>
         <input type="file" id="file-native-input" multiple accept=".pdf,.jpg,.jpeg,.png,.heic"
                style="display:none;" aria-label="Select files to upload">
       </div>
 
-      <!-- Upload Queue & Sunita Case Loader -->
-      <div style="margin-bottom:var(--space-lg);">
+      <!-- Upload Queue -->
+      <div style="margin-bottom:var(--space-md);">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-sm);flex-wrap:wrap;gap:8px;">
-          <div style="display:flex;align-items:center;gap:var(--space-sm);">
-            <span class="section-title" style="margin-bottom:0;">Intake Queue</span>
+          <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+            <span class="section-title" style="margin-bottom:0;font-size:0.8125rem;">Intake Queue</span>
             <span id="queue-counter-badge" class="badge badge--neutral">0 Files Selected</span>
           </div>
-          <div style="display:flex;gap:var(--space-sm);flex-wrap:wrap;">
-            <button class="btn btn--primary btn--sm" id="btn-sunita-case" style="font-size:0.75rem;" title="Load Sunita Fictional Case (Section 10 Benchmark)">
-              <span class="material-symbols-outlined" style="font-size:14px">folder_special</span> + Load Sunita Case (5 Orders)
+          <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+            <button class="btn btn--primary btn--sm" id="btn-sunita-case" style="font-size:0.75rem;padding:4px 10px;" title="Load Sample Court Orders">
+              <span class="material-symbols-outlined" style="font-size:15px">folder_special</span>
+              <span>+ Sample Orders (5)</span>
             </button>
-            <button class="btn btn--ghost btn--sm" id="btn-sample-fir" style="font-size:0.75rem;color:var(--primary);">
-              <span class="material-symbols-outlined" style="font-size:14px">description</span> + Add FIR Document
+            <button class="btn btn--secondary btn--sm" id="btn-sample-fir" style="font-size:0.75rem;padding:4px 10px;">
+              <span class="material-symbols-outlined" style="font-size:15px">description</span>
+              <span>+ Add FIR</span>
             </button>
-            <button class="btn btn--ghost btn--sm" id="btn-clear-queue" style="font-size:0.75rem;">
-              <span class="material-symbols-outlined" style="font-size:14px">delete_sweep</span> Clear
+            <button class="btn btn--ghost btn--sm" id="btn-clear-queue" style="font-size:0.75rem;padding:4px 8px;color:#dc2626;">
+              <span class="material-symbols-outlined" style="font-size:15px">delete_sweep</span>
+              <span>Clear</span>
             </button>
           </div>
         </div>
 
-        <!-- Duplicate warning placeholder (Section 13.3) -->
-        <div id="duplicate-warning-banner" style="display:none;margin-bottom:var(--space-sm);padding:8px 12px;background:#fffbeb;border:1px solid #fde68a;border-radius:var(--radius-md);color:#92400e;font-size:0.75rem;font-weight:600;display:flex;align-items:center;gap:6px;">
+        <!-- Duplicate warning placeholder (strictly hidden by default until duplicate detected) -->
+        <div id="duplicate-warning-banner" style="display:none;margin-bottom:var(--space-sm);padding:8px 12px;background:#fffbeb;border:1px solid #fde68a;border-radius:var(--radius-md);color:#92400e;font-size:0.75rem;font-weight:600;align-items:center;gap:6px;">
           <span class="material-symbols-outlined" style="font-size:16px;color:#d97706;">content_copy</span>
           <span>These two files appear to be the same document (R12 duplicate detected).</span>
         </div>
 
-        <div id="files-queue-list" style="display:flex;flex-direction:column;gap:8px;border-radius:var(--radius-lg);">
-          <div id="queue-empty-prompt" style="padding:var(--space-lg);text-align:center;color:var(--on-surface-variant);background:var(--surface-container-low);border-radius:var(--radius-md);" class="text-body-sm">
-            No files currently in queue. Drag & drop court records or click "+ Load Sunita Case (5 Orders)" above.
+        <div id="files-queue-list" style="display:flex;flex-direction:column;gap:6px;border-radius:var(--radius-lg);">
+          <div id="queue-empty-prompt" style="padding:var(--space-md);text-align:center;color:var(--on-surface-variant);background:var(--surface-container-low);border-radius:var(--radius-md);font-size:0.8125rem;">
+            No files currently in queue. Drag & drop court records or click "+ Sample Orders (5)" above.
           </div>
         </div>
       </div>
@@ -177,6 +175,7 @@ export function initUploadPage() {
         renderQueueItem(f);
       }
     }
+    checkDuplicates();
     updateUI();
   }
 
@@ -234,6 +233,7 @@ export function initUploadPage() {
       dupBanner.style.display = hasDup ? 'flex' : 'none';
     }
   }
+  checkDuplicates();
 
   // Operating Mode Toggle (Section 13.3: Mode A default, Mode B optional)
   let currentMode = 'A';

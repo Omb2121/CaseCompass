@@ -75,8 +75,8 @@ export function renderTimelinePage() {
         </div>
       </div>
 
-      <!-- Section 13.3: Sticky 'Next date in the record' Banner with Tick, Source Chip & Trust Counter -->
-      <div style="position:sticky;top:80px;z-index:20;background:var(--primary);color:#fff;padding:16px 20px;margin-bottom:var(--space-md);border-radius:var(--radius-lg);display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px;box-shadow:var(--shadow-md);">
+      <!-- Section 13.3: 'Next date in the record' Banner with Tick, Source Chip & Trust Counter -->
+      <div style="background:var(--primary);color:#fff;padding:14px 18px;margin-bottom:var(--space-md);border-radius:var(--radius-lg);display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px;box-shadow:var(--shadow-sm);">
         <div style="display:flex;align-items:center;gap:14px;">
           <div style="width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;">
             <span class="material-symbols-outlined" style="font-size:26px;color:#34d399;">verified</span>

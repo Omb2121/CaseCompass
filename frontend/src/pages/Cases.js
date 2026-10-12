@@ -211,43 +211,43 @@ export function renderCasesPage() {
 
       <!-- PORTAL ROLE BANNER -->
       ${currentRole === 'user' ? `
-        <div style="padding:12px 16px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:var(--radius-md);margin-bottom:var(--space-lg);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;color:#1e40af;">
-          <div style="display:flex;align-items:center;gap:10px;">
-            <span class="material-symbols-outlined" style="font-size:22px;color:#2563eb;">person</span>
+        <div style="padding:8px 14px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:var(--radius-md);margin-bottom:var(--space-md);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;color:#1e40af;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="material-symbols-outlined" style="font-size:20px;color:#2563eb;">person</span>
             <div>
-              <strong style="font-size:0.875rem;">Citizen & Litigant Access Mode:</strong>
-              <div style="font-size:0.75rem;color:#3b82f6;">
-                Viewing cases reported by <strong>${currentUser}</strong>. Confidential cases belonging to other litigants are restricted.
-              </div>
+              <strong style="font-size:0.8125rem;">Citizen Access Mode:</strong>
+              <span style="font-size:0.75rem;color:#3b82f6;margin-left:4px;">
+                Showing cases reported by <strong>${currentUser}</strong>.
+              </span>
             </div>
           </div>
-          <span class="badge" style="background:#dbeafe;color:#1d4ed8;font-weight:700;">Litigant View (${cases.length} Reported)</span>
+          <span class="badge" style="background:#dbeafe;color:#1d4ed8;font-weight:700;font-size:0.6875rem;">Litigant View (${cases.length} Reported)</span>
         </div>
       ` : (currentRole === 'judge' ? `
-        <div style="padding:12px 16px;background:#fffbeb;border:1px solid #fde68a;border-radius:var(--radius-md);margin-bottom:var(--space-lg);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;color:#92400e;">
-          <div style="display:flex;align-items:center;gap:10px;">
-            <span class="material-symbols-outlined" style="font-size:22px;color:#d97706;">gavel</span>
+        <div style="padding:8px 14px;background:#fffbeb;border:1px solid #fde68a;border-radius:var(--radius-md);margin-bottom:var(--space-md);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;color:#92400e;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="material-symbols-outlined" style="font-size:20px;color:#d97706;">gavel</span>
             <div>
-              <strong style="font-size:0.875rem;">Hon'ble Presiding Judge Bench Portal:</strong>
-              <div style="font-size:0.75rem;color:#b45309;">
-                Bench roster for <strong>${currentUser}</strong> — Daily cause list, monthly hearing roster, and all past adjudicated decisions.
-              </div>
+              <strong style="font-size:0.8125rem;">Hon'ble Presiding Judge Bench Portal:</strong>
+              <span style="font-size:0.75rem;color:#b45309;margin-left:4px;">
+                Bench roster for <strong>${currentUser}</strong> · Daily cause list & hearings.
+              </span>
             </div>
           </div>
-          <span class="badge" style="background:#fef3c7;color:#92400e;font-weight:700;">Presiding Magistrate</span>
+          <span class="badge" style="background:#fef3c7;color:#92400e;font-weight:700;font-size:0.6875rem;">Presiding Magistrate</span>
         </div>
       ` : `
-        <div style="padding:12px 16px;background:#faf5ff;border:1px solid #e9d5ff;border-radius:var(--radius-md);margin-bottom:var(--space-lg);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;color:#5b21b6;">
-          <div style="display:flex;align-items:center;gap:10px;">
-            <span class="material-symbols-outlined" style="font-size:22px;color:#7c3aed;">admin_panel_settings</span>
+        <div style="padding:8px 14px;background:#faf5ff;border:1px solid #e9d5ff;border-radius:var(--radius-md);margin-bottom:var(--space-md);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;color:#5b21b6;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="material-symbols-outlined" style="font-size:20px;color:#7c3aed;">admin_panel_settings</span>
             <div>
-              <strong style="font-size:0.875rem;">Court Registry Administrator Portal:</strong>
-              <div style="font-size:0.75rem;color:#7c3aed;">
-                Master Registry Authority: Total oversight of all dossiers across Day and Month timespans with full modification powers.
-              </div>
+              <strong style="font-size:0.8125rem;">Court Registry Administrator Portal:</strong>
+              <span style="font-size:0.75rem;color:#7c3aed;margin-left:4px;">
+                Master Registry Authority · Oversight of all district dossiers.
+              </span>
             </div>
           </div>
-          <span class="badge" style="background:#ede9fe;color:#5b21b6;font-weight:700;">Registry Authority</span>
+          <span class="badge" style="background:#ede9fe;color:#5b21b6;font-weight:700;font-size:0.6875rem;">Registry Authority</span>
         </div>
       `)}
 

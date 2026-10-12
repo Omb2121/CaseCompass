@@ -105,9 +105,9 @@
   --shadow-header: 0 1px 8px rgba(0,0,0,0.04);
 
   /* Layout */
-  --header-height: 3.5rem;
-  --strip-height: 1.75rem;
-  --top-bar-offset: calc(var(--header-height) + var(--strip-height));
+  --header-height: 3.75rem;
+  --strip-height: 0px;
+  --top-bar-offset: var(--header-height);
   --footer-height: 0px;
   --sidebar-width: 16rem;
 }
@@ -414,26 +414,9 @@ body {
   .header-mobile-menu-btn { display: none; }
 }
 
-/* Mandatory Legal Notice Strip (Section 1) */
+/* Mandatory Legal Notice Strip (Removed per user request) */
 .mandatory-disclaimer-strip {
-  position: fixed;
-  top: var(--header-height);
-  left: 0;
-  right: 0;
-  height: var(--strip-height);
-  z-index: 49;
-  background: #fffbeb;
-  border-bottom: 1px solid #fde68a;
-  color: #92400e;
-  font-size: 0.75rem;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  letter-spacing: 0.01em;
-  text-align: center;
-  padding: 0 var(--space-md);
+  display: none !important;
 }
 
 /* --- Sidebar --- */
@@ -1004,17 +987,7 @@ textarea:focus {
   }
 }
 
-@media (max-width: 640px) {
-  .mandatory-disclaimer-strip {
-    font-size: 0.6875rem;
-    padding: 0 8px;
-  }
-  .mandatory-disclaimer-strip span {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-}
+
 
 /* --- Accessibility Classes (Section 13.2 / 13.4) --- */
 body.hc, .hc {
@@ -1047,20 +1020,9 @@ body.lg, .lg {
   }
 }
 
-/* Mandatory Disclaimer Banner Bar (Section 1) */
+/* Mandatory Disclaimer Banner Bar (Removed per user request) */
 .mandatory-disclaimer-bar, .mandatory-disclaimer-strip {
-  background: #fffbeb;
-  border-bottom: 1px solid #fde68a;
-  color: #78350f;
-  font-size: 0.75rem;
-  font-weight: 600;
-  padding: 4px 16px;
-  text-align: center;
-  letter-spacing: 0.01em;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
+  display: none !important;
 }
 
 /* Print Stylesheet for Official Case Dossier Printing (Section 13.3) */

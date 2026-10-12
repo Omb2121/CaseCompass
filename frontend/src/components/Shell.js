@@ -72,12 +72,6 @@ export function renderShell(activeId) {
       </div>
     </header>
 
-    <!-- Section 1: Mandatory Line on Every Screen (exact text, character for character) -->
-    <div class="mandatory-disclaimer-strip" id="mandatory-strip">
-      <span class="material-symbols-outlined" style="font-size:14px;color:#b45309;">gavel</span>
-      <span>This organizes the record. It is not legal advice and does not predict outcomes.</span>
-    </div>
-
     <!-- Desktop Sidebar -->
     <aside class="app-sidebar" id="app-sidebar">
       <div class="sidebar-section-label">Record Verification Flow</div>

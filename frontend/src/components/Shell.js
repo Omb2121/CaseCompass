@@ -8,7 +8,7 @@ import { navItems } from '../data/demoData.js';
 
 
 export function renderShell(activeId) {
-  const currentReviewer = localStorage.getItem('casecompass_user') || 'Admin User';
+  const currentReviewer = localStorage.getItem('casecompass_reviewer_name') || localStorage.getItem('casecompass_user') || 'Meera';
   const currentRole = localStorage.getItem('casecompass_role') || 'admin';
 
   const roleBadgeHtml = currentRole === 'user'
@@ -29,7 +29,26 @@ export function renderShell(activeId) {
             <span style="font-size:0.625rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:#64748b;">Docket Intelligence</span>
           </div>
         </a>
-        <div class="app-header__actions" style="display:flex;align-items:center;gap:10px;">
+        <div class="app-header__actions" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <!-- Section 6: Header Reviewer Name Field (sent with every review, dismiss, deadline call) -->
+          <div class="hide-mobile" style="display:flex;align-items:center;gap:4px;background:var(--surface-container-high);padding:3px 8px;border-radius:var(--radius-md);" title="Volunteer Reviewer Identity (Section 6)">
+            <span class="material-symbols-outlined" style="font-size:15px;color:var(--primary);">badge</span>
+            <span style="font-size:0.6875rem;font-weight:700;color:var(--on-surface-variant);text-transform:uppercase;">Reviewer:</span>
+            <input type="text" id="shell-reviewer-input" value="${currentReviewer}" placeholder="Volunteer"
+                   style="width:90px;background:transparent;border:none;border-bottom:1px solid var(--outline);font-size:0.75rem;font-weight:700;color:var(--primary);outline:none;padding:1px 2px;"
+                   title="Type reviewer name — sent with reviews & audit log">
+          </div>
+
+          <!-- Section 13.4: Accessibility Toggles (High Contrast & Large Text) -->
+          <button class="btn btn--ghost btn--sm btn-shell-accessibility" id="btn-toggle-hc" title="Toggle High Contrast (.hc class)" style="padding:4px 8px;border-radius:6px;">
+            <span class="material-symbols-outlined" style="font-size:16px;">contrast</span>
+            <span class="hide-mobile" style="font-size:0.6875rem;font-weight:700;">HC</span>
+          </button>
+          <button class="btn btn--ghost btn--sm btn-shell-accessibility" id="btn-toggle-lg" title="Toggle Large Text (.lg class)" style="padding:4px 8px;border-radius:6px;">
+            <span class="material-symbols-outlined" style="font-size:16px;">format_size</span>
+            <span class="hide-mobile" style="font-size:0.6875rem;font-weight:700;">20px</span>
+          </button>
+
           <!-- Active Role Switcher / Indicator -->
           <div style="display:flex;align-items:center;gap:6px;background:var(--surface-container-high);padding:4px 10px;border-radius:var(--radius-md);">
             ${roleBadgeHtml}
@@ -38,13 +57,6 @@ export function renderShell(activeId) {
               <option value="admin" ${currentRole === 'admin' ? 'selected' : ''}>🛡️ Admin Portal</option>
               <option value="judge" ${currentRole === 'judge' ? 'selected' : ''}>⚖️ Judge Portal</option>
             </select>
-          </div>
-
-          <div class="header-user-badge hide-mobile" style="display:flex;align-items:center;gap:8px;background:var(--surface-container-high);padding:5px 12px;border-radius:9999px;">
-            <div style="width:22px;height:22px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;">
-              ${currentReviewer.charAt(0)}
-            </div>
-            <span style="font-size:0.8125rem;font-weight:600;color:var(--primary);">${currentReviewer}</span>
           </div>
 
           <button class="btn btn--ghost btn--sm" id="btn-shell-logout" title="Sign out" style="display:flex;align-items:center;gap:4px;padding:6px 10px;cursor:pointer;border-radius:var(--radius-md);">
@@ -56,6 +68,11 @@ export function renderShell(activeId) {
             <span class="material-symbols-outlined" style="font-size:24px">menu</span>
           </button>
         </div>
+      </div>
+      <!-- Section 1: Mandatory Line on Every Screen (exact text, character for character) -->
+      <div class="mandatory-disclaimer-bar">
+        <span class="material-symbols-outlined" style="font-size:16px;color:#d97706;">gavel</span>
+        <span>This organizes the record. It is not legal advice and does not predict outcomes.</span>
       </div>
     </header>
 
@@ -136,6 +153,35 @@ export function initShellListeners() {
     const selected = e.target.value;
     localStorage.setItem('casecompass_role', selected);
     window.location.reload();
+  });
+
+  // Reviewer Name Input Listener (Section 6 & 13.2)
+  const reviewerInput = document.getElementById('shell-reviewer-input');
+  reviewerInput?.addEventListener('input', (e) => {
+    const val = e.target.value.trim() || 'Meera';
+    localStorage.setItem('casecompass_reviewer_name', val);
+    localStorage.setItem('casecompass_user', val);
+  });
+
+  // Accessibility Toggles (Section 13.2 / 13.4)
+  const btnHc = document.getElementById('btn-toggle-hc');
+  const btnLg = document.getElementById('btn-toggle-lg');
+
+  if (localStorage.getItem('casecompass_a11y_hc') === 'true') {
+    document.body.classList.add('hc');
+  }
+  if (localStorage.getItem('casecompass_a11y_lg') === 'true') {
+    document.body.classList.add('lg');
+  }
+
+  btnHc?.addEventListener('click', () => {
+    const isHc = document.body.classList.toggle('hc');
+    localStorage.setItem('casecompass_a11y_hc', isHc ? 'true' : 'false');
+  });
+
+  btnLg?.addEventListener('click', () => {
+    const isLg = document.body.classList.toggle('lg');
+    localStorage.setItem('casecompass_a11y_lg', isLg ? 'true' : 'false');
   });
 
   // Sign out button

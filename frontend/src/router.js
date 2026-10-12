@@ -18,9 +18,14 @@ export class Router {
     return hash.startsWith('/') ? hash : `/${hash}`;
   }
 
-  handleRoute() {
+  getBasePath() {
     const path = this.getPath();
-    const route = this.routes.find(r => r.path === path);
+    return path.split('?')[0];
+  }
+
+  handleRoute() {
+    const basePath = this.getBasePath();
+    const route = this.routes.find(r => r.path === basePath);
 
     if (route) {
       this.currentRoute = route;

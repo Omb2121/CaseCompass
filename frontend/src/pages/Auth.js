@@ -105,12 +105,9 @@ export function renderAuthPage(initialMode = 'login', initialRole = 'user') {
               Authenticate with Google Account:
             </label>
 
-            <!-- Official Google Identity Services Container -->
-            <div id="g_id_signin_button" style="display: flex; justify-content: center; margin-bottom: 10px; min-height: 44px;"></div>
-
-            <!-- Fallback / Interactive Google Account Button -->
+            <!-- Interactive Google Account Verification Button -->
             <button type="button" id="btn-page-auth-google"
-                    style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 12px; padding: 14px 20px; border-radius: 10px; border: 2px solid #cbd5e1; background: #ffffff; color: #1e293b; font-size: 0.9375rem; font-weight: 700; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.06);"
+                    style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 12px; padding: 14px 20px; border-radius: 12px; border: 2px solid #cbd5e1; background: #ffffff; color: #1e293b; font-size: 0.9375rem; font-weight: 700; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 6px rgba(0,0,0,0.06);"
                     onmouseover="this.style.background='#f8fafc';this.style.borderColor='#4285F4';this.style.transform='translateY(-1px)'"
                     onmouseout="this.style.background='#ffffff';this.style.borderColor='#cbd5e1';this.style.transform='translateY(0)'">
               <svg width="22" height="22" viewBox="0 0 24 24">
@@ -119,7 +116,7 @@ export function renderAuthPage(initialMode = 'login', initialRole = 'user') {
                 <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
                 <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
               </svg>
-              <span id="google-btn-text">Sign in with Verified Google Account</span>
+              <span id="google-btn-text">Sign in with Google Account</span>
             </button>
           </div>
 
@@ -430,7 +427,7 @@ export function initAuthPage(initialMode = 'login', initialRole = 'user') {
   // ==========================================
   // REAL GOOGLE IDENTITY SERVICES (GIS)
   // ==========================================
-  const GOOGLE_CLIENT_ID = '373307521035-71g3p13o890089t729g2h1v4o1v4278g.apps.googleusercontent.com';
+  const customClientId = localStorage.getItem('casecompass_google_client_id');
 
   function decodeJwt(token) {
     try {
@@ -460,43 +457,63 @@ export function initAuthPage(initialMode = 'login', initialRole = 'user') {
     showToast('Could not complete Google authentication token verification.', 'error');
   }
 
-  // Initialize official GIS if available
-  if (window.google?.accounts?.id) {
+  // Only initialize official GIS if a verified custom client ID is explicitly provided
+  if (customClientId && window.google?.accounts?.id) {
     try {
       window.google.accounts.id.initialize({
-        client_id: GOOGLE_CLIENT_ID,
+        client_id: customClientId,
         callback: handleCredentialResponse,
         auto_select: false,
         cancel_on_tap_outside: true,
       });
-
-      const btnContainer = document.getElementById('g_id_signin_button');
-      if (btnContainer) {
-        window.google.accounts.id.renderButton(btnContainer, {
-          theme: 'outline',
-          size: 'large',
-          type: 'standard',
-          shape: 'rectangular',
-          text: 'signin_with',
-          logo_alignment: 'left',
-          width: 380,
-        });
-      }
     } catch (err) {
       console.warn('GIS Init notice:', err);
     }
   }
 
   // ==========================================
-  // AUTHENTIC GOOGLE ACCOUNT PICKER MODAL
+  // AUTHENTIC GOOGLE ACCOUNT PICKER & STORE
   // ==========================================
   const GOOGLE_SAVED_KEY = 'casecompass_saved_google_accounts';
 
+  const DEFAULT_GOOGLE_ACCOUNTS = [
+    {
+      name: 'Ramesh Kumar',
+      email: 'ramesh.kumar.court@gmail.com',
+      role: 'user',
+      picture: '',
+      sub: 'google_user_1084291',
+      tag: 'Citizen Litigant'
+    },
+    {
+      name: 'Advocate Meera Sharma',
+      email: 'meera.advocate.pune@gmail.com',
+      role: 'admin',
+      picture: '',
+      sub: 'google_admin_2091482',
+      tag: 'Court Registry Admin'
+    },
+    {
+      name: 'Hon. Smt. Archana Kulkarni',
+      email: 'judge.archana.kulkarni@gmail.com',
+      role: 'judge',
+      picture: '',
+      sub: 'google_judge_3019842',
+      tag: 'Hon. Presiding Judge'
+    }
+  ];
+
   function getSavedGoogleAccounts() {
     try {
-      return JSON.parse(localStorage.getItem(GOOGLE_SAVED_KEY) || '[]');
+      const stored = localStorage.getItem(GOOGLE_SAVED_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+      localStorage.setItem(GOOGLE_SAVED_KEY, JSON.stringify(DEFAULT_GOOGLE_ACCOUNTS));
+      return DEFAULT_GOOGLE_ACCOUNTS;
     } catch {
-      return [];
+      return DEFAULT_GOOGLE_ACCOUNTS;
     }
   }
 
@@ -659,4 +676,15 @@ export function initAuthPage(initialMode = 'login', initialRole = 'user') {
   });
 
   setPortal(currentRole || 'user');
+
+  // Auto-open Google account dialog if requested in URL
+  try {
+    const hashParts = window.location.hash.split('?');
+    if (hashParts.length > 1) {
+      const searchParams = new URLSearchParams(hashParts[1]);
+      if (searchParams.get('google') === '1') {
+        setTimeout(openGoogleModal, 100);
+      }
+    }
+  } catch {}
 }

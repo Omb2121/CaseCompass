@@ -116,27 +116,36 @@ export function renderAuthPage(initialMode = 'login', initialRole = 'user') {
               <span id="google-btn-text">Sign in with Google Account</span>
             </button>
 
-            <!-- Demo Section (only shown in demo mode) -->
-            <div id="demo-section" style="display:none;margin-top:1rem;padding-top:1rem;border-top:1px dashed #e2e8f0;">
-              <div style="font-size:0.6875rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;text-align:center;">
-                Demo Access (Fictional Data Only)
+            <!-- Unconfigured Google Client Notice -->
+            <div id="google-setup-notice" style="display:none;margin-bottom:1rem;padding:0.75rem 1rem;border-radius:8px;background:#fef3c7;border:1px solid #fde68a;color:#92400e;font-size:0.75rem;">
+              <div style="font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:6px;">
+                <span class="material-symbols-outlined" style="font-size:16px;">info</span>
+                <span>Google Client ID Not Set</span>
               </div>
-              <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;">
+              <div>Configure <code>VITE_GOOGLE_CLIENT_ID</code> in <code>frontend/.env.local</code> for real Google accounts. Use instant demo access below:</div>
+            </div>
+
+            <!-- Demo Section -->
+            <div id="demo-section" style="margin-top:0.5rem;padding-top:1rem;border-top:1px dashed #e2e8f0;">
+              <div style="font-size:0.75rem;font-weight:700;color:#0F2A4A;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;text-align:center;">
+                Instant Demo Access (Fictional Data)
+              </div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;">
                 <button type="button" class="btn-demo-login" data-role="user"
-                        style="padding:8px 12px;border-radius:8px;border:1px solid #e2e8f0;background:#f8fafc;color:#475569;font-size:0.75rem;font-weight:600;cursor:pointer;">
-                  🧑 Demo Citizen
+                        style="padding:10px 14px;border-radius:8px;border:1.5px solid #0284c7;background:#f0f9ff;color:#0369a1;font-size:0.8125rem;font-weight:700;cursor:pointer;">
+                  🧑 Enter as Citizen
                 </button>
                 <button type="button" class="btn-demo-login" data-role="admin"
-                        style="padding:8px 12px;border-radius:8px;border:1px solid #e2e8f0;background:#f8fafc;color:#475569;font-size:0.75rem;font-weight:600;cursor:pointer;">
-                  🏛️ Demo Admin
+                        style="padding:10px 14px;border-radius:8px;border:1.5px solid #7c3aed;background:#faf5ff;color:#6d28d9;font-size:0.8125rem;font-weight:700;cursor:pointer;">
+                  🏛️ Enter as Court Admin
                 </button>
                 <button type="button" class="btn-demo-login" data-role="judge"
-                        style="padding:8px 12px;border-radius:8px;border:1px solid #e2e8f0;background:#f8fafc;color:#475569;font-size:0.75rem;font-weight:600;cursor:pointer;">
-                  ⚖️ Demo Judge
+                        style="padding:10px 14px;border-radius:8px;border:1.5px solid #d97706;background:#fffbeb;color:#b45309;font-size:0.8125rem;font-weight:700;cursor:pointer;">
+                  ⚖️ Enter as Judge
                 </button>
               </div>
-              <p style="font-size:0.6875rem;color:#94a3b8;text-align:center;margin:6px 0 0;">
-                Demo accounts use fictional data only. No real records.
+              <p style="font-size:0.6875rem;color:#64748b;text-align:center;margin:8px 0 0;">
+                Pre-loaded with sample chargesheet, FIR, and court hearing dates.
               </p>
             </div>
           </div>
@@ -298,12 +307,15 @@ export function initAuthPage(initialMode = 'login', initialRole = 'user') {
 
   function initGIS() {
     if (!GOOGLE_CLIENT_ID) {
-      // No client ID — show fallback manual button (not real GIS)
+      // No client ID configured — show informative setup banner above demo access
+      const notice = document.getElementById('google-setup-notice');
+      if (notice) notice.style.display = 'block';
+
       const fbBtn = document.getElementById('btn-page-auth-google');
       if (fbBtn) {
         fbBtn.style.display = 'flex';
         fbBtn.addEventListener('click', () => {
-          showToast('Google sign-in is not configured yet. Set VITE_GOOGLE_CLIENT_ID in your .env file. If DEMO_MODE is enabled, use the demo buttons below.', 'error');
+          showToast('Google OAuth requires VITE_GOOGLE_CLIENT_ID. Please select one of the instant demo portals below.', 'error');
         });
       }
       return;

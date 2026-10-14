@@ -10,9 +10,12 @@ import uuid
 from unittest.mock import patch, MagicMock
 from fastapi.testclient import TestClient
 from backend.api.main import app
+from backend.api.db import init_db
 from backend.api.auth_utils import create_session_token, decode_session_token, resolve_role
 from backend.core.config import settings
 
+# Initialize database tables for test client
+init_db()
 
 client = TestClient(app)
 
@@ -185,7 +188,7 @@ class TestAuthEndpoints:
 
     def test_google_auth_fails_without_client_id(self, monkeypatch):
         monkeypatch.setattr(settings, 'GOOGLE_CLIENT_ID', '')
-        r = client.post('/api/auth/google', json={'credential': 'x.x.x', 'requested_portal': 'user'})
+        r = client.post('/api/auth/google', json={'credential': 'mock_token_at_least_10_chars', 'requested_portal': 'user'})
         assert r.status_code == 401
 
 

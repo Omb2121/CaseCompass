@@ -11,6 +11,7 @@
 import { casesData as defaultCases, demoCase as defaultDemoCase, timelineEvents as defaultTimeline, reviewDocuments as defaultReviewDocs } from './data/demoData.js';
 import { CANONICAL_GLOSSARY, SUNITA_BENCHMARK_ITEMS, SUNITA_BENCHMARK_FLAGS } from './data/canonicalData.js';
 import { runDocumentIntelligenceScan } from './services/docIntelligence.js';
+import { getSession, getCurrentRole as getSessionRole, getCurrentUser as getSessionUser } from './services/authSession.js';
 
 const CASES_STORAGE_KEY = 'casecompass_cases_list';
 const ACTIVE_CASE_KEY = 'casecompass_active_case_id';
@@ -71,7 +72,7 @@ export function getCaseSeriousness(c) {
 
 export const api = {
   getCurrentRole() {
-    return localStorage.getItem('casecompass_role') || 'admin';
+    return getSessionRole() || localStorage.getItem('casecompass_role') || 'user';
   },
 
   setCurrentRole(role) {
@@ -79,7 +80,7 @@ export const api = {
   },
 
   getCurrentUser() {
-    return localStorage.getItem('casecompass_user') || 'Admin User';
+    return getSessionUser() || localStorage.getItem('casecompass_user') || 'User';
   },
 
   /**

@@ -142,7 +142,26 @@ git clone https://github.com/Omb2121/DYP-HACKTHON.git
 cd DYP-HACKTHON
 ```
 
-### 2. Run the Frontend (Vite)
+### 2. Configure Environment Variables
+Copy the example configuration files and supply your credentials:
+
+```bash
+# Root Backend configuration
+cp .env.example .env
+
+# Frontend configuration
+cp frontend/.env.example frontend/.env.local
+```
+
+Key environment variables:
+- `GOOGLE_CLIENT_ID`: Google OAuth 2.0 Web Client ID from Google Cloud Console.
+- `SESSION_SECRET`: Long random secret for HMAC/HS256 session tokens.
+- `ADMIN_EMAILS`: Comma-separated list of Google emails allowed into the Court Administrator role.
+- `JUDGE_EMAILS`: Comma-separated list of Google emails allowed into the Presiding Judge bench.
+- `DEMO_MODE`: Set to `true` to enable fictional demo accounts; default is `false`.
+- `ALLOWED_ORIGINS`: Comma-separated CORS allowed origins (`http://localhost:5173,https://casecompass-seven.vercel.app`).
+
+### 3. Run the Frontend (Vite)
 ```bash
 cd frontend
 npm install
@@ -150,9 +169,9 @@ npm run dev
 ```
 Open your browser at **`http://localhost:5173`**.
 
-### 3. Run the Backend API (FastAPI)
+### 4. Run the Backend API (FastAPI)
 ```bash
-# In the root folder:
+# In the repository root folder:
 python -m venv .venv
 # Windows:
 .venv\Scripts\activate
@@ -163,6 +182,11 @@ pip install -r requirements.txt
 python -m uvicorn backend.api.main:app --reload --port 8000
 ```
 Interactive API docs will be ready at **`http://localhost:8000/docs`**.
+
+### 5. Run Backend Security & Auth Tests
+```bash
+pytest tests/test_auth.py -v
+```
 
 ---
 

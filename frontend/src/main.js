@@ -1,16 +1,15 @@
 /**
  * CaseCompass — Main Entry Point
  * Handles:
- * - Public Landing Page & Marketing Portal (from Stitch design)
- * - Authentication Gate (requires login for workspace routes)
+ * - Public Landing Page & Marketing Portal
+ * - Authentication Gate (requires signed-in session for workspace routes)
  * - Protected Workspace App Shell & 7 Application Tabs:
- *   1. Cases
- *   2. Upload
- *   3. Timeline
- *   4. Review
- *   5. Ask
- *   6. Summary
- *   7. Trust
+ *   1. Cases  2. Upload  3. Timeline  4. Review  5. Ask  6. Summary  7. Trust
+ *
+ * Auth: sessions stored in sessionStorage via authSession.js (JWT from backend).
+ * Backward-compat: if old localStorage flags exist (demo/development), they are
+ * honored until the user signs out, then migrated. This avoids breaking anyone
+ * currently using the demo session after deployment.
  */
 
 import './styles/index.css';
@@ -29,8 +28,38 @@ import { renderSummaryPage, initSummaryPage } from './pages/Summary.js';
 import { renderTrustPage, initTrustPage } from './pages/Trust.js';
 
 import { initStore } from './api.js';
+import { isAuthenticated, getSession, setSession } from './services/authSession.js';
+import { initAnimations, destroyAnimations } from './services/animations.js';
 
 initStore();
+
+// ---- Backward-compatibility: migrate old localStorage demo sessions ----
+// If user had a demo session from before the auth rewrite, preserve it.
+function isMigratedOrAuthenticated() {
+  if (isAuthenticated()) return true;
+
+  // Check old-style localStorage flags (from pre-auth-rewrite era)
+  const oldAuth = localStorage.getItem('casecompass_auth');
+  const oldGoogleAuth = localStorage.getItem('casecompass_google_auth');
+  if (oldAuth === 'true' && oldGoogleAuth === 'true') {
+    // Migrate to sessionStorage session format (no JWT — frontend-only mode)
+    const oldRole = localStorage.getItem('casecompass_role') || 'user';
+    const oldEmail = localStorage.getItem('casecompass_user_email') || 'demo@casecompass.demo';
+    const oldName = localStorage.getItem('casecompass_user') || 'Demo User';
+    setSession({
+      token: null,           // no real JWT (frontend-only mode)
+      user_id: 'legacy',
+      email: oldEmail,
+      name: oldName,
+      role: oldRole,
+      is_demo: true,
+      _legacy: true,         // flag so Shell can warn the user
+    });
+    return true;
+  }
+
+  return false;
+}
 
 const routes = [
   {
@@ -113,62 +142,49 @@ const appRoot = document.getElementById('app');
 function renderApp(route) {
   if (!appRoot) return;
 
-  const isAuth = localStorage.getItem('casecompass_auth') === 'true';
-  const isGoogleAuth = localStorage.getItem('casecompass_google_auth') === 'true';
-
-  // 🔒 STRICT SECURITY GATE: Mandatory Google Authentication Required
-  if (!route.isLanding && !route.isAuthPage && (!isAuth || !isGoogleAuth)) {
+  // Auth gate: use new sessionStorage check with legacy fallback
+  if (!route.isLanding && !route.isAuthPage && !isMigratedOrAuthenticated()) {
     sessionStorage.setItem('show_login_needed_popup', 'true');
     window.location.hash = '#/login?security=mandatory_google';
     return;
   }
 
-  // Clean up any modal overlay attached to body when switching views
+  // Clean up lingering modal overlays
   document.body.style.overflow = '';
   const lingeringModal = document.getElementById('login-modal-overlay');
   if (lingeringModal && lingeringModal.parentElement === document.body && !route.isLanding) {
     lingeringModal.remove();
   }
 
+  // Route animation cleanup
+  destroyAnimations();
+
   if (route.isLanding || route.isAuthPage) {
     document.body.classList.remove('is-workspace');
     document.body.classList.add(route.isLanding ? 'is-landing' : 'is-auth-page');
     appRoot.className = route.isLanding ? 'is-landing' : 'is-auth-page';
-    // Render full-width landing or auth page
     appRoot.innerHTML = route.render();
-    if (typeof route.init === 'function') {
-      route.init();
-    }
+    if (typeof route.init === 'function') route.init();
+    initAnimations(appRoot);
   } else {
     document.body.classList.remove('is-landing', 'is-auth-page');
     document.body.classList.add('is-workspace');
     appRoot.className = 'is-workspace';
-    // Render App Shell with sidebar navigation
     appRoot.innerHTML = renderShell(route.id);
     initShellListeners();
 
-    // Inject active page content into main slot
     const contentSlot = document.getElementById('page-content');
     if (contentSlot) {
       contentSlot.innerHTML = route.render();
-      if (typeof route.init === 'function') {
-        route.init();
-      }
+      if (typeof route.init === 'function') route.init();
+      initAnimations(contentSlot);
     }
   }
 
-  // Update browser document title
   document.title = route.title || 'CaseCompass — From Court Orders to Clarity';
-
-  // Scroll to top on page navigation
   window.scrollTo(0, 0);
 }
 
-// Instantiate router with Landing page as default
 const router = new Router(routes, '/');
-router.onNavigate = (route) => {
-  renderApp(route);
-};
-
-// Initial routing trigger
+router.onNavigate = (route) => renderApp(route);
 router.handleRoute();

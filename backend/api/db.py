@@ -119,6 +119,21 @@ def init_db(db_path: str = DB_PATH) -> None:
         FOREIGN KEY (case_id) REFERENCES cases(id) ON DELETE CASCADE
     );
 
+    CREATE TABLE IF NOT EXISTS users (
+        id TEXT PRIMARY KEY,
+        google_sub TEXT UNIQUE,
+        email TEXT NOT NULL UNIQUE,
+        name TEXT NOT NULL,
+        picture TEXT DEFAULT '',
+        role TEXT NOT NULL DEFAULT 'user',
+        email_verified INTEGER NOT NULL DEFAULT 0,
+        is_demo INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL,
+        last_login_at TEXT
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_users_google_sub ON users(google_sub);
+    CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
     CREATE INDEX IF NOT EXISTS idx_reminders_notice_date ON reminders(notice_date, status);
     CREATE INDEX IF NOT EXISTS idx_documents_case_id ON documents(case_id);
     CREATE INDEX IF NOT EXISTS idx_pages_document_id ON pages(document_id);

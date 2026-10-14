@@ -1,17 +1,19 @@
 /**
  * CaseCompass — Application Shell
  * Header, Sidebar, Main Area
- * Clean full-screen dashboard without distraction badges or bottom disclaimers.
  */
 
 import { navItems } from '../data/demoData.js';
+import { getSession, clearSession, signOut } from '../services/authSession.js';
 
 
 export function renderShell(activeId) {
-  const currentReviewer = localStorage.getItem('casecompass_reviewer_name') || localStorage.getItem('casecompass_user') || 'Legal Advocate';
-  const currentRole = localStorage.getItem('casecompass_role') || 'user';
-  const userEmail = localStorage.getItem('casecompass_user_email') || '';
+  const session = getSession();
+  const currentReviewer = session?.name || localStorage.getItem('casecompass_reviewer_name') || 'Legal Advocate';
+  const currentRole = session?.role || localStorage.getItem('casecompass_role') || 'user';
+  const userEmail = session?.email || localStorage.getItem('casecompass_user_email') || '';
   const userPicture = localStorage.getItem('casecompass_user_picture') || '';
+
 
   const roleIcon = currentRole === 'judge' ? 'gavel' : (currentRole === 'admin' ? 'admin_panel_settings' : 'person');
   const roleName = currentRole === 'judge' ? 'Judge' : (currentRole === 'admin' ? 'Court Admin' : 'Citizen');
@@ -181,19 +183,14 @@ export function initShellListeners() {
     localStorage.setItem('casecompass_a11y_lg', isLg ? 'true' : 'false');
   });
 
-  // Sign out button
-  document.getElementById('btn-shell-logout')?.addEventListener('click', (e) => {
+  // Sign out button — calls backend logout endpoint then clears session
+  document.getElementById('btn-shell-logout')?.addEventListener('click', async (e) => {
     e.preventDefault();
-    localStorage.removeItem('casecompass_auth');
-    localStorage.removeItem('casecompass_google_auth');
-    localStorage.removeItem('casecompass_user');
-    localStorage.removeItem('casecompass_user_email');
-    localStorage.removeItem('casecompass_user_picture');
-    localStorage.removeItem('casecompass_user_sub');
-    localStorage.removeItem('casecompass_role');
-    if (window.google?.accounts?.id) {
-      window.google.accounts.id.disableAutoSelect();
-    }
+    await signOut().catch(() => {});
+    // Also clear legacy localStorage flags
+    ['casecompass_auth', 'casecompass_google_auth', 'casecompass_user',
+      'casecompass_user_email', 'casecompass_user_picture', 'casecompass_user_sub',
+      'casecompass_role'].forEach(k => localStorage.removeItem(k));
     window.location.hash = '#/login';
     window.location.reload();
   });

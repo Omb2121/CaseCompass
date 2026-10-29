@@ -209,7 +209,7 @@ We tested CaseCompass rigorously against a golden benchmark of Indian court orde
 Crafted with empathy and precision for **VORTEXA 3.0**  
 **Problem Statement P-02:** *Case tracker for poor litigants and legal-aid volunteers.*
 
-- **Om Bhagat & Team** — *Full-Stack Architecture, AI & Legal Domain Engineering*
+- **Om Bhosale & Team** — *Full-Stack Architecture, AI & Legal Domain Engineering*
 - **GitHub:** [@Omb2121](https://github.com/Omb2121)
 - **Live Deployment:** [casecompass-seven.vercel.app](https://casecompass-seven.vercel.app)
 
